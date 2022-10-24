@@ -1,8 +1,8 @@
 #------------------------------------------------------------------------
-# ImageProcessingSquare: CMakeLists.txt
+# ipcat: CMakeLists.txt
 #------------------------------------------------------------------------
 cmake_minimum_required(VERSION 3.10)
-set(PROJECT_NAME ImageProcessingSquare)
+set(PROJECT_NAME ipcat)
 
 project(${PROJECT_NAME})
 
@@ -11,12 +11,12 @@ message("SWDIR = $ENV{SWDIR}")
 set(CMAKE_INSTALL_PREFIX ${DESTINATION})
 
 set(ScriptFiles
-  scripts/ipsquareApp.py)
+  scripts/ipapp.py)
 
 #------------------------------------------------------------------------
 # Installation
 #------------------------------------------------------------------------
-install(DIRECTORY ipsquare
+install(DIRECTORY ipcat
   DESTINATION python
   FILES_MATCHING PATTERN "*.py")
 

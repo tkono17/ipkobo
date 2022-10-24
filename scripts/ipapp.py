@@ -3,7 +3,7 @@
 # ImageProcessingCircle: ipsquareApp.py
 #------------------------------------------------------------------------
 import argparse
-import ipsquare as ips
+import ipcat
 
 def parseArgs():
     parser = argparse.ArgumentParser()
@@ -13,9 +13,7 @@ def parseArgs():
     return parser.parse_args()
 
 def run(args):
-    print(ips)
-    print(help(ips))
-    app = ips.MainWindow()
+    app = ipcat.MainWindow()
     app.startGui()
     
 if __name__ == '__main__':

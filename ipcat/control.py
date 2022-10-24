@@ -1,13 +1,11 @@
 #------------------------------------------------------------------------
-# ImageProcessingSquare: model.py
+# ipcat: control.py
 #------------------------------------------------------------------------
 
-from .vmodel import ViewModel
+from .model import AppData
 
-class AppData:
+class Controller:
     def __init__(self):
-        self.image0 = None
-        self.images = []
-        self.viewModel = ViewModel()
+        self.appData = AppData()
         pass
 

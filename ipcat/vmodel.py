@@ -1,11 +1,8 @@
 #------------------------------------------------------------------------
-# control.py
+# ipcat: vmodel.py
 #------------------------------------------------------------------------
 
-from .model import AppData
-
-class Controller:
+class ViewModel:
     def __init__(self):
-        self.appData = AppData()
         pass
 

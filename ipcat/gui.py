@@ -1,5 +1,5 @@
 #------------------------------------------------------------------------
-# ImageProcessingSquare: gui.py
+# ipcat: gui.py
 #------------------------------------------------------------------------
 import tkinter as tk
 from tkinter import ttk
