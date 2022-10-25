@@ -13,10 +13,10 @@ def parseArgs():
     return parser.parse_args()
 
 def run(args):
-    window = ipcat.MainWindow()
-    vm = ipcat.ViewModel(window)
-    vm.initialize()
-    window.mainloop()
+    root = ipcat.initTk()
+    app = ipcat.MainWindow(root)
+    vm = ipcat.ViewModel(app)
+    app.mainloop()
     
 if __name__ == '__main__':
     args = parseArgs()

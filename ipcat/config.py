@@ -1,16 +1,9 @@
 #------------------------------------------------------------------------
-# ipcat: control.py
+# ipcat: config.py
 #------------------------------------------------------------------------
 
-from .model import AppData
-
-class Controller:
+class Config:
     def __init__(self):
-        self.appData = AppData()
         pass
 
-    def openFileDir(self):
-        return self.appData.openFileDir
-    
-
-    
+    pass

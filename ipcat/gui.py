@@ -4,27 +4,100 @@
 import tkinter as tk
 from tkinter import ttk
 
+from .handlers import Handlers
+
+def initTk():
+    root = tk.Tk()
+    root.title('Image Processing Square')
+    root.geometry('1000x600')
+    root.minsize(width=500, height=400)
+    return root
+
 #------------------------------------------------------------------------
 # MainWindow
 #------------------------------------------------------------------------
 class MainWindow(ttk.Frame):
-    def __init__(self):
-        self.root = tk.Tk()
-        self.root.title('Image Processing Square')
-        self.root.geometry('1000x600')
-        self.root.minsize(width=500, height=400)
-        #
-        super().__init__(self.root, width=1000, height=600, style='main.TFrame')
+    def __init__(self, root):
+        super().__init__(root, width=1000, height=600, style='main.TFrame')
         self.pack(expand=True, fill=tk.BOTH)
+        self.setStyle()
         self.setup()
         
     def setup(self):
-        #
+        frame = ttk.Frame(self, width=1000, height=800, 
+                          style='Red.TFrame')
+        frame.pack(anchor=tk.NW, expand=True, fill=tk.BOTH)
+        lr = ttk.Panedwindow(frame, orient=tk.HORIZONTAL)
+        lr.pack(side=tk.LEFT, expand=True, fill=tk.BOTH)
+        x1 = self.buildLeftPanel(lr)
+        x2 = self.buildDisplayPanel(lr)
+        lr.add(x1)
+        lr.add(x2)
         #
         self.initialized = True
         pass
 
+    def setStyle(self):
+        style = ttk.Style()
+        style.theme_use('clam')
+        style.configure('Main.TFrame', background='yellow')
+        style.configure('Blue.TFrame', foreground='yellow', background='blue')
+        style.configure('Red.TFrame', background='red')
+        
+    def buildLeftPanel(self, parent):
+        frame = ttk.Panedwindow(parent, orient=tk.VERTICAL)
+        frame.pack(expand=True, fill=tk.BOTH)
+        x1 = self.buildUserPanel(frame)
+        x2 = self.buildMessagePanel(frame)
+        frame.add(x1)
+        frame.add(x2)
+        self.messagePanel = x2
+        return frame
+        
+    def buildUserPanel(self, parent):
+        frame = ttk.Panedwindow(parent, orient=tk.HORIZONTAL, height=400)
+        frame.pack(expand=True, fill=tk.BOTH)
+        frame.pack()
+        x1 = self.buildUserInputPanel(frame)
+        x2 = self.buildUserControlPanel(frame)
+        frame.add(x1)
+        frame.add(x2)
+        self.userInputPanel = x1
+        self.userControlPanel = x2
+        return frame
+        
+    def buildUserInputPanel(self, parent):
+        x = UserInputPanel(parent)
+        x.pack(side=tk.LEFT, expand=True, fill=tk.BOTH)
+        return x
+    
+    def buildUserControlPanel(self, parent):
+        x = UserControlPanel(parent)
+        x.pack(expand=True, fill=tk.BOTH)
+        return x
+
+    def buildMessagePanel(self, parent):
+        x = tk.Text(parent, width=40, height=10)
+        x.pack(expand=True, fill=tk.BOTH)
+        return x
+
+    def buildDisplayPanel(self, parent):
+        x = DisplayPanel(parent)
+        x.pack(fill=tk.BOTH, expand=True)
+        self.displayPanel = x
+        return x
+
+    def addAnalysisPanel(self, name):
+        self.userControlPanel.addAnalysisPanel(name)
+        pass
+    
+    def addDisplayPanel(self, name):
+        self.displayPanel.addDisplayPanel(name)
+        pass
+    
     def clear(self):
+        self.userControlPanel.clear()
+        self.displayPanel.clear()
         pass
 
 #------------------------------------------------------------------------
@@ -62,6 +135,7 @@ class UserInputPanel(ttk.Frame):
         
     def build(self):
         openFile = ttk.Button(self, text='Open file')
+        openFile['command'] = Handlers.openImage
         treeView = ttk.Treeview(self)
         openFile.pack(anchor=tk.NW)
         treeView.pack(anchor=tk.NW, fill=tk.BOTH, expand=True)
@@ -79,9 +153,16 @@ class UserControlPanel(ttk.Frame):
     def build(self):
         notebook = ttk.Notebook(self, width=400)
         notebook.pack(expand=True, fill=tk.BOTH)
-        frame1 = ttk.Frame(notebook)
+        self.tabs = notebook
+        self.addAnalysisPanel('Original image')
+        pass
+
+    def addAnalysisPanel(self, name):
+        frame1 = ttk.Frame(self.tabs)
         frame1.pack(expand=True, fill=tk.BOTH)
-        notebook.add(frame1, text='Image analysis')
+        self.tabs.add(frame1, text=name)
+
+    def clear(self):
         pass
     pass
 
@@ -104,8 +185,12 @@ class DisplayPanel(ttk.Frame):
         super().__init__(parent)
         notebook = ttk.Notebook(self)
         notebook.pack(expand=True, fill=tk.BOTH)
-        frame = ttk.Frame(notebook, style='Blue.TFrame', width=200)
+        self.tabs = notebook
+        self.addDisplayPanel('Gallery')
+        
+    def addDisplayPanel(self, name):
+        frame = ttk.Frame(self.tabs, style='Blue.TFrame', width=200)
         frame.pack(expand=True, fill=tk.BOTH)
-        notebook.add(frame, text='Default display')
-
+        self.tabs.add(frame, text=name)
+        
 
