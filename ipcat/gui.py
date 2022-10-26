@@ -20,6 +20,8 @@ class MainWindow(ttk.Frame):
     def __init__(self, root):
         super().__init__(root, width=1000, height=600, style='main.TFrame')
         self.pack(expand=True, fill=tk.BOTH)
+        self.handlers = Handlers()
+        #
         self.setStyle()
         self.setup()
         
@@ -34,8 +36,15 @@ class MainWindow(ttk.Frame):
         lr.add(x1)
         lr.add(x2)
         #
+        self.setupHandlers()
+        #
         self.initialized = True
         pass
+
+    def setupHandlers(self):
+        self.userInputPanel.openFile['command'] = self.handlers.openImage
+        self.userInputPanel.imageTree.bind('<Double-1>', self.handlers.selectImage)
+        self.userControlPanel.singleDisplaySet['command'] = self.handlers.singleDisplaySet
 
     def setStyle(self):
         style = ttk.Style()
@@ -43,7 +52,8 @@ class MainWindow(ttk.Frame):
         style.configure('Main.TFrame', background='yellow')
         style.configure('Blue.TFrame', foreground='yellow', background='blue')
         style.configure('Red.TFrame', background='red')
-        
+
+    # Functions to build subcomponents
     def buildLeftPanel(self, parent):
         frame = ttk.Panedwindow(parent, orient=tk.VERTICAL)
         frame.pack(expand=True, fill=tk.BOTH)
@@ -94,7 +104,7 @@ class MainWindow(ttk.Frame):
     def addDisplayPanel(self, name):
         self.displayPanel.addDisplayPanel(name)
         pass
-    
+
     def clear(self):
         self.userControlPanel.clear()
         self.displayPanel.clear()
@@ -130,15 +140,21 @@ class EntryButtonPanel(ttk.Frame):
 #------------------------------------------------------------------------
 class UserInputPanel(ttk.Frame):
     def __init__(self, parent):
-        super().__init__(parent)
+        super().__init__(parent, width=400)
         self.build()
         
     def build(self):
+        columns = ('Name', 'Path')
         openFile = ttk.Button(self, text='Open file')
-        openFile['command'] = Handlers.openImage
-        treeView = ttk.Treeview(self)
+        treeView = ttk.Treeview(self, columns=columns)
+        treeView.column('#0', anchor='w', width=0, stretch='no')
+        treeView.column('Name', anchor='w', width=20)
+        treeView.column('Path', anchor='w', width=60)
+        #
         openFile.pack(anchor=tk.NW)
         treeView.pack(anchor=tk.NW, fill=tk.BOTH, expand=True)
+        self.openFile = openFile
+        self.imageTree = treeView
         pass
     pass
 
@@ -158,10 +174,16 @@ class UserControlPanel(ttk.Frame):
         pass
 
     def addAnalysisPanel(self, name):
-        frame1 = ttk.Frame(self.tabs)
-        frame1.pack(expand=True, fill=tk.BOTH)
-        self.tabs.add(frame1, text=name)
-
+        if name == 'Original image':
+            frame1 = ttk.Frame(self.tabs)
+            button = ttk.Button(frame1, text='Set')
+            self.singleDisplaySet = button
+            button.pack(anchor=tk.NW)
+            frame1.pack(expand=True, fill=tk.BOTH)
+            self.tabs.add(frame1, text=name)
+            self.singleDisplay = frame1
+        else:
+            pass
     def clear(self):
         pass
     pass
@@ -189,7 +211,7 @@ class DisplayPanel(ttk.Frame):
         self.addDisplayPanel('Gallery')
         
     def addDisplayPanel(self, name):
-        frame = ttk.Frame(self.tabs, style='Blue.TFrame', width=200)
+        frame = ttk.Frame(self.tabs, style='Blue.TFrame', width=600)
         frame.pack(expand=True, fill=tk.BOTH)
         self.tabs.add(frame, text=name)
         

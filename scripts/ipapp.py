@@ -15,7 +15,12 @@ def parseArgs():
 def run(args):
     root = ipcat.initTk()
     app = ipcat.MainWindow(root)
-    vm = ipcat.ViewModel(app)
+    #
+    controller = ipcat.Controller()
+    vcontroller = ipcat.ViewController(app)
+    controller.setViewController(vcontroller)
+    app.handlers.init(app, controller)
+    #
     app.mainloop()
     
 if __name__ == '__main__':

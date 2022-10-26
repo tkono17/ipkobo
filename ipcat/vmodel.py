@@ -9,5 +9,8 @@ from .gui import *
 class ViewModel:
     def __init__(self, mainWindow):
         self.app = mainWindow
-        pass
+        #
+        self.imageList = []
+        
+    pass
     
