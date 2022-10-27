@@ -2,6 +2,7 @@
 # ipcat: control.py
 #------------------------------------------------------------------------
 import os
+from PIL import Image, ImageTk
 
 from .model    import AppData, ImageNP
 from .vcontrol import ViewController
@@ -27,6 +28,13 @@ class Controller:
             img = ImageNP(name, fn)
             self.appData.addImage(img)
             self.vc.addImageToTree(img)
-    
+
+    def readImage(self, fn):
+        if os.path.exists(fn):
+            img1 = Image.open(fn)
+            img1 = img1.resize( (600, 400) )
+            img2 = ImageTk.PhotoImage(img1)
+            return img2
+        return 0
 
     

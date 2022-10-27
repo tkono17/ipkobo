@@ -3,6 +3,7 @@
 #------------------------------------------------------------------------
 import tkinter as tk
 from tkinter import ttk
+from PIL import Image, ImageTk
 
 from .handlers import Handlers
 
@@ -52,6 +53,7 @@ class MainWindow(ttk.Frame):
         style.configure('Main.TFrame', background='yellow')
         style.configure('Blue.TFrame', foreground='yellow', background='blue')
         style.configure('Red.TFrame', background='red')
+        style.configure('Green.TFrame', background='green')
 
     # Functions to build subcomponents
     def buildLeftPanel(self, parent):
@@ -152,12 +154,25 @@ class UserInputPanel(ttk.Frame):
         treeView.column('Path', anchor='w', width=60)
         #
         openFile.pack(anchor=tk.NW)
-        treeView.pack(anchor=tk.NW, fill=tk.BOTH, expand=True)
+        treeView.pack(anchor=tk.W, fill=tk.BOTH, expand=True)
         self.openFile = openFile
         self.imageTree = treeView
         pass
     pass
 
+#------------------------------------------------------------------------
+# Control panels
+#------------------------------------------------------------------------
+class SingleDisplayPanel(ttk.Frame):
+    def __init__(self, parent):
+        super().__init__(parent, style='Red.TFrame')
+        button = ttk.Button(self, text='Set')
+        button.pack(anchor=tk.NW)
+        self.setButton = button
+        c = tk.Canvas(self, bg='cyan')
+        c.pack(side=tk.BOTTOM, fill=tk.BOTH, expand=True)
+        self.canvas = c
+        
 #------------------------------------------------------------------------
 # UserControlPanel
 #------------------------------------------------------------------------
@@ -170,18 +185,16 @@ class UserControlPanel(ttk.Frame):
         notebook = ttk.Notebook(self, width=400)
         notebook.pack(expand=True, fill=tk.BOTH)
         self.tabs = notebook
-        self.addAnalysisPanel('Original image')
+        self.addAnalysisPanel('Single display')
         pass
 
     def addAnalysisPanel(self, name):
-        if name == 'Original image':
-            frame1 = ttk.Frame(self.tabs)
-            button = ttk.Button(frame1, text='Set')
-            self.singleDisplaySet = button
-            button.pack(anchor=tk.NW)
-            frame1.pack(expand=True, fill=tk.BOTH)
-            self.tabs.add(frame1, text=name)
-            self.singleDisplay = frame1
+        if name == 'Single display':
+            x = SingleDisplayPanel(self.tabs)
+            x.pack(expand=True, fill=tk.BOTH)
+            self.tabs.add(x, text=name)
+            self.singleDisplay = x
+            self.singleDisplaySet = x.setButton
         else:
             pass
     def clear(self):
@@ -215,4 +228,3 @@ class DisplayPanel(ttk.Frame):
         frame.pack(expand=True, fill=tk.BOTH)
         self.tabs.add(frame, text=name)
         
-

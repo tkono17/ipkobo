@@ -1,6 +1,8 @@
 #------------------------------------------------------------------------
 # ipcat: handlers.py
 #------------------------------------------------------------------------
+import tkinter as tk
+
 from .control  import *
 
 class Handlers:
@@ -20,8 +22,20 @@ class Handlers:
         tree = self.app.userInputPanel.imageTree
         v = tree.selection()
         print('Images selected %d' % len(v))
+        self.image = None
         if len(v) == 1:
-            print(tree.item(v[0]))
+            entry = tree.item(v[0])
+            values = entry['values']
+            iname = values[0]
+            path = values[1]
+            vc = self.controller.vc
+            img = self.controller.readImage(path)
+            print('Open file path: %s' % path)
+            print('w,h = {},{}'.format(img.width(), img.height()) )
+            canvas = self.app.userControlPanel.singleDisplay.canvas
+            canvas.create_image(0, 0, image=img, anchor=tk.NW)
+            self.image = img
+            canvas.update()
             
     def selectImage(self, e):
         print('selectImage from Treeview called')
