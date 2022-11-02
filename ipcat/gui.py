@@ -5,7 +5,9 @@ import tkinter as tk
 from tkinter import ttk
 from PIL import Image, ImageTk
 
-from .handlers import Handlers
+from .handlers import Handlers, openImage
+from .guiComponents import *
+from .analysis import *
 
 def initTk():
     root = tk.Tk()
@@ -43,9 +45,9 @@ class MainWindow(ttk.Frame):
         pass
 
     def setupHandlers(self):
-        self.userInputPanel.openFile['command'] = self.handlers.openImage
+        #self.userInputPanel.openFile['command'] = self.handlers.openImage
         self.userInputPanel.imageTree.bind('<Double-1>', self.handlers.selectImage)
-        self.userControlPanel.singleDisplaySet['command'] = self.handlers.singleDisplaySet
+        #self.userControlPanel.singleDisplaySet['command'] = self.handlers.singleDisplaySet
 
     def setStyle(self):
         style = ttk.Style()
@@ -54,6 +56,7 @@ class MainWindow(ttk.Frame):
         style.configure('Blue.TFrame', foreground='yellow', background='blue')
         style.configure('Red.TFrame', background='red')
         style.configure('Green.TFrame', background='green')
+        style.configure('P1.TFrame', background='#abcdef' )
 
     # Functions to build subcomponents
     def buildLeftPanel(self, parent):
@@ -113,31 +116,6 @@ class MainWindow(ttk.Frame):
         pass
 
 #------------------------------------------------------------------------
-# FieldEntryPanel
-#------------------------------------------------------------------------
-class FieldEntryPanel(ttk.Frame):
-    def __init__(self, fieldName):
-        self.fieldName = fieldName
-
-    pass
-#------------------------------------------------------------------------
-# EntryButtonPanel
-#------------------------------------------------------------------------
-class EntryButtonPanel(ttk.Frame):
-    def __init__(self, parent, buttonText):
-        super().__init__(parent)
-        self.buttonText = buttonText
-        self.build()
-        
-    def build(self, parent):
-        entry = ttk.Entry(self)
-        button = ttk.Button(self, self.buttonText)
-        entry.pack()
-        button.pack()
-        pass
-    pass
-
-#------------------------------------------------------------------------
 # UserInputPanel
 #------------------------------------------------------------------------
 class UserInputPanel(ttk.Frame):
@@ -155,6 +133,8 @@ class UserInputPanel(ttk.Frame):
         #
         openFile.pack(anchor=tk.NW)
         treeView.pack(anchor=tk.W, fill=tk.BOTH, expand=True)
+        #
+        openFile['command'] = openImage
         self.openFile = openFile
         self.imageTree = treeView
         pass
@@ -185,16 +165,20 @@ class UserControlPanel(ttk.Frame):
         notebook = ttk.Notebook(self, width=400)
         notebook.pack(expand=True, fill=tk.BOTH)
         self.tabs = notebook
-        self.addAnalysisPanel('Single display')
+        self.addAnalysisPanel('SingleImageAnalysis')
+        self.addAnalysisPanel('ColorAnalysis')
+        self.addAnalysisPanel('CannyEdgeAnalysis')
         pass
 
     def addAnalysisPanel(self, name):
-        if name == 'Single display':
-            x = SingleDisplayPanel(self.tabs)
+        if name in analysisClassMap.keys():
+            cls1 = analysisClassMap[name]
+            analysis = cls1(name)
+            x = ImageControlPanel(self.tabs, analysis)
             x.pack(expand=True, fill=tk.BOTH)
             self.tabs.add(x, text=name)
             self.singleDisplay = x
-            self.singleDisplaySet = x.setButton
+            #self.singleDisplaySet = x.setButton
         else:
             pass
     def clear(self):

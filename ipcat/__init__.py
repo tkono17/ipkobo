@@ -5,3 +5,4 @@ from .gui      import MainWindow, initTk
 from .model    import AppData
 from .control  import Controller
 from .vcontrol import ViewController
+from .common   import cdata

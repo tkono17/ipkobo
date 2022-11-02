@@ -1,9 +1,13 @@
 #!/usr/bin/env python3
 #------------------------------------------------------------------------
-# ImageProcessingCircle: ipsquareApp.py
+# Image Processing Application: ipapp.py
 #------------------------------------------------------------------------
 import argparse
+import logging
+
 import ipcat
+
+log = logging.getLogger(__name__)
 
 def parseArgs():
     parser = argparse.ArgumentParser()
@@ -18,12 +22,16 @@ def run(args):
     #
     controller = ipcat.Controller()
     vcontroller = ipcat.ViewController(app)
-    controller.setViewController(vcontroller)
+    ipcat.cdata.set(app, controller, vcontroller)
+    print('ipcat.gApp = ', ipcat.cdata.app())
+    vcontroller.update()
+    #
     app.handlers.init(app, controller)
     #
     app.mainloop()
     
 if __name__ == '__main__':
     args = parseArgs()
+    logging.basicConfig(level=logging.DEBUG)
     run(args)
     

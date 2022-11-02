@@ -6,28 +6,30 @@ from PIL import Image, ImageTk
 
 from .model    import AppData, ImageNP
 from .vcontrol import ViewController
+from .common   import cdata
 
 class Controller:
     def __init__(self):
         self.appData = AppData()
-        self.vc = None
+        self.analysisList = []
+        self.currentAnalysis = None
         pass
 
-    def setViewController(self, vc):
-        self.vc = vc
-
+    def imageList(self):
+        return self.appData.imageList
+    
     #--------------------------------------------
     # Application actions
     #--------------------------------------------
     def openImage(self):
         dn = self.appData.openFileDir
-        fn = self.vc.openFile(dn, [('Image file', '*.jpg'), ('all', '*')])
-        print(fn)
+        fn = cdata.vcontroller.openFile(dn, [('Image file', '*.jpg'), ('all', '*')])
+        img = None
         if fn != '' and os.path.exists(fn):
-            name = 'input%d' % len(self.appData.imageList)
+            name = 'input%d' % len(self.appData.inputImageList)
             img = ImageNP(name, fn)
-            self.appData.addImage(img)
-            self.vc.addImageToTree(img)
+            self.appData.addInputImage(img)
+        return img
 
     def readImage(self, fn):
         if os.path.exists(fn):
@@ -38,3 +40,9 @@ class Controller:
         return 0
 
     
+    def setInputImage(self, imageData):
+        if self.currentAnalysis:
+            self.currentAnalysis.setInputImage(imageData)
+            cdata.vcontroller.setInputImage()
+
+    pass

@@ -19,6 +19,7 @@ class ImageNP:
 class AppData:
     def __init__(self):
         self.openFileDir = '.'
+        self.inputImageList = []
         self.imageList = []
         self.originalImage = None
         #
@@ -28,6 +29,13 @@ class AppData:
     def addImage(self, img):
         self.imageList.append(img)
 
+    def addInputImage(self, img):
+        self.inputImageList.append(img)
+        self.addImage(img)
+
+    def changeImageName(self, name1, name2):
+        pass
+    
     def deleteImage(self, name):
         pass
     
