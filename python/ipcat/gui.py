@@ -6,6 +6,7 @@ from tkinter import ttk
 from PIL import Image, ImageTk
 
 from .handlers import Handlers
+from .vmodel import ViewModel
 
 def initTk():
     root = tk.Tk()
@@ -22,9 +23,61 @@ class MainWindow(ttk.Frame):
         super().__init__(root, width=1000, height=600, style='main.TFrame')
         self.pack(expand=True, fill=tk.BOTH)
         self.handlers = Handlers()
+        self.vmodel = ViewModel()
         #
         self.setStyle()
-        self.setup()
+        #
+        self.overviewPanel = None
+        self.inputPanel = None
+        self.listPanel = None
+        #
+        self.workPanel = None
+        self.imagePanel = None
+        self.analysisPanel = None
+        #
+        self.resultsPanel = None
+        self.messagePanel = None
+        #self.setup()
+        self.buildFrames()
+
+    def buildFrames(self):
+        # TOP
+        lr = ttk.Panedwindow(self, orient=tk.HORIZONTAL)
+        lr.pack(side=tk.LEFT, expand=True, fill=tk.BOTH)
+        # L
+        lframe = ttk.Panedwindow(lr, orient=tk.VERTICAL)
+        lframe.pack(side=tk.LEFT, expand=True, fill=tk.BOTH)
+        # L.T
+        tframe = ttk.Panedwindow(lframe, orient=tk.HORIZONTAL)
+        tframe.pack(side=tk.TOP, expand=True, fill=tk.BOTH)
+        # L.T.L
+        self.overviewPanel = ttk.Notebook(tframe, width=300, height=300,
+                                          style='Green.TFrame')
+        self.overviewPanel.pack(expand=True, fill=tk.BOTH)
+        self.inputPanel = ttk.Frame(self.overviewPanel, width=200, height=200)
+        self.listPanel = ttk.Frame(self.overviewPanel, width=200, height=200)
+        self.overviewPanel.add(self.inputPanel, text='Image input')
+        self.overviewPanel.add(self.listPanel, text='All images')
+        # L.T.R
+        self.workPanel = ttk.Notebook(tframe, width=300, height=300,
+                                      style='Blue.TFrame')
+        self.workPanel.pack(expand=True, fill=tk.BOTH)
+        self.imagePanel = ttk.Frame(self.workPanel, width=200, height=200)
+        self.analysisPanel = ttk.Frame(self.workPanel, width=200, height=200)
+        self.workPanel.add(self.imagePanel, text='Image under analysis')
+        self.workPanel.add(self.analysisPanel, text='Analysis')
+        tframe.add(self.overviewPanel)
+        tframe.add(self.workPanel)
+        # L.B
+        self.messagePanel = ttk.Frame(lframe, width=200, height=60, style='Red.TFrame')
+        self.messagePanel.pack(side=tk.TOP, expand=True, fill=tk.BOTH)
+        lframe.add(tframe)
+        lframe.add(self.messagePanel)
+        # R
+        self.resultsPanel = ttk.Frame(lr, width=300, height=600)
+        self.resultsPanel.pack(side=tk.LEFT, expand=True, fill=tk.BOTH)
+        lr.add(lframe)
+        lr.add(self.resultsPanel)
         
     def setup(self):
         frame = ttk.Frame(self, width=1000, height=800, 

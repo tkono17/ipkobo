@@ -12,7 +12,7 @@ from .vmodel import ViewModel
 class ViewController:
     def __init__(self, mainWindow):
         self.app = mainWindow
-        self.vmodel = ViewModel(mainWindow)
+        self.vmodel = ViewModel()
         self.treeInitialized = False
         pass
 
