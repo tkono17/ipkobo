@@ -1,25 +1,28 @@
 #------------------------------------------------------------------------
 # ipcat: model.py
 #------------------------------------------------------------------------
-
-from .vmodel import ViewModel
+import numpy as np
 
 class ImageNP:
     def __init__(self, name, path=''):
         self.name = name
         self.path = path
-        self.image = ''
+        self.offset = np.array([0.0, 0.0])
+        self.width = 0.0
+        self.height = 0.0
+        self.image = None
 
     def open(self):
         pass
 
-    def save(self):
+    def save(self, fpath):
         pass
 
 class AppData:
     def __init__(self):
         self.openFileDir = '.'
         self.imageList = []
+        self.analysisList = []
         self.originalImage = None
         #
         #self.viewModel = ViewModel(app)

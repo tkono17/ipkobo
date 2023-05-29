@@ -16,7 +16,7 @@ set(ScriptFiles
 #------------------------------------------------------------------------
 # Installation
 #------------------------------------------------------------------------
-install(DIRECTORY ipcat
+install(DIRECTORY python/ipcat
   DESTINATION python
   FILES_MATCHING PATTERN "*.py")
 

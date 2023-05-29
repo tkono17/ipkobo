@@ -176,9 +176,14 @@ class SingleDisplayPanel(ttk.Frame):
 #------------------------------------------------------------------------
 # UserControlPanel
 #------------------------------------------------------------------------
+import tkinter as tk
+from tkinter import ttk
+from .vmodel import ViewModel
+
 class UserControlPanel(ttk.Frame):
     def __init__(self, parent):
         super().__init__(parent)
+        self.vmodel = ViewModel()
         self.build()
         
     def build(self):
