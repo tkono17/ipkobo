@@ -24,7 +24,7 @@ def run(args):
     vcontroller = ipcat.ViewController(app)
     ipcat.cdata.set(app, controller, vcontroller)
     print('ipcat.gApp = ', ipcat.cdata.app())
-    vcontroller.update()
+    #vcontroller.update()
     #
     app.handlers.init(app, controller)
     #

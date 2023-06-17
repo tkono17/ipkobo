@@ -16,7 +16,7 @@ log = logging.getLogger(__name__)
 class ViewController:
     def __init__(self, mainWindow):
         self.app = mainWindow
-        self.vmodel = ViewModel(mainWindow)
+        self.vmodel = ViewModel()
         self.treeInitialized = False
         pass
 
@@ -27,7 +27,7 @@ class ViewController:
 
     def addImage(self, img):
         self.addImageToTree(img)
-        self.update()
+        #self.update()
 
     def addImageToTree(self, img):
         self.vmodel.imageList.append(img)

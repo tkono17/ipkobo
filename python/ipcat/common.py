@@ -22,5 +22,4 @@ class CommonData:
     def vc(self):
         return self.vcontroller
     
-    
 cdata = CommonData()

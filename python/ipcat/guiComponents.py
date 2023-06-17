@@ -7,6 +7,19 @@ from tkinter import ttk
 from .common import cdata
 
 #------------------------------------------------------------------------
+# AnalysisPanel
+#------------------------------------------------------------------------
+class AnalysisPanel(ttk.Frame):
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.title = ttk.Label(self, text='Analysis')
+        self.title.pack(fill=tk.X, expand=True)
+        self.selection = ttk.Combobox(self)
+        self.selection.pack(fill=tk.X, expand=True)
+        self.properties = ttk.LabelFrame(self, text='Properties')
+        self.properties.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+        
+#------------------------------------------------------------------------
 # FieldEntryPanel
 #------------------------------------------------------------------------
 class FieldEntryPanel(ttk.Frame):

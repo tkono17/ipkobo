@@ -10,13 +10,12 @@ set(DESTINATION $ENV{SWDIR})
 message("SWDIR = $ENV{SWDIR}")
 set(CMAKE_INSTALL_PREFIX ${DESTINATION})
 
-set(ScriptFiles
-  scripts/ipapp.py)
+set(ScriptFiles python/ipapp.py)
 
 #------------------------------------------------------------------------
 # Installation
 #------------------------------------------------------------------------
-install(DIRECTORY ipcat
+install(DIRECTORY python/ipcat
   DESTINATION python
   FILES_MATCHING PATTERN "*.py")
 
