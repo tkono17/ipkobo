@@ -2,12 +2,16 @@
 # ipcat: gui.py
 # -------------
 # - menuBar: ttk.Menubar
-# - mainPanel: ttk.Panedwindow
+# - columns: ttk.Panedwindow
 #   - listPanel: ttk.Frame
-#     - imageTree: ttk.Treeview
+#     - imageList: ttk.Treeview
 #   - workPanel: ttk.Panedwindow
 #     - imagePanel: ttk.Frame
 #     - analysisPanel: AnalysisPanel
+#       - title: ttk.Label
+#       - selection: ttk.Combobox
+#       - properties: ttk.Treeview
+#         - table: ttk.Treeview
 #   - outputPanel: ttk.Panedwindow
 #     - galleryPanel: ttk.Frame
 #     - messagePanel: ttk.Text
@@ -47,7 +51,7 @@ class MainWindow(ttk.Frame):
         #
         self.menuBar = None
         # Left
-        self.imageTree = None
+        self.imageList = None
         # Middle
         self.imagePanel = None
         self.analysisPanel = None
@@ -64,6 +68,7 @@ class MainWindow(ttk.Frame):
         style.configure('main.TFrame', background='blue')
         style.configure('panel.TFrame', background=(32, 32, 190))
         style.configure('TButton', background=(32, 32, 190))
+        #style.configure('TLabelframe', background='blue')
         pass
     
     def buildGui(self):
@@ -78,7 +83,7 @@ class MainWindow(ttk.Frame):
         workPanel.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
         outputPanel.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
         columns.add(listPanel, weight=1)
-        columns.add(workPanel, weight=3)
+        columns.add(workPanel, weight=2)
         columns.add(outputPanel, weight=2)
         #
         self.buildListPanel(listPanel)
@@ -95,14 +100,20 @@ class MainWindow(ttk.Frame):
     def buildListPanel(self, parent):
         tree = ttk.Treeview(parent)
         tree.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+        self.imageList = tree
         
     def buildWorkPanel(self, parent):
-        imagePanel = ttk.Frame(parent)
-        imagePanel.pack(side=tk.TOP, fill=tk.X, expand=True)
+        imagePanel = ttk.LabelFrame(parent, text='Image to analyze')
+        imagePanel.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+        canvas = tk.Canvas(imagePanel)
+        canvas.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+        
         analysisPanel = AnalysisPanel(parent)
         analysisPanel.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
-        parent.add(imagePanel, weight=3)
+        parent.add(imagePanel, weight=2)
         parent.add(analysisPanel, weight=2)
+        self.imagePanel = imagePanel
+        self.analysisPanel = analysisPanel
         
     def buildOutputPanel(self, parent):
         galleryPanel = ttk.Frame(parent)

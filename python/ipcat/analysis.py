@@ -9,9 +9,10 @@ class ImageAnalysis:
     def __init__(self, name):
         self.name = name
         self.nInputImages = 0
-        self.parameters = []
+        self.parameters = {}
         self.inputImages = []
         self.parameterChoiceMap = {}
+        self.outputImages = []
         pass
 
     def addParameters(self, pars):

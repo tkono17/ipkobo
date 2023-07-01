@@ -13,12 +13,29 @@ class AnalysisPanel(ttk.Frame):
     def __init__(self, parent):
         super().__init__(parent)
         self.title = ttk.Label(self, text='Analysis')
-        self.title.pack(fill=tk.X, expand=True)
-        self.selection = ttk.Combobox(self)
-        self.selection.pack(fill=tk.X, expand=True)
+        self.title.pack(side=tk.TOP, fill=tk.X)
+        self.selection = ttk.Combobox(self, values=['One', 'Two', 'Three'])
+        self.selection.pack(side=tk.TOP, fill=tk.X)
         self.properties = ttk.LabelFrame(self, text='Properties')
         self.properties.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
-        
+
+        self.properties.rowconfigure(0, weight=1)
+        self.properties.columnconfigure(0, weight=10)
+
+        self.table = ttk.Treeview(self.properties)
+        #self.table = tk.Text(self.properties, height=10)
+        self.table.grid(row=0, column=0, sticky=tk.N+tk.EW)
+        yscrollbar = ttk.Scrollbar(self.properties,
+                                   orient='vertical',
+                                   command=self.table.yview)
+        self.table['yscrollcommand'] = yscrollbar.set
+        yscrollbar.grid(row=0, column=1, sticky=tk.NS)
+        xscrollbar = ttk.Scrollbar(self.properties,
+                                   orient=tk.HORIZONTAL, 
+                                   command=self.table.xview)
+        self.table['xscrollcommand'] = xscrollbar.set
+        xscrollbar.grid(row=1, column=0, sticky=tk.EW)
+
 #------------------------------------------------------------------------
 # FieldEntryPanel
 #------------------------------------------------------------------------
