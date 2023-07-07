@@ -50,7 +50,11 @@ class AppData:
 
     def setAnalysis(self, analysis):
         self.currentAnalysis = analysis
-        
+
+    def runAnalysis(self):
+        self.currentAnalysis.run()
+        pass
+    
     def changeImageName(self, name1, name2):
         pass
     

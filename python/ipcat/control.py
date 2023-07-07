@@ -4,7 +4,7 @@
 import os
 from PIL import Image, ImageTk
 
-from .model    import AppData, ImageNP
+from .model    import AppData, ImageData
 from .vcontrol import ViewController
 from .common   import cdata
 
@@ -27,7 +27,7 @@ class Controller:
         img = None
         if fn != '' and os.path.exists(fn):
             name = 'input%d' % len(self.appData.inputImageList)
-            img = ImageNP(name, fn)
+            img = ImageData(name, fn)
             self.appData.addInputImage(img)
         return img
 
@@ -38,7 +38,6 @@ class Controller:
             img2 = ImageTk.PhotoImage(img1)
             return img2
         return 0
-
     
     def setInputImage(self, imageData):
         if self.currentAnalysis:

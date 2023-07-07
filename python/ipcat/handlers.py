@@ -7,16 +7,19 @@ from .control  import *
 from .common import cdata
 
 class Handlers:
-    def __init__(self, app=None, controller=None):
-        self.init(app, controller)
+    def __init__(self):
+        self.app = None
+        self.vcontrol = None
         
-    def init(self, app, controller):
+    def setApp(self, app):
         self.app = app
-        self.controller = controller
+        self.guiControl = app.guiControl
         
     def openImage(self):
         print('openImage called')
-        self.controller.openImage()
+        dn = self.app.model.openFileDir
+        img = self.guiControl.openImage(dn)
+        self.app.addImageFromFile(img)
 
     def singleDisplaySet(self):
         print('singleDisplaySet')
@@ -71,3 +74,27 @@ def selectImage():
         #canvas.create_image(0, 0, image=img, anchor=tk.NW)
         #self.image = img
         #canvas.update()
+
+
+#    # Actions
+#    def addImagesFromDirectory(self, dname):
+#        pass
+#    def addImageToList(self, image):
+#        pass
+#    def clearImageList(self):
+#        pass
+#    def selectImage(self, imageName):
+#        pass
+#    def showImage(self, image):
+#        pass
+#    def selectAnalysis(self, analysisName):
+#        pass
+#    def addAnalysisProperty(self, prop):
+#        pass
+#    def clearAnalysisProperties(self):
+#        pass
+#    def clearGallery(self):
+#        pass
+#    def showImageInGallery(self, image):
+#        pass
+    

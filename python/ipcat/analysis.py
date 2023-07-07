@@ -26,7 +26,7 @@ class ImageAnalysis:
         if len(imageData)>0: name = imageData[0]
         if len(imageData)>1: path = imageData[1]
         if len(imageData)>2: img = imageData[2]
-        x = ImageNP(name, path, img)
+        x = ImageData(name, path, img)
         self.inputImages.clear()
         self.inputImages.append(x)
         
@@ -37,7 +37,7 @@ class ImageAnalysis:
             if len(imageData)>0: name = data[0]
             if len(imageData)>1: path = data[1]
             if len(imageData)>2: img = data[2]
-            x = ImageNP(name, path, img)
+            x = ImageData(name, path, img)
             self.inputImages.append(x)
         
     def run(self):
@@ -54,6 +54,38 @@ class SingleImageAnalysis:
     def run(self):
         super().run()
 
+class AnalysisStore:
+    sInstance = None
+    
+    @staticmethod
+    def get():
+        if AnalysisStore.sInstance == None:
+            AnalysisStore.sInstance = AnalysisStore()
+        return sInstance
+    
+    def __init__(self):
+        self.analysisClasses = {}
+        pass
+
+    def addAnalysis(self, name, analysis):
+        if name in self.analysisClasses.keys():
+            print(f'Analysis {name} already exists')
+        else:
+            self.analysisClasses[name] = analysis
+
+    def find(self, name):
+        x = None
+        if name in self.analysisClasses.keys():
+            x = self.analysisClasses[name]
+        return x
+
+    def create(self, name):
+        x = None
+        cls = self.find(name)
+        if cls:
+            x = cls()
+        return x
+    
 class ColorAnalysis(SingleImageAnalysis):
     def __init__(self, name):
         super().__init__(name)

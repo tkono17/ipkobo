@@ -17,18 +17,11 @@ def parseArgs():
     return parser.parse_args()
 
 def run(args):
-    root = ipcat.initTk()
-    app = ipcat.MainWindow(root)
+    model = ipcat.AppData()
+    gui = ipcat.MainWindow(model)
+    app = ipcat.App(model, gui)
     #
-    controller = ipcat.Controller()
-    vcontroller = ipcat.ViewController(app)
-    ipcat.cdata.set(app, controller, vcontroller)
-    print('ipcat.gApp = ', ipcat.cdata.app())
-    #vcontroller.update()
-    #
-    app.handlers.init(app, controller)
-    #
-    app.mainloop()
+    gui.mainloop()
     
 if __name__ == '__main__':
     args = parseArgs()
