@@ -7,21 +7,29 @@ import logging
 
 import ipcat
 
-log = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 def parseArgs():
     parser = argparse.ArgumentParser()
     parser.add_argument('-b', '--batch-mode', dest='batchMode',
-                        action='store_false', default=False,
+                        action='store_true', default=False,
                         help='Run in batch mode (no GUI)')
     return parser.parse_args()
 
 def run(args):
     model = ipcat.AppData()
-    gui = ipcat.MainWindow(model)
-    app = ipcat.App(model, gui)
+    app = None
     #
-    gui.mainloop()
+    if args.batchMode:
+        gui = None
+        app = ipcat.App(model, gui)
+        logger.info('Running in batch mode')
+        test = ipcat.BatchTest1('test1', app)
+        test.run()
+    else:
+        gui = ipcat.MainWindow(model)
+        app = ipcat.App(model, gui)
+        gui.mainloop()
     
 if __name__ == '__main__':
     args = parseArgs()

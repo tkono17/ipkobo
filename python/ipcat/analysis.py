@@ -1,9 +1,12 @@
 #------------------------------------------------------------------------
 # ipcat: analysis.py
 #------------------------------------------------------------------------
+import logging
 from tkinter import ttk
 
 from .model import *
+
+logger = logging.getLogger(__name__)
 
 class ImageAnalysis:
     def __init__(self, name):
@@ -13,6 +16,7 @@ class ImageAnalysis:
         self.inputImages = []
         self.parameterChoiceMap = {}
         self.outputImages = []
+        self.outputValues = {}
         pass
 
     def addParameters(self, pars):
@@ -41,7 +45,7 @@ class ImageAnalysis:
             self.inputImages.append(x)
         
     def run(self):
-        log.debug('ImageAnalysis.run()')
+        logger.debug('ImageAnalysis.run()')
         pass
     
 class SingleImageAnalysis:
@@ -54,38 +58,6 @@ class SingleImageAnalysis:
     def run(self):
         super().run()
 
-class AnalysisStore:
-    sInstance = None
-    
-    @staticmethod
-    def get():
-        if AnalysisStore.sInstance == None:
-            AnalysisStore.sInstance = AnalysisStore()
-        return sInstance
-    
-    def __init__(self):
-        self.analysisClasses = {}
-        pass
-
-    def addAnalysis(self, name, analysis):
-        if name in self.analysisClasses.keys():
-            print(f'Analysis {name} already exists')
-        else:
-            self.analysisClasses[name] = analysis
-
-    def find(self, name):
-        x = None
-        if name in self.analysisClasses.keys():
-            x = self.analysisClasses[name]
-        return x
-
-    def create(self, name):
-        x = None
-        cls = self.find(name)
-        if cls:
-            x = cls()
-        return x
-    
 class ColorAnalysis(SingleImageAnalysis):
     def __init__(self, name):
         super().__init__(name)
@@ -116,8 +88,43 @@ class GfbaEdgeAnalysis(SingleImageAnalysis):
     def run(self):
         super().__init__()
 
-analysisClassMap = {
-    'SingleImageAnalysis': SingleImageAnalysis, 
-    'ColorAnalysis': ColorAnalysis,
-    'CannyEdgeAnalysis': CannyEdgeAnalysis
-    }
+class AnalysisStore:
+    sInstance = None
+    
+    @staticmethod
+    def get():
+        if AnalysisStore.sInstance == None:
+            AnalysisStore.sInstance = AnalysisStore()
+        return AnalysisStore.sInstance
+    
+    def __init__(self):
+        self.analysisTypes = []
+        self.analysisClasses = {}
+        self.initialize()
+        pass
+
+    def initialize(self):
+        logger.info('AnalysisStore initialize')
+        self.addAnalysis('ColorAnalysis', ColorAnalysis)
+        self.addAnalysis('CannyEdgeAnalysis', CannyEdgeAnalysis)
+        
+    def addAnalysis(self, name, analysisClass):
+        if name in self.analysisTypes:
+            print(f'Analysis {name} already exists')
+        else:
+            self.analysisTypes.append(name)
+            self.analysisClasses[name] = analysisClass
+
+    def find(self, name):
+        x = None
+        if name in self.analysisClasses.keys():
+            x = self.analysisClasses[name]
+        return x
+
+    def create(self, clsName, name=''):
+        x = None
+        cls = self.find(clsName)
+        if cls:
+            x = cls(name)
+        return x
+    

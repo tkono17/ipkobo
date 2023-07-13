@@ -12,14 +12,19 @@ class ViewModel:
         self.inputImageWidth = 0.0
         self.inputImageHeight = 0.0
         #
-        self.currentImage = None
-        self.currentAnalysis = None
+        self.analysisList = [ 'One', 'Two', 'Three', 'Four' ]
         #
+        self.currentImage = ''
+        #
+        self.currentAnalysis = ''
         self.analysisProperties = []
-        self.analysisOutputs = []
         self.analysisOutImages = []
+        self.analysisOutputs = []
         #
         self.messages = []
-        
+
+    def addAnalysis(self, key):
+        self.analysisList.append(key)
+        print(self.analysisList)
     pass
     

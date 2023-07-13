@@ -6,16 +6,44 @@ from tkinter import ttk
 
 from .common import cdata
 
+def addScrollBars(widget, parent, xscroll=False, yscroll=False):
+    if yscroll:
+        yscrollbar = ttk.Scrollbar(parent, 
+                                   orient='vertical',
+                                   command=widget.yview)
+        widget['yscrollcommand'] = yscrollbar.set
+        yscrollbar.grid(row=0, column=1, sticky=tk.NS)
+    if xscroll:
+        xscrollbar = ttk.Scrollbar(parent, 
+                                   orient=tk.HORIZONTAL, 
+                                   command=widget.xview)
+        widget['xscrollcommand'] = xscrollbar.set
+        xscrollbar.grid(row=1, column=0, sticky=tk.EW)
+
 #------------------------------------------------------------------------
 # AnalysisPanel
 #------------------------------------------------------------------------
-class AnalysisPanel(ttk.Frame):
-    def __init__(self, parent):
-        super().__init__(parent)
-        self.title = ttk.Label(self, text='Analysis')
-        self.title.pack(side=tk.TOP, fill=tk.X)
-        self.selection = ttk.Combobox(self, values=['One', 'Two', 'Three'])
-        self.selection.pack(side=tk.TOP, fill=tk.X)
+class AnalysisPanel(ttk.LabelFrame):
+    def __init__(self, parent, values, text='Analysis'):
+        super().__init__(parent, text=text)
+        cframe = ttk.Frame(self)
+        cframe.pack(side=tk.TOP, fill=tk.X)
+
+        cframe.grid_columnconfigure(0, weight=1)
+        cframe.grid_columnconfigure(1, weight=4)
+        cframe.grid_columnconfigure(2, weight=1)
+
+        selectionLabel = ttk.Label(cframe, text='Type: ')
+        selectionLabel.grid(row=0, column=0, sticky=tk.NSEW)
+        self.selection = ttk.Combobox(cframe, values=values)
+        self.selection.grid(row=0, column=1, sticky=tk.NSEW)
+        self.runButton = ttk.Button(cframe, text='Run')
+        self.runButton.grid(row=0, column=2, sticky=tk.NSEW)
+        nameLabel = ttk.Label(cframe, text='Name: ')
+        nameLabel.grid(row=1, column=0, sticky=tk.NSEW)
+        self.nameEntry = ttk.Entry(cframe)
+        self.nameEntry.grid(row=1, column=1, sticky=tk.NSEW)
+        
         self.properties = ttk.LabelFrame(self, text='Properties')
         self.properties.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
@@ -24,17 +52,8 @@ class AnalysisPanel(ttk.Frame):
 
         self.table = ttk.Treeview(self.properties)
         #self.table = tk.Text(self.properties, height=10)
-        self.table.grid(row=0, column=0, sticky=tk.N+tk.EW)
-        yscrollbar = ttk.Scrollbar(self.properties,
-                                   orient='vertical',
-                                   command=self.table.yview)
-        self.table['yscrollcommand'] = yscrollbar.set
-        yscrollbar.grid(row=0, column=1, sticky=tk.NS)
-        xscrollbar = ttk.Scrollbar(self.properties,
-                                   orient=tk.HORIZONTAL, 
-                                   command=self.table.xview)
-        self.table['xscrollcommand'] = xscrollbar.set
-        xscrollbar.grid(row=1, column=0, sticky=tk.EW)
+        self.table.grid(row=0, column=0, sticky=tk.NS+tk.EW)
+        addScrollBars(self.table, self.properties, True, True)
 
 #------------------------------------------------------------------------
 # FieldEntryPanel

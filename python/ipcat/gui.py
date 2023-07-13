@@ -16,6 +16,8 @@
 #     - galleryPanel: ttk.Frame
 #     - messagePanel: ttk.Text
 #------------------------------------------------------------------------
+import functools
+import logging
 import tkinter as tk
 from tkinter import ttk
 from PIL import Image, ImageTk
@@ -24,7 +26,6 @@ from .guiComponents import *
 from .vmodel import ViewModel
 from .handlers import Handlers, openImage
 from .analysis import *
-import logging
 
 logger = logging.getLogger(__name__)
 
@@ -46,10 +47,9 @@ class MainWindow(ttk.Frame):
         super().__init__(self.root, width=1000, height=600, style='main.TFrame')
         #
         self.pack(side=tk.TOP, expand=True, fill=tk.BOTH)
-        self.handlers = Handlers(app)
+        self.handlers = Handlers()
         self.vmodel = ViewModel(self.model)
-        app.handlers.init(self.vmodel, self.model)
-        #
+
         #
         self.menuBar = None
         # Left
@@ -69,7 +69,8 @@ class MainWindow(ttk.Frame):
         style.configure('TFrame', background='darkgreen')
         style.configure('main.TFrame', background='blue')
         style.configure('panel.TFrame', background=(32, 32, 190))
-        style.configure('TButton', background=(32, 32, 190))
+        #style.configure('TButton', background=(32, 32, 50))
+        #style.configure('ImageList.Treeview', rowHeight=100)
         #style.configure('TLabelframe', background='blue')
         pass
     
@@ -95,27 +96,56 @@ class MainWindow(ttk.Frame):
     def buildMenu(self):
         menuBar = tk.Menu(self)
         self.root.config(menu=menuBar)
+        #
         file_menu = tk.Menu(menuBar)
         menuBar.add_cascade(label='File', menu=file_menu, underline=0)
         file_menu.add_command(label='Quit', command=self.cleanup)
+        #
+        test_menu = tk.Menu(menuBar)
+        menuBar.add_cascade(label='Test', menu=test_menu)#, underline=0)
+        test_menu.add_command(label='BasicGuiTest',
+                              command=functools.partial(self.handlers.runTest, 'BasicGuiTest') )
 
     def buildListPanel(self, parent):
-        tree = ttk.Treeview(parent)
-        tree.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+        columns = ('name', 'path', 'width', 'height', 'xOffset', 'yOffset')
+        tree = ttk.Treeview(parent, columns=columns, show='headings', height=100)
+        parent.grid_rowconfigure(0, weight=1)
+        parent.grid_columnconfigure(0, weight=1)
+        tree.grid(row=0, column=0, sticky=tk.N+tk.EW)
+        addScrollBars(tree, parent, True, True)
+        tree.heading('name', text='Name')
+        tree.heading('path', text='Path')
+        tree.heading('width', text='W')
+        tree.heading('height', text='H')
+        tree.heading('xOffset', text='X offset')
+        tree.heading('yOffset', text='Y offset')
+        tree.column('name', minwidth=50, width=100)
+        tree.column('path', minwidth=50, width=100)
+        tree.column('width', minwidth=50, width=50)
+        tree.column('height', minwidth=50, width=50)
+        tree.column('xOffset', minwidth=50, width=50)
+        tree.column('yOffset', minwidth=50, width=50)
+        #tree.bind('<<TreeviewSelect>>', self.handlers.selectImage)
         self.imageList = tree
         
     def buildWorkPanel(self, parent):
         imagePanel = ttk.LabelFrame(parent, text='Image to analyze')
-        imagePanel.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
-        canvas = tk.Canvas(imagePanel)
+        imagePanel.pack(anchor=tk.NW, fill=tk.BOTH, expand=True)
+        showButton = ttk.Button(imagePanel, text='Show selected image(s)')
+        showButton.pack(anchor=tk.NW)
+        showButton.bind('<Button-1>', self.handlers.showImages)
+        canvas = tk.Canvas(imagePanel)#, bg='cyan')
         canvas.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
         
-        analysisPanel = AnalysisPanel(parent)
+        analysisPanel = AnalysisPanel(parent, self.vmodel.analysisList)
         analysisPanel.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
         parent.add(imagePanel, weight=2)
         parent.add(analysisPanel, weight=2)
+        analysisPanel.selection.bind('<<ComboboxSelected>>', self.handlers.analysisSelected)
+        analysisPanel.runButton.bind('<Button-1>', self.handlers.runAnalysis)
         self.imagePanel = imagePanel
         self.analysisPanel = analysisPanel
+        self.canvas = canvas
         
     def buildOutputPanel(self, parent):
         galleryPanel = ttk.Frame(parent)
@@ -125,7 +155,7 @@ class MainWindow(ttk.Frame):
         parent.add(galleryPanel, weight=3)
         parent.add(messagePanel, weight=1)
         pass
-    
+
     def cleanup(self):
         logger.info('Quit gui')
         
