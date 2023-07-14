@@ -150,6 +150,11 @@ class MainWindow(ttk.Frame):
     def buildOutputPanel(self, parent):
         galleryPanel = ttk.Frame(parent, height=500)
         galleryPanel.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+        galleryFrame = ttk.Frame(galleryPanel)
+        galleryFrame.grid(row=0, column=0, sticky=tk.NSEW)
+        #addScrollBars(galleryFrame, galleryPanel, True, True)
+        self.galleryFrame = galleryFrame
+        #
         messagePanel = tk.Text(parent)
         messagePanel.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
         parent.add(galleryPanel)

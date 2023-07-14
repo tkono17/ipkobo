@@ -99,6 +99,9 @@ class View:
 
     def showImageInGallery(self, image):
         pass
+
+    def addImageToFrame(self, imageData, frame):
+        pass
     
     def updateGallery(self):
         self.clearGallery()
