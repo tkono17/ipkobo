@@ -139,8 +139,8 @@ class MainWindow(ttk.Frame):
         
         analysisPanel = AnalysisPanel(parent, self.vmodel.analysisList)
         analysisPanel.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
-        parent.add(imagePanel, weight=2)
-        parent.add(analysisPanel, weight=2)
+        parent.add(imagePanel)
+        parent.add(analysisPanel)
         analysisPanel.selection.bind('<<ComboboxSelected>>', self.handlers.analysisSelected)
         analysisPanel.runButton.bind('<Button-1>', self.handlers.runAnalysis)
         self.imagePanel = imagePanel
@@ -148,12 +148,12 @@ class MainWindow(ttk.Frame):
         self.canvas = canvas
         
     def buildOutputPanel(self, parent):
-        galleryPanel = ttk.Frame(parent)
+        galleryPanel = ttk.Frame(parent, height=500)
         galleryPanel.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
         messagePanel = tk.Text(parent)
         messagePanel.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
-        parent.add(galleryPanel, weight=3)
-        parent.add(messagePanel, weight=1)
+        parent.add(galleryPanel)
+        parent.add(messagePanel)
         pass
 
     def cleanup(self):

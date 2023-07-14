@@ -21,6 +21,11 @@ class ImageData:
         self.imageResized = None
         self.imageTk = None
 
+    def makeCopy(self):
+        x = ImageData(name=self.name, path='',
+                      width=self.width, height=self.height, offset=self.offset)
+        return x
+    
     def createImageTk(self, img):
         self.imageTk = None
         if self.imageOk:
@@ -56,7 +61,7 @@ class AppData:
         self.workDir = '.'
         self.analysisList = []
         self.imageList = []
-        self.currentImage = None
+        self.currentImages = []
         self.currentAnalysis = None
         #
         pass
@@ -92,15 +97,19 @@ class AppData:
         logger.info(f'Model.selectImages called n={len(images)}')
         if len(images) == 1:
             img = images[0]
-            if self.currentImage:
-                if self.currentImage != img:
-                    self.currentImage.clearImage()
-                    self.currentImage = img
+            if len(self.currentImages)==1:
+                if self.currentImages[0]:
+                    if self.currentImages[0] != img:
+                        self.currentImages[0].clearImage()
+                        self.currentImages[0] = img
+                else:
+                    self.currentImages[0] = img
             else:
-                self.currentImage = img
-            if self.currentImage:
-                logger.info(f'Open image file {self.currentImage.path}')
-                self.currentImage.open()
+                self.currentImages.clear()
+                self.currentImages.append(img)
+            for image in self.currentImages:
+                logger.info(f'Open image file {image.path}')
+                image.open()
         else:
             logger.warning('Images analysis on multiple images is not implemented yet')
 

@@ -64,12 +64,13 @@ class Handlers:
 
     def runAnalysis(self, e):
         logger.info('Run analysis')
-
+        self.app.runAnalysis()
+        
     def analysisSelected(self, e):
         analysisName = e.widget.get()
         logger.info(f'Analysis selected ==> {analysisName}')
         self.view.analysisSelected(analysisName)
-        
+
 def openImage():
     img = cdata.controller.openImage()
     cdata.vcontroller.addImage(img)

@@ -69,8 +69,11 @@ class App:
         pass
     
     def runAnalysis(self):
-        if self.model.currentAnalysis:
-            self.model.currentAnalysis.run()
+        analysis = self.model.currentAnalysis
+        if analysis:
+            analysis.setInputImages(self.model.currentImages)
+            analysis.run()
+            self.view.updateGallery()
         pass
     def analysisOutputs(self):
         pass

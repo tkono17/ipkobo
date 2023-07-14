@@ -26,11 +26,11 @@ def addScrollBars(widget, parent, xscroll=False, yscroll=False):
 class AnalysisPanel(ttk.LabelFrame):
     def __init__(self, parent, values, text='Analysis'):
         super().__init__(parent, text=text)
-        cframe = ttk.Frame(self)
+        cframe = ttk.Frame(self, height=600)
         cframe.pack(side=tk.TOP, fill=tk.X)
 
         cframe.grid_columnconfigure(0, weight=1)
-        cframe.grid_columnconfigure(1, weight=4)
+        cframe.grid_columnconfigure(1, weight=5)
         cframe.grid_columnconfigure(2, weight=1)
 
         selectionLabel = ttk.Label(cframe, text='Type: ')
@@ -45,12 +45,18 @@ class AnalysisPanel(ttk.LabelFrame):
         self.nameEntry.grid(row=1, column=1, sticky=tk.NSEW)
         
         self.properties = ttk.LabelFrame(self, text='Properties')
-        self.properties.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+        self.properties.pack(side=tk.BOTTOM, fill=tk.BOTH, expand=True)
 
         self.properties.rowconfigure(0, weight=1)
         self.properties.columnconfigure(0, weight=10)
 
-        self.table = ttk.Treeview(self.properties)
+        columns = ('parameter', 'value')
+        self.table = ttk.Treeview(self.properties, columns=columns,
+                                  show='headings', height=100)
+        self.table.heading('parameter', text='Parameter')
+        self.table.heading('value', text='Value')
+        self.table.column('parameter', minwidth=50, width=50)
+        self.table.column('value', minwidth=50, width=50)
         #self.table = tk.Text(self.properties, height=10)
         self.table.grid(row=0, column=0, sticky=tk.NS+tk.EW)
         addScrollBars(self.table, self.properties, True, True)

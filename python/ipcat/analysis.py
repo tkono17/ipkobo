@@ -11,8 +11,8 @@ logger = logging.getLogger(__name__)
 class ImageAnalysis:
     def __init__(self, name):
         self.name = name
-        self.nInputImages = 0
         self.parameters = {}
+        self.nInputImages = 0
         self.inputImages = []
         self.parameterChoiceMap = {}
         self.outputImages = []
@@ -26,30 +26,21 @@ class ImageAnalysis:
         self.parameters[key] = value
 
     def setInputImage(self, imageData):
-        name, path, img = '', '', None
-        if len(imageData)>0: name = imageData[0]
-        if len(imageData)>1: path = imageData[1]
-        if len(imageData)>2: img = imageData[2]
-        x = ImageData(name, path, img)
         self.inputImages.clear()
-        self.inputImages.append(x)
+        self.inputImages.append(imageData)
         
     def setInputImages(self, imageData):
         self.inputImages.clear()
         for data in imageData:
-            name, path, img = '', '', None
-            if len(imageData)>0: name = data[0]
-            if len(imageData)>1: path = data[1]
-            if len(imageData)>2: img = data[2]
-            x = ImageData(name, path, img)
-            self.inputImages.append(x)
+            self.inputImages.append(data)
         
     def run(self):
         logger.debug('ImageAnalysis.run()')
         pass
     
-class SingleImageAnalysis:
+class SingleImageAnalysis(ImageAnalysis):
     def __init__(self, name):
+        super().__init__(name)
         self.name = name
         self.nInputImages = 1
         self.parameters = {}
@@ -65,7 +56,17 @@ class ColorAnalysis(SingleImageAnalysis):
             'ColorConversion': 'COLOR_BGR2GRAY', 
             }
     def run(self):
-        super().__init__()
+        img1 = self.inputImages[0].image
+        img2 = img1
+        if self.parameters['ColorConversion'] == 'COLOR_BGR2GRAY':
+            logger.info('Conversion to Grayscale')
+            img2 = cv2.cvtColor(img1, cv2.COLOR_BGR2GRAY)
+        else:
+            cc = self.parameters['ColorConversion']
+            logger.warning(f'Unknown ColorConversion "{cc}"')
+        idata = self.inputImages[0].makeCopy()
+        idata.image = img2
+        self.outputImages.append(idata)
 
 class CannyEdgeAnalysis(SingleImageAnalysis):
     def __init__(self, name):
@@ -75,7 +76,8 @@ class CannyEdgeAnalysis(SingleImageAnalysis):
             'Threshold2': 50, 
             }
     def run(self):
-        super().__init__()
+        super().run()
+        pass
 
 class GfbaEdgeAnalysis(SingleImageAnalysis):
     def __init__(self, name):
@@ -125,6 +127,7 @@ class AnalysisStore:
         x = None
         cls = self.find(clsName)
         if cls:
+            logger.info(f'Create analysis of type {clsName} {cls}')
             x = cls(name)
         return x
     

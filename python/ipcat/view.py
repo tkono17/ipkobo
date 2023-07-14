@@ -43,6 +43,18 @@ class View:
 
     def analysisSelected(self, analysisName):
         self.vmodel.currentAnalysis = analysisName
+        store = AnalysisStore.get()
+        analysis = store.create(analysisName, f'{analysisName}1')
+        self.model.selectAnalysis(analysis)
+        logger.info(f'Analysis {analysisName} -> {analysis}')
+        if analysis:
+            table = self.gui.analysisPanel.table
+            table.delete(*table.get_children())
+            logger.info(f'  Analysis parameters {len(analysis.parameters)}')
+            for pn, pv in analysis.parameters.items():
+                values = (pn, pv)
+                self.vmodel.analysisProperties.append( (pn, pv) )
+                table.insert('', tk.END, values=values)
         pass
     
     def updateImageList(self):
@@ -57,7 +69,9 @@ class View:
     
     def showImages(self, images):
         logger.info(f'View.showImages called Nimages={len(images)}')
+        self.vmodel.selectedImages.clear()
         if len(images) == 1:
+            self.vmodel.selectedImages.append(images[0])
             imageData = images[0]
             if imageData.imageOk:
                 img0 = imageData.image
@@ -87,6 +101,8 @@ class View:
         pass
     
     def updateGallery(self):
+        self.clearGallery()
+        
         pass
 
     def clearGallery(self):

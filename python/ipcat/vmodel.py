@@ -6,7 +6,7 @@ class ViewModel:
     def __init__(self, model):
         self.model = model
         #
-        self.imageList = []
+        self.selectedImages = []
         self.inputImagePath = ''
         self.inputImageOffset = [0.0, 0.0]
         self.inputImageWidth = 0.0
