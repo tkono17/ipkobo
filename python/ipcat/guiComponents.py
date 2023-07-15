@@ -1,24 +1,35 @@
 #------------------------------------------------------------------------
 # ipcat: GUI components
 #------------------------------------------------------------------------
+import time
+import logging
 import tkinter as tk
 from tkinter import ttk
 
 from .common import cdata
 
-def addScrollBars(widget, parent, xscroll=False, yscroll=False):
+logger = logging.getLogger(__name__)
+
+def addScrollBars(widget, parent, xscroll=False, yscroll=False, layout='grid'):
     if yscroll:
         yscrollbar = ttk.Scrollbar(parent, 
-                                   orient='vertical',
+                                   orient=tk.VERTICAL,
                                    command=widget.yview)
         widget['yscrollcommand'] = yscrollbar.set
-        yscrollbar.grid(row=0, column=1, sticky=tk.NS)
+        if layout == 'grid':
+            yscrollbar.grid(row=0, column=1, sticky=tk.NS)
+        elif layout == 'pack':
+            yscrollbar.pack(side=tk.RIGHT, fill=tk.Y, expand=True)
     if xscroll:
         xscrollbar = ttk.Scrollbar(parent, 
                                    orient=tk.HORIZONTAL, 
                                    command=widget.xview)
         widget['xscrollcommand'] = xscrollbar.set
-        xscrollbar.grid(row=1, column=0, sticky=tk.EW)
+        if layout == 'grid':
+            xscrollbar.grid(row=1, column=0, sticky=tk.EW)
+        elif layout == 'pack':
+            xscrollbar.pack(side=tk.BOTTOM, fill=tk.X, expand=True)
+    return (xscrollbar, yscrollbar)
 
 #------------------------------------------------------------------------
 # AnalysisPanel
@@ -146,3 +157,57 @@ class ImageControlPanel(ttk.Frame):
         run.pack(side=tk.LEFT, expand=True)
 
     pass
+
+class ScrollableFrame(ttk.Frame):
+    def __init__(self, parent, *args, **kwargs):
+        super().__init__(parent, *args, **kwargs)
+        self.canvas = tk.Canvas(self, bg='ivory', width=300, height=300)
+        xbar, ybar = addScrollBars(self.canvas, self, True, True, layout='none')
+        xbar.pack(side=tk.BOTTOM, fill=tk.X)
+        ybar.pack(side=tk.RIGHT, fill=tk.Y)
+        self.canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        #
+        self.frame = ttk.Frame(self.canvas, style='canvas.TFrame')
+        self.canvas.create_window(0, 0, window=self.frame, anchor=tk.NW)
+        self.frame.bind('<Configure>', self.onFrameConfigure)
+        self.frame.bind('<Button-1>', self.onFrameClick)
+        self.canvas.bind('<Button-1>', self.onFrameClick)
+        #
+        for i in range(20):
+            title = f'Label{i}'
+            label = ttk.Label(self.frame, text=title)
+            label.pack(side=tk.TOP, fill=tk.X, expand=True)
+
+    def onFrameConfigure(self, event=None):
+        canvas1 = event.widget.master
+        canvas1.configure(scrollregion=canvas1.bbox('all'))
+
+    def onFrameClick(self, event=None):
+        widget = event.widget
+        cw = widget.winfo_width()
+        ch = widget.winfo_height()
+        logger.info(f'widget {widget} w/h = ({cw}, {ch})')
+        
+    def frame(self):
+        return self.frame
+
+    pass
+        
+class GalleryPanel(ScrollableFrame):
+    def __init__(self, parent):
+        super().__init__(parent)
+
+    def addImageFrame(self, image, title=''):
+        frame = ttk.Frame(self)
+        frame.pack(side=tk.TOP, fill=tk.X, expand=True)
+        label = ttk.Label(frame, text=title)
+        label.pack(anchor=tk.NW, fill=tk.X, expand=True)
+        canvas = tk.Canvas(frame)
+        canvas.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+        canvas.create_image(image)
+        pass
+    
+    def clear(self):
+        self.delete(*self.get_children())
+    pass
+    

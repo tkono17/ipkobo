@@ -13,7 +13,7 @@
 #       - properties: ttk.Treeview
 #         - table: ttk.Treeview
 #   - outputPanel: ttk.Panedwindow
-#     - galleryPanel: ttk.Frame
+#     - galleryPanel: GalleryPanel
 #     - messagePanel: ttk.Text
 #------------------------------------------------------------------------
 import functools
@@ -69,6 +69,7 @@ class MainWindow(ttk.Frame):
         style.configure('TFrame', background='darkgreen')
         style.configure('main.TFrame', background='blue')
         style.configure('panel.TFrame', background=(32, 32, 190))
+        style.configure('canvas.TFrame', background='yellow')
         #style.configure('TButton', background=(32, 32, 50))
         #style.configure('ImageList.Treeview', rowHeight=100)
         #style.configure('TLabelframe', background='blue')
@@ -97,14 +98,14 @@ class MainWindow(ttk.Frame):
         menuBar = tk.Menu(self)
         self.root.config(menu=menuBar)
         #
-        file_menu = tk.Menu(menuBar)
+        file_menu = tk.Menu(menuBar, tearoff=False)
         menuBar.add_cascade(label='File', menu=file_menu, underline=0)
         file_menu.add_command(label='Quit', command=self.cleanup)
         #
-        test_menu = tk.Menu(menuBar)
-        menuBar.add_cascade(label='Test', menu=test_menu)#, underline=0)
+        test_menu = tk.Menu(menuBar, tearoff=False)
         test_menu.add_command(label='BasicGuiTest',
                               command=functools.partial(self.handlers.runTest, 'BasicGuiTest') )
+        menuBar.add_cascade(label='Test', menu=test_menu)#, underline=0)
 
     def buildListPanel(self, parent):
         columns = ('name', 'path', 'width', 'height', 'xOffset', 'yOffset')
@@ -134,7 +135,7 @@ class MainWindow(ttk.Frame):
         showButton = ttk.Button(imagePanel, text='Show selected image(s)')
         showButton.pack(anchor=tk.NW)
         showButton.bind('<Button-1>', self.handlers.showImages)
-        canvas = tk.Canvas(imagePanel)#, bg='cyan')
+        canvas = tk.Canvas(imagePanel)
         canvas.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
         
         analysisPanel = AnalysisPanel(parent, self.vmodel.analysisList)
@@ -148,12 +149,9 @@ class MainWindow(ttk.Frame):
         self.canvas = canvas
         
     def buildOutputPanel(self, parent):
-        galleryPanel = ttk.Frame(parent, height=500)
+        galleryPanel = GalleryPanel(parent)
         galleryPanel.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
-        galleryFrame = ttk.Frame(galleryPanel)
-        galleryFrame.grid(row=0, column=0, sticky=tk.NSEW)
-        #addScrollBars(galleryFrame, galleryPanel, True, True)
-        self.galleryFrame = galleryFrame
+        self.galleryPanel = galleryPanel
         #
         messagePanel = tk.Text(parent)
         messagePanel.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
