@@ -6,6 +6,7 @@
 import logging
 from .app import App
 from .model import ImageData
+from .io import InputData
 
 logger = logging.getLogger(__name__)
 
@@ -42,6 +43,16 @@ class BatchTest1(Test):
         outputs = self.app.analysisOutputs()
         self.passed = True
         
+class BasicTest(Test):
+    def __init__(self, name, app):
+        super().__init__(name, app)
+
+    def run(self):
+        indata = InputData('./a.json')
+        v = indata.getImages()
+        for x in v:
+            self.app.addImageToList(x)
+        
 class BasicGuiTest(Test):
     def __init__(self, name, app):
         super().__init__(name, app)
@@ -64,13 +75,3 @@ class BasicGuiTest(Test):
             self.app.addImageToList(ImageData(f'test{i}',
                                               fn,
                                               width=w, height=h, offset=xy) )
-            
-        #self.app.selectImages(imageName)
-        #self.app.selectAnalysis(analysisName)
-        #self.app.setAnalysisParameters({
-        #    'name': 'analsys1'
-        #})
-        #self.app.runAnalysis()
-        #outputs = self.app.analysisOutputs()
-        #self.passed = True
-        

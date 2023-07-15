@@ -47,8 +47,8 @@ class Handlers:
             
     def runTest(self, testName):
         test = None
-        if testName == 'BasicGuiTest':
-            test = BasicGuiTest('test1', self.app)
+        if testName == 'BasicTest':
+            test = BasicTest('test1', self.app)
         if test:
             test.run()
             

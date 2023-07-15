@@ -103,8 +103,8 @@ class MainWindow(ttk.Frame):
         file_menu.add_command(label='Quit', command=self.cleanup)
         #
         test_menu = tk.Menu(menuBar, tearoff=False)
-        test_menu.add_command(label='BasicGuiTest',
-                              command=functools.partial(self.handlers.runTest, 'BasicGuiTest') )
+        test_menu.add_command(label='BasicTest',
+                              command=functools.partial(self.handlers.runTest, 'BasicTest') )
         menuBar.add_cascade(label='Test', menu=test_menu)#, underline=0)
 
     def buildListPanel(self, parent):
