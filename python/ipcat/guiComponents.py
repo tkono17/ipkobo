@@ -198,16 +198,15 @@ class GalleryPanel(ScrollableFrame):
         super().__init__(parent)
 
     def addImageFrame(self, image, title=''):
-        frame = ttk.Frame(self)
+        frame = ttk.Frame(self.frame)
         frame.pack(side=tk.TOP, fill=tk.X, expand=True)
         label = ttk.Label(frame, text=title)
         label.pack(anchor=tk.NW, fill=tk.X, expand=True)
-        canvas = tk.Canvas(frame)
-        canvas.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
-        canvas.create_image(image)
-        pass
+        label = ttk.Label(frame, image=image)
+        label.pack(anchor=tk.NW, fill=tk.X, expand=True)
     
     def clear(self):
-        self.delete(*self.get_children())
+        for w in self.frame.winfo_children():
+            w.destroy()
     pass
     

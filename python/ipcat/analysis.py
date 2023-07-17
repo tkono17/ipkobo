@@ -59,13 +59,14 @@ class ColorAnalysis(SingleImageAnalysis):
         img1 = self.inputImages[0].image
         img2 = img1
         if self.parameters['ColorConversion'] == 'COLOR_BGR2GRAY':
-            logger.info('Conversion to Grayscale')
             img2 = cv2.cvtColor(img1, cv2.COLOR_BGR2GRAY)
+            logger.info(f'Conversion to Grayscale shape={img2.shape}')
         else:
             cc = self.parameters['ColorConversion']
             logger.warning(f'Unknown ColorConversion "{cc}"')
         idata = self.inputImages[0].makeCopy()
-        idata.image = img2
+        idata.name = f'{idata.name}_bw'
+        idata.setImage(img2)
         self.outputImages.append(idata)
 
 class CannyEdgeAnalysis(SingleImageAnalysis):

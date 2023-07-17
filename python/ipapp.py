@@ -33,6 +33,7 @@ def run(args):
     
 if __name__ == '__main__':
     args = parseArgs()
-    logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig(level=logging.DEBUG,
+                        format='%(levelname)8s %(name)-20s: %(message)s')
     run(args)
     

@@ -9,7 +9,7 @@ import logging
 import cv2
 from PIL import Image, ImageTk
 
-from .model import ImageData
+from .model import ImageData, ImageFrame
 from .analysis import AnalysisStore
 
 logger = logging.getLogger(__name__)
@@ -70,6 +70,12 @@ class View:
     def showImages(self, images):
         logger.info(f'View.showImages called Nimages={len(images)}')
         self.vmodel.selectedImages.clear()
+        #
+        wframe = ImageFrame(images)
+        wframe.combineImages()
+        wframe.drawOnCanvas(self.gui.canvas)
+        return
+        #
         if len(images) == 1:
             self.vmodel.selectedImages.append(images[0])
             imageData = images[0]
@@ -79,8 +85,10 @@ class View:
                 ch = self.gui.canvas.winfo_height()
                 h, w = img0.shape[0], img0.shape[1]
                 scale = min(cw/w, ch/h)
+                logger.info(f'  resize image to w/h={int(scale*w)},{int(scale*h)}')
                 imgTk = imageData.resize( (int(scale*w), int(scale*h)) )
-                self.gui.canvas.create_image( (cw/2, ch/2), image=imgTk)
+                cr = (int(scale*w)/2, int(scale*h)/2)
+                self.gui.canvas.create_image(cr, image=imgTk)
         else:
             logger.warning('Only one image can be selected')
         pass
@@ -105,9 +113,22 @@ class View:
     
     def updateGallery(self):
         self.clearGallery()
-        
+        analysis = self.model.currentAnalysis
+        width = 500
+        cr = (width, width)
+        if analysis:
+            logger.info(f'Update gallery with {len(analysis.outputImages)} images')
+            for imageData in analysis.outputImages:
+                r = imageData.heightToWidthRatio()
+                cr = (int(width), int(width*r) )
+                imageTk = imageData.resize(cr)
+                logger.info(f'{imageTk}')
+                self.gui.galleryPanel.addImageFrame(imageTk, imageData.name)
+                self.gui.galleryPanel.addImageFrame(imageTk, imageData.name)
+                self.gui.galleryPanel.addImageFrame(imageTk, imageData.name)
         pass
 
     def clearGallery(self):
+        self.gui.galleryPanel.clear()
         pass
 

@@ -12,7 +12,7 @@ class ViewModel:
         self.inputImageWidth = 0.0
         self.inputImageHeight = 0.0
         #
-        self.analysisList = [ 'One', 'Two', 'Three', 'Four' ]
+        self.analysisList = []
         #
         self.currentImage = ''
         #
