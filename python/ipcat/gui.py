@@ -100,6 +100,7 @@ class MainWindow(ttk.Frame):
         #
         file_menu = tk.Menu(menuBar, tearoff=False)
         menuBar.add_cascade(label='File', menu=file_menu, underline=0)
+        file_menu.add_command(label='Open', command=self.handlers.readInputs)
         file_menu.add_command(label='Quit', command=self.cleanup)
         #
         test_menu = tk.Menu(menuBar, tearoff=False)

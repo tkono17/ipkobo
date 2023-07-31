@@ -18,7 +18,15 @@ class Handlers:
     def setApp(self, app):
         self.app = app
         self.view = app.view
-        
+
+    def readInputs(self):
+        ftypes = [('JSON file', '*.json')]
+        indir = self.view.vmodel.inputDir
+        fn = tk.filedialog.askopenfilename(filetypes=ftypes, initialdir=indir)
+        self.view.vmodel.inputDir = os.path.dirname(fn)
+        #
+        self.app.readImagesFromJson(fn)
+            
     def openImage(self):
         print('openImage called')
         dn = self.app.model.openFileDir
@@ -60,7 +68,7 @@ class Handlers:
         for item in items:
             values = tree.item(item)['values']
             names.append(values[0])
-        self.app.selectImages(names)
+        images = self.app.selectImages(names)
 
     def runAnalysis(self, e):
         logger.info('Run analysis')

@@ -72,26 +72,11 @@ class View:
         self.vmodel.selectedImages.clear()
         #
         wframe = ImageFrame(images)
+        self.vmodel.setCombinedFrame(wframe)
         wframe.combineImages()
         wframe.drawOnCanvas(self.gui.canvas)
-        return
-        #
-        if len(images) == 1:
-            self.vmodel.selectedImages.append(images[0])
-            imageData = images[0]
-            if imageData.imageOk:
-                img0 = imageData.image
-                cw = self.gui.canvas.winfo_width()
-                ch = self.gui.canvas.winfo_height()
-                h, w = img0.shape[0], img0.shape[1]
-                scale = min(cw/w, ch/h)
-                logger.info(f'  resize image to w/h={int(scale*w)},{int(scale*h)}')
-                imgTk = imageData.resize( (int(scale*w), int(scale*h)) )
-                cr = (int(scale*w)/2, int(scale*h)/2)
-                self.gui.canvas.create_image(cr, image=imgTk)
-        else:
-            logger.warning('Only one image can be selected')
-        pass
+        #self.gui.canvas.config('background')
+        logger.info('Display images on the canvas')
 
     def clearImage(self):
         pass
@@ -123,8 +108,6 @@ class View:
                 cr = (int(width), int(width*r) )
                 imageTk = imageData.resize(cr)
                 logger.info(f'{imageTk}')
-                self.gui.galleryPanel.addImageFrame(imageTk, imageData.name)
-                self.gui.galleryPanel.addImageFrame(imageTk, imageData.name)
                 self.gui.galleryPanel.addImageFrame(imageTk, imageData.name)
         pass
 

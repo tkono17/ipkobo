@@ -58,9 +58,8 @@ class ImageData:
         
     def resize(self, cr):
         if self.imageOk:
-            logger.info(f'Try to resize {cr} {self.image.shape}')
+            logger.info(f'Try to resize {cr} <-- {self.image.shape}')
             self.imageResized = cv2.resize(self.image, cr)
-            logger.info(f'  {self.imageResized.shape}')
             self.createImageTk(self.imageResized)
         else:
             logging.warning(f'Cannot resize as the base image is empty')
@@ -105,41 +104,51 @@ class ImageFrame:
         self.combinedImage = ImageData(name='combinedImage', path='',
                                 width=self.width, height=self.height, 
                                 offset=self.offset)
-        if self.width > self.height:
-            self.rows = self.columns * int(self.width/self.height)
-        elif self.width > self.height:
-            self.columns = self.rows * int(self.height/self.width)
+        if len(images)==1 and images[0].imageOk:
+            img = images[0].image
+            self.rows = img.shape[0]
+            self.columns = img.shape[1]
+        else:
+            if self.width > self.height:
+                self.rows = self.columns * int(self.width/self.height)
+            elif self.width > self.height:
+                self.columns = self.rows * int(self.height/self.width)
         image0 = np.ones( (self.rows, self.columns, 3), np.uint8)
-        self.combinedImage.setImage(image0)
+        self.combinedImage.setImage(image0*255)
         logger.info(f'End of setImages, combine Images: {self.combinedImage}')
         pass
 
     def xyToCR(self, xy):
+        xmin, xmax = -self.width/2.0, self.width/2.0
+        ymin, ymax = -self.height/2.0, self.height/2.0
+        dx = (xmax - xmin)/self.columns
+        dy = (ymax - ymin)/self.rows
         x, y = xy
-        c = int(x/self.width*self.columns)
-        r = int(self.rows*(1 - (y+self.offset[1])/self.height) )
+        c = int( (x-xmin)/dx)
+        r = int(self.rows - (y-ymin)/dy)
         return (c, r)
         
     def combineImages(self):
         logger.info(f'Start, combine Images: {self.combinedImage}')
-        logger.info(f'combine Images: {self.combinedImage}')
-        #self.combinedImage.image.
-        logger.info(f'{len(self.images)} images to combine')
-        for image in self.images:
-            scale = min(self.width/image.width, self.height, image.height)
-            w = int(image.image.shape[1]*scale/self.columns)
-            h = int(image.image.shape[0]*scale/self.rows)
-            imageTk = image.resize( (w, h) )
-            offset1 = np.array(map(lambda x: int(x[0]), int(x[1]),
-                                   image.offset - self.offset) )
-            xmin = offset1[0] - int(w/2.0)
-            xmax = offset1[0] + int(w/2.0)
-            ymin = offset1[1] - int(h/2.0)
-            ymax = offset1[1] + int(h/2.0)
-            c1, r1 = self.xyToCR( (xmin, ymin) )
-            c2, r2 = self.xyToCR( (xmax, ymax) )
-            logger.info('  Insert at [{c1}:{c2}, {r1},{r2}] w/h={w},{h}')
-            self.combinedImage.image[r1:r2,c1:c2,:] = image.imageResized
+        for idata in self.images:
+            scales = idata.width/self.width, idata.height/self.height
+            ncols = int(scales[0]*self.columns)
+            nrows = int(scales[1]*self.rows)
+            w = idata.width
+            h = idata.height
+            imageTk = idata.resize( (ncols, nrows) )
+            offset1 = idata.offset - self.offset
+            xmin = offset1[0] - w/2.0
+            xmax = offset1[0] + w/2.0
+            ymin = offset1[1] - h/2.0
+            ymax = offset1[1] + h/2.0
+            #logger.info(f'({xmin},{ymin}) - ({xmax},{ymax})')
+            c1, r1 = self.xyToCR( (xmin, ymax) )
+            #c2, r2 = self.xyToCR( (xmax, ymin) )
+            r2 = r1 + idata.imageResized.shape[0]
+            c2 = c1 + idata.imageResized.shape[1]
+            #logger.info(f'  Insert at [{c1}:{c2}, {r1}:{r2}] w/h={w},{h}')
+            self.combinedImage.image[r1:r2,c1:c2,:] = idata.imageResized
         #
         logger.info(f'Combined image: w,h={self.width},{self.height}, offset={self.offset}')
         return self.combinedImage
@@ -151,6 +160,7 @@ class ImageFrame:
         scale = min(cw/w, ch/h)
         imgTk = self.combinedImage.resize( (int(scale*w), int(scale*h)) )
         cr = (int(scale*w/2), int(scale*h/2))
+        cr = (int(cw/2), int(ch/2))
         canvas.create_image(cr, image=imgTk)
         pass
     
@@ -161,6 +171,7 @@ class AppData:
         self.analysisList = []
         self.imageList = []
         self.currentImages = []
+        self.combinedImage = None
         self.currentAnalysis = None
         #
         pass
@@ -192,25 +203,21 @@ class AppData:
                 x = y
         return x
     
-    def selectImages(self, images):
-        logger.info(f'Model.selectImages called n={len(images)}')
-        if len(images) == 1:
-            img = images[0]
-            if len(self.currentImages)==1:
-                if self.currentImages[0]:
-                    if self.currentImages[0] != img:
-                        self.currentImages[0].clearImage()
-                        self.currentImages[0] = img
-                else:
-                    self.currentImages[0] = img
-            else:
-                self.currentImages.clear()
-                self.currentImages.append(img)
-            for image in self.currentImages:
-                logger.info(f'Open image file {image.path}')
-                image.open()
+    def selectImages(self, imageNames):
+        logger.info(f'Model.selectImages called n={len(imageNames)}')
+        for image in self.currentImages:
+            image.clearImage()
+        self.currentImages.clear()
+        #
+        for iname in imageNames:
+            img = self.findImage(iname)
+            self.currentImages.append(img)
+        for image in self.currentImages:
+            logger.info(f'Open image file {image.path}')
+            image.open()
         else:
             logger.warning('Images analysis on multiple images is not implemented yet')
+        return self.currentImages
 
     def selectAnalysis(self, analysis):
         self.currentAnalysis = analysis

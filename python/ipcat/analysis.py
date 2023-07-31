@@ -3,10 +3,29 @@
 #------------------------------------------------------------------------
 import logging
 from tkinter import ttk
+import numpy as np
+import matplotlib.pyplot as plt
+import io
 
 from .model import *
 
 logger = logging.getLogger(__name__)
+
+def figToArray(fig, dpi=180):
+    logger.info('figToArray')
+    buf = io.BytesIO()
+    logger.info('Hello')
+    fig.savefig(buf, format='png', dpi=dpi)
+    logger.info('seek 0')
+    buf.seek(0)
+    logger.info('frombuffer')
+    imgArray = np.frombuffer(buf.getvalue(), dtype=np.uint8)
+    logger.info('close buffer')
+    buf.close()
+    logger.info('imdecode')
+    img = cv2.imdecode(imgArray, 1)
+    logger.info('return img')
+    return img
 
 class ImageAnalysis:
     def __init__(self, name):
@@ -17,6 +36,9 @@ class ImageAnalysis:
         self.parameterChoiceMap = {}
         self.outputImages = []
         self.outputValues = {}
+        logging.getLogger('matplotlib.font_manager').setLevel(logging.INFO)
+        logging.getLogger('matplotlib.pyplot').setLevel(logging.INFO)
+        logging.getLogger('PIL.PngImagePlugin').setLevel(logging.INFO)
         pass
 
     def addParameters(self, pars):
@@ -46,6 +68,11 @@ class SingleImageAnalysis(ImageAnalysis):
         self.parameters = {}
         self.inputImages = []
 
+    def makeImageData(self, name):
+        x = self.inputImages[0].makeCopy()
+        x.name = name
+        return x
+    
     def run(self):
         super().run()
 
@@ -68,6 +95,31 @@ class ColorAnalysis(SingleImageAnalysis):
         idata.name = f'{idata.name}_bw'
         idata.setImage(img2)
         self.outputImages.append(idata)
+
+class IntensityAnalysis(SingleImageAnalysis):
+    def __init__(self, name):
+        super().__init__(name)
+        self.parameters = {
+            }
+    def run(self):
+        img1 = self.inputImages[0].image
+        #
+        img_bw = cv2.cvtColor(img1, cv2.COLOR_BGR2GRAY)
+        idata_bw = self.makeImageData(f'{self.name}_bw')
+        idata_bw.setImage(img_bw)
+        self.outputImages.append(idata_bw)
+        #
+        n = img_bw.shape[0]*img_bw.shape[1]
+        fig = plt.figure()
+        ax = fig.add_subplot(1, 1, 1)
+        ax.hist(img_bw.reshape( (n) ), bins=255, range=(0, 255), color='k', histtype='step', fill=False)
+        ax.hist(img1[:,:,0].reshape( (n) ), bins=255, range=(0, 255), histtype='step', color='b', fill=False)
+        ax.hist(img1[:,:,1].reshape( (n) ), bins=255, range=(0, 255), histtype='step', color='g', fill=False)
+        ax.hist(img1[:,:,2].reshape( (n) ), bins=255, range=(0, 255), histtype='step', color='r', fill=False)
+        img_hist = figToArray(fig)
+        idata_hist = self.makeImageData(f'{self.name}_hist')
+        idata_hist.setImage(img_hist)
+        self.outputImages.append(idata_hist)
 
 class CannyEdgeAnalysis(SingleImageAnalysis):
     def __init__(self, name):
@@ -109,6 +161,7 @@ class AnalysisStore:
     def initialize(self):
         logger.info('AnalysisStore initialize')
         self.addAnalysis('ColorAnalysis', ColorAnalysis)
+        self.addAnalysis('IntensityAnalysis', IntensityAnalysis)
         self.addAnalysis('CannyEdgeAnalysis', CannyEdgeAnalysis)
         
     def addAnalysis(self, name, analysisClass):

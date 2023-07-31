@@ -5,6 +5,7 @@
 #------------------------------------------------------------------------
 from .view import View
 from .analysis import AnalysisStore
+from .io       import InputData
 
 class App:
     def __init__(self, model, gui=None):
@@ -19,8 +20,11 @@ class App:
         pass
     
     # Actions on the model
-    def readImagesFromDirectory(self, dname):
-        pass
+    def readImagesFromJson(self, fn):
+        data = InputData(fn)
+        v = data.getImages()
+        for x in v:
+            self.addImageToList(x)
     
     def readImageFromFile(self, fname):
         img2 = None
@@ -45,15 +49,7 @@ class App:
         return v
     
     def selectImages(self, imageNames):
-        images = []
-        for imageName in imageNames:
-            img = self.model.findImage(imageName)
-            if img:
-                images.append(img)
-                print(img.name, img.path, img.width, img.offset)
-            else:
-                logger.warning(f'Cannot find image {imageName}')
-        self.model.selectImages(images)
+        images = self.model.selectImages(imageNames)
         if self.view:
             self.view.showImages(images)
         pass

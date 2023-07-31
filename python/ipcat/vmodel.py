@@ -6,6 +6,7 @@ class ViewModel:
     def __init__(self, model):
         self.model = model
         #
+        self.inputDir = '.'
         self.selectedImages = []
         self.inputImagePath = ''
         self.inputImageOffset = [0.0, 0.0]
@@ -15,6 +16,7 @@ class ViewModel:
         self.analysisList = []
         #
         self.currentImage = ''
+        self.combinedFrame = None
         #
         self.currentAnalysis = ''
         self.analysisProperties = []
@@ -23,6 +25,9 @@ class ViewModel:
         #
         self.messages = []
 
+    def setCombinedFrame(self, frame):
+        self.combinedFrame = frame
+        
     def addAnalysis(self, key):
         self.analysisList.append(key)
         print(self.analysisList)
