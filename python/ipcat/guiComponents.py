@@ -32,47 +32,6 @@ def addScrollBars(widget, parent, xscroll=False, yscroll=False, layout='grid'):
     return (xscrollbar, yscrollbar)
 
 #------------------------------------------------------------------------
-# AnalysisPanel
-#------------------------------------------------------------------------
-class AnalysisPanel(ttk.LabelFrame):
-    def __init__(self, parent, values, text='Analysis'):
-        super().__init__(parent, text=text)
-        cframe = ttk.Frame(self, height=600)
-        cframe.pack(side=tk.TOP, fill=tk.X)
-
-        cframe.grid_columnconfigure(0, weight=1)
-        cframe.grid_columnconfigure(1, weight=5)
-        cframe.grid_columnconfigure(2, weight=1)
-
-        selectionLabel = ttk.Label(cframe, text='Type: ')
-        selectionLabel.grid(row=0, column=0, sticky=tk.NSEW)
-        self.selection = ttk.Combobox(cframe, values=values)
-        self.selection.grid(row=0, column=1, sticky=tk.NSEW)
-        self.runButton = ttk.Button(cframe, text='Run')
-        self.runButton.grid(row=0, column=2, sticky=tk.NSEW)
-        nameLabel = ttk.Label(cframe, text='Name: ')
-        nameLabel.grid(row=1, column=0, sticky=tk.NSEW)
-        self.nameEntry = ttk.Entry(cframe)
-        self.nameEntry.grid(row=1, column=1, sticky=tk.NSEW)
-        
-        self.properties = ttk.LabelFrame(self, text='Properties')
-        self.properties.pack(side=tk.BOTTOM, fill=tk.BOTH, expand=True)
-
-        self.properties.rowconfigure(0, weight=1)
-        self.properties.columnconfigure(0, weight=10)
-
-        columns = ('parameter', 'value')
-        self.table = ttk.Treeview(self.properties, columns=columns,
-                                  show='headings', height=100)
-        self.table.heading('parameter', text='Parameter')
-        self.table.heading('value', text='Value')
-        self.table.column('parameter', minwidth=50, width=50)
-        self.table.column('value', minwidth=50, width=50)
-        #self.table = tk.Text(self.properties, height=10)
-        self.table.grid(row=0, column=0, sticky=tk.NS+tk.EW)
-        addScrollBars(self.table, self.properties, True, True)
-
-#------------------------------------------------------------------------
 # FieldEntryPanel
 #------------------------------------------------------------------------
 class FieldEntryPanel(ttk.Frame):
@@ -89,6 +48,11 @@ class FieldEntryPanel(ttk.Frame):
         x2.pack(side=tk.LEFT, fill=tk.X, expand=True)
     pass
 
+class FieldEntry:
+    def __init__(self, name, field):
+        self.name = name
+        self.field = field
+        
 #------------------------------------------------------------------------
 # EntryButtonPanel
 #------------------------------------------------------------------------
@@ -120,6 +84,68 @@ class ComboEntryPanel(ttk.Frame):
         self.entry = entry
         pass
     pass
+
+class GridFrame(ttk.Frame):
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.fields = []
+
+    def setFields(self, v):
+        self.fields = v
+
+    def addField(self, field):
+        self.fields.append(field)
+
+    def build(self):
+        n = len(self.fields)
+        ttk.Label(self, text='Field').grid(row=0, column=0, sticky=tk.EW)
+        ttk.Label(self, text='Value').grid(row=0, column=1, sticky=tk.EW)
+        for i, field in enumerate(self.fields):
+            irow = i + 1
+            label = ttk.Label(self, text=field.name)
+            value = ttk.Label(self, text=field.field)
+            label.grid(row=irow, column=0, sticky=tk.W)
+            value.grid(row=irow, column=1, sticky=tk.W)
+
+    def clear(self):
+        self.fields.clear()
+        self.delete(*self.get_children())
+        
+#------------------------------------------------------------------------
+# AnalysisPanel
+#------------------------------------------------------------------------
+class AnalysisPanel(ttk.LabelFrame):
+    def __init__(self, parent, values, text='Analysis'):
+        super().__init__(parent, text=text)
+        cframe = ttk.Frame(self, height=600)
+        cframe.pack(side=tk.TOP, fill=tk.X)
+
+        cframe.grid_columnconfigure(0, weight=1)
+        cframe.grid_columnconfigure(1, weight=5)
+        cframe.grid_columnconfigure(2, weight=1)
+
+        selectionLabel = ttk.Label(cframe, text='Type: ')
+        selectionLabel.grid(row=0, column=0, sticky=tk.NSEW)
+        self.selection = ttk.Combobox(cframe, values=values)
+        self.selection.grid(row=0, column=1, sticky=tk.NSEW)
+        self.runButton = ttk.Button(cframe, text='Run')
+        self.runButton.grid(row=0, column=2, sticky=tk.NSEW)
+        nameLabel = ttk.Label(cframe, text='Name: ')
+        nameLabel.grid(row=1, column=0, sticky=tk.NSEW)
+        self.nameEntry = ttk.Entry(cframe)
+        self.nameEntry.grid(row=1, column=1, sticky=tk.NSEW)
+        
+        self.properties = ttk.LabelFrame(self, text='Properties')
+        self.properties.pack(side=tk.BOTTOM, fill=tk.BOTH, expand=True)
+
+        self.properties.rowconfigure(0, weight=1)
+        self.properties.columnconfigure(0, weight=10)
+
+        columns = ('parameter', 'value')
+        self.propertiesFrame = GridFrame(self.properties)
+        self.propertiesFrame.grid(row=0, column=0, sticky=tk.NS+tk.EW)
+        self.propertiesFrame.build()
+        #addScrollBars(self.propertiesFrame, self.properties, True, True)
 
 #------------------------------------------------------------------------
 # ImageControlPanel

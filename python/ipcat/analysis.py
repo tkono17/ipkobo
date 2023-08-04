@@ -11,6 +11,36 @@ from .model import *
 
 logger = logging.getLogger(__name__)
 
+class Parameter:
+    def __init__(self, name, dtype, **kwargs):
+        self.name = name
+        self.dtype = dtype
+        self.value = self.dtype()
+        self.drange = None
+        self.choices = None
+        keys = kwargs.keys()
+        if 'drange' in keys:
+            self.drange = kwargs['drange']
+        if 'choices' in keys:
+            self.choices = kwargs['choices']
+
+    def setValue(self, value):
+        self.value = value
+
+    def isValid(self, value):
+        x = True
+        if self.drange:
+            if x > self.drange[0] and x < self.drange[1]:
+                x = True
+            else:
+                x = False
+        elif self.choices:
+            if x in self.choices:
+                x = True
+            else:
+                x = False
+        return x
+        
 def figToArray(fig, dpi=180):
     logger.info('figToArray')
     buf = io.BytesIO()
@@ -33,7 +63,6 @@ class ImageAnalysis:
         self.parameters = {}
         self.nInputImages = 0
         self.inputImages = []
-        self.parameterChoiceMap = {}
         self.outputImages = []
         self.outputValues = {}
         logging.getLogger('matplotlib.font_manager').setLevel(logging.INFO)
@@ -44,8 +73,11 @@ class ImageAnalysis:
     def addParameters(self, pars):
         self.parameters.extend(pars)
 
+    def addParameter(self, par):
+        self.parameters.append(pars)
+
     def setParameter(self, key, value):
-        self.parameters[key] = value
+        self.parameters[key].setValue(value)
 
     def setInputImage(self, imageData):
         self.inputImages.clear()

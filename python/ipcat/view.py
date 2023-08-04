@@ -48,13 +48,14 @@ class View:
         self.model.selectAnalysis(analysis)
         logger.info(f'Analysis {analysisName} -> {analysis}')
         if analysis:
-            table = self.gui.analysisPanel.table
-            table.delete(*table.get_children())
+            pframe = self.gui.analysisPanel.propertiesFrame
+            pframe.clear()
             logger.info(f'  Analysis parameters {len(analysis.parameters)}')
             for pn, pv in analysis.parameters.items():
                 values = (pn, pv)
-                self.vmodel.analysisProperties.append( (pn, pv) )
-                table.insert('', tk.END, values=values)
+                self.vmodel.analysisProperties.append(pv)
+                pframe.addParameter(pv)
+                pframe.build()
         pass
     
     def updateImageList(self):
