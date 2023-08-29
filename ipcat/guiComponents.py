@@ -49,9 +49,9 @@ class FieldEntryPanel(ttk.Frame):
     pass
 
 class FieldEntry:
-    def __init__(self, name, field):
+    def __init__(self, name, value):
         self.name = name
-        self.field = field
+        self.value = value
         
 #------------------------------------------------------------------------
 # EntryButtonPanel
@@ -85,31 +85,38 @@ class ComboEntryPanel(ttk.Frame):
         pass
     pass
 
-class GridFrame(ttk.Frame):
+class ParameterGridFrame(ttk.Frame):
     def __init__(self, parent):
-        super().__init__(parent)
+        super().__init__(parent, style='panel.TFrame')
         self.fields = []
-
+        self.grid_columnconfigure(0, weight=1)
+        self.grid_columnconfigure(1, weight=1)
+        
     def setFields(self, v):
+        self.clear()
         self.fields = v
+        self.build()
 
     def addField(self, field):
         self.fields.append(field)
 
     def build(self):
         n = len(self.fields)
-        ttk.Label(self, text='Field').grid(row=0, column=0, sticky=tk.EW)
-        ttk.Label(self, text='Value').grid(row=0, column=1, sticky=tk.EW)
+        c1 = ttk.Label(self, text='Field')
+        c2 = ttk.Label(self, text='Value')
+        c1.grid(row=0, column=0, sticky=tk.EW)
+        c2.grid(row=0, column=1, sticky=tk.EW)
         for i, field in enumerate(self.fields):
             irow = i + 1
             label = ttk.Label(self, text=field.name)
-            value = ttk.Label(self, text=field.field)
-            label.grid(row=irow, column=0, sticky=tk.W)
-            value.grid(row=irow, column=1, sticky=tk.W)
+            value = ttk.Label(self, text=field.value)
+            label.grid(row=irow, column=0, sticky=tk.EW)
+            value.grid(row=irow, column=1, sticky=tk.EW)
 
     def clear(self):
         self.fields.clear()
-        self.delete(*self.get_children())
+        for x in self.winfo_children():
+            x.destroy()
         
 #------------------------------------------------------------------------
 # AnalysisPanel
@@ -136,16 +143,15 @@ class AnalysisPanel(ttk.LabelFrame):
         self.nameEntry.grid(row=1, column=1, sticky=tk.NSEW)
         
         self.properties = ttk.LabelFrame(self, text='Properties')
-        self.properties.pack(side=tk.BOTTOM, fill=tk.BOTH, expand=True)
-
-        self.properties.rowconfigure(0, weight=1)
-        self.properties.columnconfigure(0, weight=10)
+        self.properties.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
         columns = ('parameter', 'value')
-        self.propertiesFrame = GridFrame(self.properties)
-        self.propertiesFrame.grid(row=0, column=0, sticky=tk.NS+tk.EW)
-        self.propertiesFrame.build()
+        fields = [FieldEntry('p1', 0.0),
+                  FieldEntry('p2', 'hello')]
+        self.propertiesFrame = ParameterGridFrame(self.properties)
+        self.propertiesFrame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
         #addScrollBars(self.propertiesFrame, self.properties, True, True)
+        self.propertiesFrame.setFields(fields)
 
 #------------------------------------------------------------------------
 # ImageControlPanel

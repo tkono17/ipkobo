@@ -68,11 +68,11 @@ class MainWindow(ttk.Frame):
         style.theme_use('clam')
         style.configure('TFrame', background='darkgreen')
         style.configure('main.TFrame', background='blue')
-        style.configure('panel.TFrame', background=(32, 32, 190))
+        style.configure('panel.TFrame', background='lightgreen')#(32, 32, 190))
         style.configure('canvas.TFrame', background='yellow')
         #style.configure('TButton', background=(32, 32, 50))
         #style.configure('ImageList.Treeview', rowHeight=100)
-        #style.configure('TLabelframe', background='blue')
+        style.configure('TLabelframe', background='blue')
         pass
     
     def buildGui(self):
