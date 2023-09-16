@@ -20,27 +20,68 @@ class View:
         self.model = model
         self.handlers = Handlers()
         self.mainWindow = MainWindow(model, handlers)
-        pass
+        #
+        self.buildGui(self.mainWindow)
 
+    def mainloop(self):
+        if self.mainWindow:
+            self.mainWindow.mainloop()
+        else:
+            logger.error('Mainloop failed since mainWindow is null')
+        
     # GUI building
     def buildGui(self):
+        self.buildMenu(self.mainWindow)
+        #
+        columns = ttk.Panedwindow(self.mainWindow, orient=tk.HORIZONTAL)
+        columns.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+        listPanel = ttk.Frame(columns)
+        workPanel = ttk.Panedwindow(columns, orient=tk.VERTICAL)
+        outputPanel = ttk.Panedwindow(columns, orient=tk.VERTICAL)
+        listPanel.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+        workPanel.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+        outputPanel.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+        columns.add(listPanel, weight=1)
+        columns.add(workPanel, weight=2)
+        columns.add(outputPanel, weight=2)
+        #
+        self.buildListPanel(listPanel)
+        self.buildWorkPanel(workPanel)
+        self.buildOutputPanel(outputPanel)
+        
+    def buildMenu(self, parent):
+        menuBar = tk.Menu(parent)
+        self.root.config(menu=menuBar)
+        #
+        file_menu = tk.Menu(menuBar, tearoff=False)
+        menuBar.add_cascade(label='File', menu=file_menu, underline=0)
+        file_menu.add_command(label='Open', command=self.handlers.readInputs)
+        file_menu.add_command(label='Quit', command=self.cleanup)
+        #
+        test_menu = tk.Menu(menuBar, tearoff=False)
+        test_menu.add_command(label='BasicTest',
+                              command=functools.partial(self.handlers.runTest, 'BasicTest') )
+        menuBar.add_cascade(label='Test', menu=test_menu)#, underline=0)
+
+    def buildGui(self, parent):
         pass
 
-    def buildMenu(self):
-        pass
-    def buildListPanel(self):
+    def buildMenu(self, parent):
         pass
     
-    def buildAnalysisPanel(self):
+    def buildListPanel(self, parent):
         pass
     
-    def buildInputImageFrame(self):
+    def buildAnalysisPanel(self, parent):
         pass
     
-    def buildParametersPanel(self):
+    def buildInputImageFrame(self, parent):
         pass
     
-    def buildOutputPanel(self):
+    def buildParametersPanel(self, parent):
+        pass
+    
+    def buildOutputPanel(self, parent):
         pass
 
     # Actions on the GUI

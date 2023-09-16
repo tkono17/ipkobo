@@ -30,7 +30,7 @@ def run(args):
         view = ipcat.View(model)
         #gui = ipcat.MainWindow(model)
         app = ipcat.App(model, view)
-        gui.mainloop()
+        view.mainloop()
     
 if __name__ == '__main__':
     args = parseArgs()
