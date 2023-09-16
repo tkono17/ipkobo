@@ -4,6 +4,7 @@
 import os
 import json
 import yaml
+import urllib.request
 from .model import ImageData
 
 class InputData:
@@ -17,6 +18,10 @@ class InputData:
         if os.path.exists(fn):
             with open(fn, 'r') as fin:
                 self.data = json.load(fin)
+        elif fn.beginswith('http'):
+            res = urllib.urlopen(fn)
+            if res.status == 200:
+                self.data = res.read()
                 
     def setProp(self, props, key, section):
         x = None
