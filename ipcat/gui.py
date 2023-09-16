@@ -40,14 +40,14 @@ def initTk():
 # MainWindow
 #------------------------------------------------------------------------
 class MainWindow(ttk.Frame):
-    def __init__(self, model):
+    def __init__(self, model, handlers):
         self.model = model
         self.root = initTk()
         self.setStyle()
         super().__init__(self.root, width=1000, height=600, style='main.TFrame')
         #
         self.pack(side=tk.TOP, expand=True, fill=tk.BOTH)
-        self.handlers = Handlers()
+        self.handlers = handlers
         self.vmodel = ViewModel(self.model)
 
         #

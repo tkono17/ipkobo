@@ -3,9 +3,11 @@
 #------------------------------------------------------------------------
 import os
 import logging
+
+from PIL import Image, ImageTk
+
 import numpy as np
 import cv2
-from PIL import Image, ImageTk
 
 logger = logging.getLogger(__name__)
 
@@ -176,32 +178,11 @@ class AppData:
         #
         pass
 
-    def allAnalysisNames(self):
-        v = list(map(lambda x: x.name, self.analysisList))
-        return v
-            
-    def allImageNames(self):
-        v = list(map(lambda x: x.name, self.imageList))
-        return v
-            
-    def addImageToList(self, img):
+    def addImage(self, img):
         self.imageList.append(img)
 
-    def findImage(self, imageName):
-        x = None
-        for y in self.imageList:
-            if y.name == imageName:
-                x = y
-                logger.info(f'Found match {imageName}, {x.path}')
-                break
-        return x
-    
-    def findAnalysis(self, analysisName):
-        x = None
-        for y in self.analysisList:
-            if y.name == analysisName:
-                x = y
-        return x
+    def addImagesFromJson(self, jsonFile):
+        pass
     
     def selectImages(self, imageNames):
         logger.info(f'Model.selectImages called n={len(imageNames)}')
@@ -222,6 +203,33 @@ class AppData:
     def selectAnalysis(self, analysis):
         self.currentAnalysis = analysis
 
+    def getAnalysis(self):
+        return self.currentAnalysis
+    
+    def allAnalysisNames(self):
+        v = list(map(lambda x: x.name, self.analysisList))
+        return v
+            
+    def allImageNames(self):
+        v = list(map(lambda x: x.name, self.imageList))
+        return v
+            
+    def findImage(self, imageName):
+        x = None
+        for y in self.imageList:
+            if y.name == imageName:
+                x = y
+                logger.info(f'Found match {imageName}, {x.path}')
+                break
+        return x
+    
+    def findAnalysis(self, analysisName):
+        x = None
+        for y in self.analysisList:
+            if y.name == analysisName:
+                x = y
+        return x
+    
     def runAnalysis(self):
         self.currentAnalysis.run()
         pass

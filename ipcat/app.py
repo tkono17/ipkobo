@@ -8,10 +8,10 @@ from .analysis import AnalysisStore
 from .io       import InputData
 
 class App:
-    def __init__(self, model, gui=None):
+    def __init__(self, model, view=None):
         self.model = model
-        self.gui = gui
-        self.view = None
+        self.view = view
+        self.gui = view.mainWindow
         if self.gui:
             self.view = View(self.gui)
             self.gui.handlers.setApp(self)

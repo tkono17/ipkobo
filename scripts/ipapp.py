@@ -21,14 +21,15 @@ def run(args):
     app = None
     #
     if args.batchMode:
-        gui = None
-        app = ipcat.App(model, gui)
+        view = None
+        app = ipcat.App(model, view)
         logger.info('Running in batch mode')
         test = ipcat.BatchTest1('test1', app)
         test.run()
     else:
-        gui = ipcat.MainWindow(model)
-        app = ipcat.App(model, gui)
+        view = ipcat.View(model)
+        #gui = ipcat.MainWindow(model)
+        app = ipcat.App(model, view)
         gui.mainloop()
     
 if __name__ == '__main__':

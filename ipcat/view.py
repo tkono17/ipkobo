@@ -10,15 +10,56 @@ import cv2
 from PIL import Image, ImageTk
 
 from .model import ImageData, ImageFrame
+from .gui   import MainWindow
 from .analysis import AnalysisStore
 
 logger = logging.getLogger(__name__)
 
 class View:
-    def __init__(self, gui):
-        self.gui = gui
-        self.vmodel = self.gui.vmodel
-        self.model = self.gui.vmodel.model
+    def __init__(self, model):
+        self.model = model
+        self.handlers = Handlers()
+        self.mainWindow = MainWindow(model, handlers)
+        pass
+
+    # GUI building
+    def buildGui(self):
+        pass
+
+    def buildMenu(self):
+        pass
+    def buildListPanel(self):
+        pass
+    
+    def buildAnalysisPanel(self):
+        pass
+    
+    def buildInputImageFrame(self):
+        pass
+    
+    def buildParametersPanel(self):
+        pass
+    
+    def buildOutputPanel(self):
+        pass
+
+    # Actions on the GUI
+    def addImageToList(self):
+        pass
+    
+    def setInputImages(self):
+        pass
+    
+    def updateParamters(self):
+        pass
+    
+    def clearGallery(self):
+        pass
+    
+    def addImageToGallery(self):
+        pass
+    
+    def outputText(self):
         pass
     
     # Actions on the GUI
@@ -41,7 +82,7 @@ class View:
             self.vmodel.addAnalysis(k)
         self.gui.analysisPanel.selection.configure(values=self.vmodel.analysisList)
 
-    def analysisSelected(self, analysisName):
+    def updateAnalysisPanel(self, analysisName):
         self.vmodel.currentAnalysis = analysisName
         store = AnalysisStore.get()
         analysis = store.create(analysisName, f'{analysisName}1')
