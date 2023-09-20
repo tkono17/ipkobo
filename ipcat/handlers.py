@@ -62,7 +62,7 @@ class Handlers:
             
     def showImages(self, e):
         print('showImages called')
-        tree = self.view.gui.imageList
+        tree = self.view.mainWindow.imageList
         items = tree.selection()
         names = []
         for item in items:

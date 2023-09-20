@@ -96,6 +96,15 @@ class ImageFrame:
         return np.array( (x, y) )
     
     def setImages(self, images):
+        if len(images)==1 and images[0].imageOk:
+            img0 = images[0]
+            image0 = img0.image.copy()
+            self.combinedImage = ImageData(name='combinedImage', path='',
+                                           width=img0.width,
+                                           height=img0.height, 
+                                           offset=img0.offset)
+            self.combinedImage.setImage(image0)
+            return
         xmin = min(map(lambda x: x.offset[0]-x.width/2.0, images) )
         xmax = max(map(lambda x: x.offset[0]+x.width/2.0, images) )
         ymin = min(map(lambda x: x.offset[1]-x.height/2.0, images) )
@@ -115,9 +124,10 @@ class ImageFrame:
                 self.rows = self.columns * int(self.width/self.height)
             elif self.width > self.height:
                 self.columns = self.rows * int(self.height/self.width)
-        image0 = np.ones( (self.rows, self.columns, 3), np.uint8)
-        self.combinedImage.setImage(image0*255)
+        image0 = np.ones( (self.rows, self.columns, 3), np.uint8)*255
+        self.combinedImage.setImage(image0)
         logger.info(f'End of setImages, combine Images: {self.combinedImage}')
+        self.combineImages()
         pass
 
     def xyToCR(self, xy):
@@ -138,7 +148,7 @@ class ImageFrame:
             nrows = int(scales[1]*self.rows)
             w = idata.width
             h = idata.height
-            imageTk = idata.resize( (ncols, nrows) )
+            idata.resize( (ncols, nrows) )
             offset1 = idata.offset - self.offset
             xmin = offset1[0] - w/2.0
             xmax = offset1[0] + w/2.0
@@ -149,7 +159,7 @@ class ImageFrame:
             #c2, r2 = self.xyToCR( (xmax, ymin) )
             r2 = r1 + idata.imageResized.shape[0]
             c2 = c1 + idata.imageResized.shape[1]
-            #logger.info(f'  Insert at [{c1}:{c2}, {r1}:{r2}] w/h={w},{h}')
+            logger.info(f'  Insert at [{c1}:{c2}, {r1}:{r2}] w/h={w},{h}')
             self.combinedImage.image[r1:r2,c1:c2,:] = idata.imageResized
         #
         logger.info(f'Combined image: w,h={self.width},{self.height}, offset={self.offset}')
@@ -163,7 +173,9 @@ class ImageFrame:
         imgTk = self.combinedImage.resize( (int(scale*w), int(scale*h)) )
         cr = (int(scale*w/2), int(scale*h/2))
         cr = (int(cw/2), int(ch/2))
-        canvas.create_image(cr, image=imgTk)
+        logger.info(f'drawOnCanvas {canvas} cr={cr}, img={imgTk}')
+        logger.info(f'{type(imgTk)}')
+        canvas.create_image(cr[0], cr[1], image=imgTk)
         pass
     
 class AppData:

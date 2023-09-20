@@ -51,7 +51,7 @@ class BasicTest(Test):
         indata = InputData('./a.json')
         v = indata.getImages()
         for x in v:
-            self.app.addImageToList(x)
+            self.app.addImage(x)
         
 class BasicGuiTest(Test):
     def __init__(self, name, app):

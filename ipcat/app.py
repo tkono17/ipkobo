@@ -3,7 +3,6 @@
 # -------------
 # Application logic (operations)
 #------------------------------------------------------------------------
-from .view import View
 from .analysis import AnalysisStore
 from .io       import InputData
 
@@ -11,10 +10,9 @@ class App:
     def __init__(self, model, view=None):
         self.model = model
         self.view = view
-        self.gui = view.mainWindow
-        if self.gui:
-            self.view = View(self.gui)
-            self.gui.handlers.setApp(self)
+        self.mainWindow = view.mainWindow
+        if self.mainWindow:
+            self.mainWindow.handlers.setApp(self)
         self.analysisStore = AnalysisStore()
         self.view.updateAnalysisList()
         pass
@@ -34,8 +32,8 @@ class App:
             img2 = ImageTk.PhotoImage(img1)
         return img2
 
-    def addImageToList(self, imageData):
-        self.model.addImageToList(imageData)
+    def addImage(self, imageData):
+        self.model.addImage(imageData)
         if self.view:
             self.view.updateImageList()
         pass

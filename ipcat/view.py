@@ -11,6 +11,7 @@ from PIL import Image, ImageTk
 
 from .model import ImageData, ImageFrame
 from .gui   import MainWindow
+from .handlers import Handlers
 from .analysis import AnalysisStore
 
 logger = logging.getLogger(__name__)
@@ -19,71 +20,16 @@ class View:
     def __init__(self, model):
         self.model = model
         self.handlers = Handlers()
-        self.mainWindow = MainWindow(model, handlers)
+        self.mainWindow = MainWindow(model, self.handlers)
         #
-        self.buildGui(self.mainWindow)
-
+        self.currentImageFrame = None
+        
     def mainloop(self):
         if self.mainWindow:
             self.mainWindow.mainloop()
         else:
             logger.error('Mainloop failed since mainWindow is null')
         
-    # GUI building
-    def buildGui(self):
-        self.buildMenu(self.mainWindow)
-        #
-        columns = ttk.Panedwindow(self.mainWindow, orient=tk.HORIZONTAL)
-        columns.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
-        listPanel = ttk.Frame(columns)
-        workPanel = ttk.Panedwindow(columns, orient=tk.VERTICAL)
-        outputPanel = ttk.Panedwindow(columns, orient=tk.VERTICAL)
-        listPanel.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
-        workPanel.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
-        outputPanel.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
-        columns.add(listPanel, weight=1)
-        columns.add(workPanel, weight=2)
-        columns.add(outputPanel, weight=2)
-        #
-        self.buildListPanel(listPanel)
-        self.buildWorkPanel(workPanel)
-        self.buildOutputPanel(outputPanel)
-        
-    def buildMenu(self, parent):
-        menuBar = tk.Menu(parent)
-        self.root.config(menu=menuBar)
-        #
-        file_menu = tk.Menu(menuBar, tearoff=False)
-        menuBar.add_cascade(label='File', menu=file_menu, underline=0)
-        file_menu.add_command(label='Open', command=self.handlers.readInputs)
-        file_menu.add_command(label='Quit', command=self.cleanup)
-        #
-        test_menu = tk.Menu(menuBar, tearoff=False)
-        test_menu.add_command(label='BasicTest',
-                              command=functools.partial(self.handlers.runTest, 'BasicTest') )
-        menuBar.add_cascade(label='Test', menu=test_menu)#, underline=0)
-
-    def buildGui(self, parent):
-        pass
-
-    def buildMenu(self, parent):
-        pass
-    
-    def buildListPanel(self, parent):
-        pass
-    
-    def buildAnalysisPanel(self, parent):
-        pass
-    
-    def buildInputImageFrame(self, parent):
-        pass
-    
-    def buildParametersPanel(self, parent):
-        pass
-    
-    def buildOutputPanel(self, parent):
-        pass
-
     # Actions on the GUI
     def addImageToList(self):
         pass
@@ -115,50 +61,54 @@ class View:
         return img
 
     def updateAnalysisList(self):
-        if not self.gui:
+        if not self.mainWindow:
             return
         store = AnalysisStore.get()
         logger.info(f'Store n analysis: {len(store.analysisTypes)}')
         for k in store.analysisTypes:
-            self.vmodel.addAnalysis(k)
-        self.gui.analysisPanel.selection.configure(values=self.vmodel.analysisList)
+            #self.vmodel.addAnalysis(k)
+            pass
+        self.mainWindow.analysisPanel.selection.configure()#values=self.vmodel.analysisList)
 
     def updateAnalysisPanel(self, analysisName):
-        self.vmodel.currentAnalysis = analysisName
+        #self.vmodel.currentAnalysis = analysisName
         store = AnalysisStore.get()
         analysis = store.create(analysisName, f'{analysisName}1')
         self.model.selectAnalysis(analysis)
         logger.info(f'Analysis {analysisName} -> {analysis}')
         if analysis:
-            pframe = self.gui.analysisPanel.propertiesFrame
+            pframe = self.mainWindow.analysisPanel.propertiesFrame
             pframe.clear()
             logger.info(f'  Analysis parameters {len(analysis.parameters)}')
             for pn, pv in analysis.parameters.items():
                 values = (pn, pv)
-                self.vmodel.analysisProperties.append(pv)
+                #self.vmodel.analysisProperties.append(pv)
                 pframe.addParameter(pv)
                 pframe.build()
         pass
     
     def updateImageList(self):
-        if not self.gui:
+        if not self.mainWindow:
+            logger.info('No GUI is empty')
             return
-        self.gui.imageList.delete(*self.gui.imageList.get_children())
+        widgets = self.mainWindow.imageList.get_children()
+        self.mainWindow.imageList.delete(*widgets)
+        logger.info('Update imageList')
+        logger.info(f'{self.mainWindow.imageList}')
+        tree = self.mainWindow.imageList
         for img in self.model.imageList:
             values = (img.name, os.path.basename(img.path),
                       img.width, img.height, img.offset[0], img.offset[1])
-            self.gui.imageList.insert('', tk.END, values=values)
+            logger.info(f'  Add image {img.name} {values}')
+            self.mainWindow.imageList.insert('', tk.END, values=values)
         pass
     
     def showImages(self, images):
         logger.info(f'View.showImages called Nimages={len(images)}')
-        self.vmodel.selectedImages.clear()
         #
         wframe = ImageFrame(images)
-        self.vmodel.setCombinedFrame(wframe)
-        wframe.combineImages()
-        wframe.drawOnCanvas(self.gui.canvas)
-        #self.gui.canvas.config('background')
+        self.currentImageFrame = wframe
+        wframe.drawOnCanvas(self.mainWindow.canvas)
         logger.info('Display images on the canvas')
 
     def clearImage(self):
@@ -191,10 +141,10 @@ class View:
                 cr = (int(width), int(width*r) )
                 imageTk = imageData.resize(cr)
                 logger.info(f'{imageTk}')
-                self.gui.galleryPanel.addImageFrame(imageTk, imageData.name)
+                self.mainWindow.galleryPanel.addImageFrame(imageTk, imageData.name)
         pass
 
     def clearGallery(self):
-        self.gui.galleryPanel.clear()
+        self.mainWindow.galleryPanel.clear()
         pass
 

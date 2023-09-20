@@ -24,7 +24,6 @@ from PIL import Image, ImageTk
 
 from .guiComponents import *
 from .vmodel import ViewModel
-from .handlers import Handlers, openImage
 from .analysis import *
 
 logger = logging.getLogger(__name__)
@@ -75,6 +74,46 @@ class MainWindow(ttk.Frame):
         style.configure('TLabelframe', background='blue')
         pass
     
+    # GUI building
+    def buildGui(self):
+        self.buildMenu(self)
+        #
+        columns = ttk.Panedwindow(self, orient=tk.HORIZONTAL)
+        columns.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+        listPanel = ttk.Frame(columns)
+        workPanel = ttk.Panedwindow(columns, orient=tk.VERTICAL)
+        outputPanel = ttk.Panedwindow(columns, orient=tk.VERTICAL)
+        listPanel.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+        workPanel.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+        outputPanel.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+        columns.add(listPanel, weight=1)
+        columns.add(workPanel, weight=2)
+        columns.add(outputPanel, weight=2)
+        #
+        self.buildListPanel(listPanel)
+        self.buildWorkPanel(workPanel)
+        self.buildOutputPanel(outputPanel)
+        
+    def buildMenu(self, parent):
+        menuBar = tk.Menu(parent)
+        self.root.config(menu=menuBar)
+        #
+        file_menu = tk.Menu(menuBar, tearoff=False)
+        menuBar.add_cascade(label='File', menu=file_menu, underline=0)
+        file_menu.add_command(label='Open', command=self.handlers.readInputs)
+        file_menu.add_command(label='Quit', command=self.cleanup)
+        #
+        test_menu = tk.Menu(menuBar, tearoff=False)
+        test_menu.add_command(label='BasicTest',
+                              command=functools.partial(self.handlers.runTest, 'BasicTest') )
+        menuBar.add_cascade(label='Test', menu=test_menu)#, underline=0)
+
+    def buildInputImageFrame(self, parent):
+        pass
+    
+    def buildParametersPanel(self, parent):
+        pass
+    
     def buildListPanel(self, parent):
         columns = ('name', 'path', 'width', 'height', 'xOffset', 'yOffset')
         tree = ttk.Treeview(parent, columns=columns, show='headings', height=100)
@@ -103,7 +142,7 @@ class MainWindow(ttk.Frame):
         showButton = ttk.Button(imagePanel, text='Show selected image(s)')
         showButton.pack(anchor=tk.NW)
         showButton.bind('<Button-1>', self.handlers.showImages)
-        canvas = tk.Canvas(imagePanel)
+        canvas = tk.Canvas(imagePanel, bg='cyan')
         canvas.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
         
         analysisPanel = AnalysisPanel(parent, self.vmodel.analysisList)

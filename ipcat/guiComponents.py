@@ -104,14 +104,18 @@ class ParameterGridFrame(ttk.Frame):
         n = len(self.fields)
         c1 = ttk.Label(self, text='Field')
         c2 = ttk.Label(self, text='Value')
+        c3 = ttk.Label(self, text='Scale')
         c1.grid(row=0, column=0, sticky=tk.EW)
         c2.grid(row=0, column=1, sticky=tk.EW)
+        c3.grid(row=0, column=2, sticky=tk.EW)
         for i, field in enumerate(self.fields):
             irow = i + 1
             label = ttk.Label(self, text=field.name)
-            value = ttk.Label(self, text=field.value)
+            value = ttk.Entry(self)
+            slider = ttk.Scale(self, from_=0, to=100, orient=tk.HORIZONTAL)
             label.grid(row=irow, column=0, sticky=tk.EW)
             value.grid(row=irow, column=1, sticky=tk.EW)
+            slider.grid(row=irow, column=2, sticky=tk.EW)
 
     def clear(self):
         self.fields.clear()

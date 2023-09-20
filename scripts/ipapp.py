@@ -28,7 +28,6 @@ def run(args):
         test.run()
     else:
         view = ipcat.View(model)
-        #gui = ipcat.MainWindow(model)
         app = ipcat.App(model, view)
         view.mainloop()
     
