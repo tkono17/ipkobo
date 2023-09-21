@@ -13,10 +13,10 @@ class App:
         self.mainWindow = view.mainWindow
         if self.mainWindow:
             self.mainWindow.handlers.setApp(self)
-        self.analysisStore = AnalysisStore()
+        self.analysisStore = AnalysisStore.get()
         self.view.updateAnalysisList()
         pass
-    
+
     # Actions on the model
     def readImagesFromJson(self, fn):
         data = InputData(fn)

@@ -212,8 +212,11 @@ class AppData:
             logger.warning('Images analysis on multiple images is not implemented yet')
         return self.currentImages
 
-    def selectAnalysis(self, analysis):
+    def selectAnalysis(self, analysisName):
+        store = AnalysisStore.get()
+        analysis = store.create(analysisName, f'{analysisName}1')
         self.currentAnalysis = analysis
+        return self.currentAnalysis
 
     def getAnalysis(self):
         return self.currentAnalysis

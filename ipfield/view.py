@@ -65,16 +65,14 @@ class View:
             return
         store = AnalysisStore.get()
         logger.info(f'Store n analysis: {len(store.analysisTypes)}')
+        v = []
         for k in store.analysisTypes:
-            #self.vmodel.addAnalysis(k)
-            pass
-        self.mainWindow.analysisPanel.selection.configure()#values=self.vmodel.analysisList)
+            v.append(k)
+        self.mainWindow.analysisPanel.selection.configure(values=v)
 
     def updateAnalysisPanel(self, analysisName):
         #self.vmodel.currentAnalysis = analysisName
-        store = AnalysisStore.get()
-        analysis = store.create(analysisName, f'{analysisName}1')
-        self.model.selectAnalysis(analysis)
+        analysis = self.model.selectAnalysis(analysisName)
         logger.info(f'Analysis {analysisName} -> {analysis}')
         if analysis:
             pframe = self.mainWindow.analysisPanel.propertiesFrame
@@ -82,14 +80,13 @@ class View:
             logger.info(f'  Analysis parameters {len(analysis.parameters)}')
             for pn, pv in analysis.parameters.items():
                 values = (pn, pv)
-                #self.vmodel.analysisProperties.append(pv)
                 pframe.addParameter(pv)
                 pframe.build()
         pass
     
     def updateImageList(self):
         if not self.mainWindow:
-            logger.info('No GUI is empty')
+            logger.info('No GUI')
             return
         widgets = self.mainWindow.imageList.get_children()
         self.mainWindow.imageList.delete(*widgets)
