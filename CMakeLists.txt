@@ -1,8 +1,8 @@
 #------------------------------------------------------------------------
-# ipfield: CMakeLists.txt
+# ipbox: CMakeLists.txt
 #------------------------------------------------------------------------
 cmake_minimum_required(VERSION 3.10)
-set(PROJECT_NAME ipfield)
+set(PROJECT_NAME ipbox)
 
 project(${PROJECT_NAME})
 
@@ -15,7 +15,7 @@ set(ScriptFiles scripts/ipapp.py)
 #------------------------------------------------------------------------
 # Installation
 #------------------------------------------------------------------------
-install(DIRECTORY ipfield
+install(DIRECTORY ipbox
   DESTINATION python
   FILES_MATCHING PATTERN "*.py")
 

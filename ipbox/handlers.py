@@ -59,9 +59,9 @@ class Handlers:
             test = BasicTest('test1', self.app)
         if test:
             test.run()
-            
-    def showImages(self, e):
-        print('showImages called')
+
+    def selectImages(self, e):
+        print('selectImages called')
         tree = self.view.mainWindow.imageList
         items = tree.selection()
         names = []
@@ -69,7 +69,8 @@ class Handlers:
             values = tree.item(item)['values']
             names.append(values[0])
         images = self.app.selectImages(names)
-
+        self.view.showImages()
+        
     def runAnalysis(self, e):
         logger.info('Run analysis')
         self.app.runAnalysis()
@@ -77,7 +78,8 @@ class Handlers:
     def analysisSelected(self, e):
         analysisName = e.widget.get()
         logger.info(f'Analysis selected ==> {analysisName}')
-        self.view.analysisSelected(analysisName)
+        self.app.selectAnalysis(analysisName)
+        self.view.updateAnalysisPanel()
 
 def openImage():
     img = cdata.controller.openImage()

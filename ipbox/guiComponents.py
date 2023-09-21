@@ -52,7 +52,16 @@ class FieldEntry:
     def __init__(self, name, value):
         self.name = name
         self.value = value
-        
+    def createVar(self):
+        x = tk.StringVar()
+        if type(self.value) == type(''):
+            x = tk.StringVar(value=self.value)
+        elif type(self.value) == type(1):
+            x = tk.IntVar(value=self.value)
+        elif type(self.value) == type(1.0):
+            x = tk.DoubleVar(value=self.value)
+        return x
+    
 #------------------------------------------------------------------------
 # EntryButtonPanel
 #------------------------------------------------------------------------
@@ -89,8 +98,10 @@ class ParameterGridFrame(ttk.Frame):
     def __init__(self, parent):
         super().__init__(parent, style='panel.TFrame')
         self.fields = []
+        self.fieldVars = {}
         self.grid_columnconfigure(0, weight=1)
         self.grid_columnconfigure(1, weight=1)
+        self.grid_columnconfigure(2, weight=1)
         
     def setFields(self, v):
         self.clear()
@@ -110,8 +121,11 @@ class ParameterGridFrame(ttk.Frame):
         c3.grid(row=0, column=2, sticky=tk.EW)
         for i, field in enumerate(self.fields):
             irow = i + 1
+            valuestr = field.createVar()
+            self.fieldVars[field.name] = valuestr
             label = ttk.Label(self, text=field.name)
-            value = ttk.Entry(self)
+            value = ttk.Entry(self, textvariable=valuestr)
+            print(f'{field.name}, {field.value}')
             slider = ttk.Scale(self, from_=0, to=100, orient=tk.HORIZONTAL)
             label.grid(row=irow, column=0, sticky=tk.EW)
             value.grid(row=irow, column=1, sticky=tk.EW)
@@ -119,6 +133,7 @@ class ParameterGridFrame(ttk.Frame):
 
     def clear(self):
         self.fields.clear()
+        self.fieldVars.clear()
         for x in self.winfo_children():
             x.destroy()
         
@@ -211,8 +226,8 @@ class ScrollableFrame(ttk.Frame):
         #
         for i in range(20):
             title = f'Label{i}'
-            label = ttk.Label(self.frame, text=title)
-            label.pack(side=tk.TOP, fill=tk.X, expand=True)
+            #label = ttk.Label(self.frame, text=title)
+            #label.pack(side=tk.TOP, fill=tk.X, expand=True)
 
     def onFrameConfigure(self, event=None):
         canvas1 = event.widget.master

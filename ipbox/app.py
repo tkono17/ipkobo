@@ -3,8 +3,12 @@
 # -------------
 # Application logic (operations)
 #------------------------------------------------------------------------
+import logging
+
 from .analysis import AnalysisStore
 from .io       import InputData
+
+logger = logging.getLogger(__name__)
 
 class App:
     def __init__(self, model, view=None):
@@ -49,13 +53,13 @@ class App:
     def selectImages(self, imageNames):
         images = self.model.selectImages(imageNames)
         if self.view:
-            self.view.showImages(images)
+            self.view.showImages()
         pass
     
     def selectAnalysis(self, analysisName):
-        a = self.model.findAnalysis(analysisName)
-        self.model.selectImage(a)
-        pass
+        #a = self.model.findAnalysis(analysisName)
+        #self.model.selectImage(a)
+        return self.model.selectAnalysis(analysisName)
 
     def setAnalysisParameters(self, pars):
         if self.model.currentAnalysis:
@@ -63,9 +67,11 @@ class App:
         pass
     
     def runAnalysis(self):
+        image = self.model.currentImageFrame
         analysis = self.model.currentAnalysis
-        if analysis:
-            analysis.setInputImages(self.model.currentImages)
+        logger.info(f'  runAnalysis {image}, {analysis}')
+        if image and analysis:
+            analysis.setInputImages(image, self.model.currentImages)
             analysis.run()
             self.view.updateGallery()
         pass

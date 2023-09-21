@@ -7,7 +7,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 import io
 
-from .model import *
+import cv2
+
+#from .model import *
 
 logger = logging.getLogger(__name__)
 
@@ -61,6 +63,7 @@ class ImageAnalysis:
     def __init__(self, name):
         self.name = name
         self.parameters = {}
+        self.combinedImageFrame = None
         self.nInputImages = 0
         self.inputImages = []
         self.outputImages = []
@@ -79,14 +82,11 @@ class ImageAnalysis:
     def setParameter(self, key, value):
         self.parameters[key].setValue(value)
 
-    def setInputImage(self, imageData):
+    def setInputImages(self, imageFrame, images):
+        self.combinedImageFrame = imageFrame
         self.inputImages.clear()
-        self.inputImages.append(imageData)
-        
-    def setInputImages(self, imageData):
-        self.inputImages.clear()
-        for data in imageData:
-            self.inputImages.append(data)
+        for x in images:
+            self.inputImages.append(x)
         
     def run(self):
         logger.debug('ImageAnalysis.run()')
@@ -117,6 +117,7 @@ class ColorAnalysis(SingleImageAnalysis):
     def run(self):
         img1 = self.inputImages[0].image
         img2 = img1
+        logger.info(f'{self.name} running, pars={self.parameters}')
         if self.parameters['ColorConversion'] == 'COLOR_BGR2GRAY':
             img2 = cv2.cvtColor(img1, cv2.COLOR_BGR2GRAY)
             logger.info(f'Conversion to Grayscale shape={img2.shape}')

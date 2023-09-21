@@ -141,7 +141,7 @@ class MainWindow(ttk.Frame):
         imagePanel.pack(anchor=tk.NW, fill=tk.BOTH, expand=True)
         showButton = ttk.Button(imagePanel, text='Show selected image(s)')
         showButton.pack(anchor=tk.NW)
-        showButton.bind('<Button-1>', self.handlers.showImages)
+        showButton.bind('<Button-1>', self.handlers.selectImages)
         canvas = tk.Canvas(imagePanel, bg='cyan')
         canvas.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
         

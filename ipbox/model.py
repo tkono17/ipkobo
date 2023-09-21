@@ -9,6 +9,8 @@ from PIL import Image, ImageTk
 import numpy as np
 import cv2
 
+from .analysis import AnalysisStore
+
 logger = logging.getLogger(__name__)
 
 class ImageData:
@@ -184,6 +186,7 @@ class AppData:
         self.workDir = '.'
         self.analysisList = []
         self.imageList = []
+        self.currentImageFrame = None
         self.currentImages = []
         self.combinedImage = None
         self.currentAnalysis = None
@@ -208,8 +211,10 @@ class AppData:
         for image in self.currentImages:
             logger.info(f'Open image file {image.path}')
             image.open()
-        else:
-            logger.warning('Images analysis on multiple images is not implemented yet')
+        logger.info(f'{len(imageNames)} images selected. Creating the combined frame')
+        #
+        wframe = ImageFrame(self.currentImages)
+        self.currentImageFrame = wframe
         return self.currentImages
 
     def selectAnalysis(self, analysisName):

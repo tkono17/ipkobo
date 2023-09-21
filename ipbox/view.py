@@ -11,6 +11,7 @@ from PIL import Image, ImageTk
 
 from .model import ImageData, ImageFrame
 from .gui   import MainWindow
+from .guiComponents import FieldEntry
 from .handlers import Handlers
 from .analysis import AnalysisStore
 
@@ -22,7 +23,6 @@ class View:
         self.handlers = Handlers()
         self.mainWindow = MainWindow(model, self.handlers)
         #
-        self.currentImageFrame = None
         
     def mainloop(self):
         if self.mainWindow:
@@ -38,9 +38,6 @@ class View:
         pass
     
     def updateParamters(self):
-        pass
-    
-    def clearGallery(self):
         pass
     
     def addImageToGallery(self):
@@ -70,18 +67,17 @@ class View:
             v.append(k)
         self.mainWindow.analysisPanel.selection.configure(values=v)
 
-    def updateAnalysisPanel(self, analysisName):
-        #self.vmodel.currentAnalysis = analysisName
-        analysis = self.model.selectAnalysis(analysisName)
-        logger.info(f'Analysis {analysisName} -> {analysis}')
+    def updateAnalysisPanel(self):
+        analysis = self.model.currentAnalysis
+        logger.info(f'Analysis {analysis.name} -> {analysis}')
         if analysis:
             pframe = self.mainWindow.analysisPanel.propertiesFrame
             pframe.clear()
             logger.info(f'  Analysis parameters {len(analysis.parameters)}')
+            fields = []
             for pn, pv in analysis.parameters.items():
-                values = (pn, pv)
-                pframe.addParameter(pv)
-                pframe.build()
+                fields.append(FieldEntry(pn, pv))
+            pframe.setFields(fields)
         pass
     
     def updateImageList(self):
@@ -100,13 +96,10 @@ class View:
             self.mainWindow.imageList.insert('', tk.END, values=values)
         pass
     
-    def showImages(self, images):
-        logger.info(f'View.showImages called Nimages={len(images)}')
-        #
-        wframe = ImageFrame(images)
-        self.currentImageFrame = wframe
-        wframe.drawOnCanvas(self.mainWindow.canvas)
+    def showImages(self):
         logger.info('Display images on the canvas')
+        wframe = self.model.currentImageFrame
+        wframe.drawOnCanvas(self.mainWindow.canvas)
 
     def clearImage(self):
         pass
@@ -131,6 +124,7 @@ class View:
         analysis = self.model.currentAnalysis
         width = 500
         cr = (width, width)
+        logger.info(f'Update gallery from analysis={analysis}')
         if analysis:
             logger.info(f'Update gallery with {len(analysis.outputImages)} images')
             for imageData in analysis.outputImages:
@@ -142,6 +136,7 @@ class View:
         pass
 
     def clearGallery(self):
+        logger.info(f'Clear gallery')
         self.mainWindow.galleryPanel.clear()
         pass
 
