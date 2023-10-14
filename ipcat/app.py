@@ -10,7 +10,10 @@ from .io       import InputData
 
 logger = logging.getLogger(__name__)
 
+sApp = None
+
 class App:
+    
     def __init__(self, model, view=None):
         self.model = model
         self.view = view
@@ -21,6 +24,32 @@ class App:
         self.view.updateAnalysisList()
         pass
 
+    # Static actions
+    @staticmethod
+    def create(model, view=None):
+        app = App(model, view)
+        sApp = app
+        return app
+    
+    @staticmethod
+    def get():
+        return sApp
+
+    def processCommand(self, cmd):
+        words = cmd.split()
+        cmdname = ''
+        args = []
+        if len(words)>=1:
+            cmdname = words[0]
+        args = words[1:]
+        if cmdname == 'readImagesFromJson':
+            pass
+        elif cmdname == 'readImageFromFile':
+            pass
+        elif cmdname == 'selectImages':
+            pass
+        pass
+    
     # Actions on the model
     def readImagesFromJson(self, fn):
         data = InputData(fn)

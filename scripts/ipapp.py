@@ -5,7 +5,7 @@
 import argparse
 import logging
 
-import ipbox
+import ipcat
 
 logger = logging.getLogger(__name__)
 
@@ -17,18 +17,18 @@ def parseArgs():
     return parser.parse_args()
 
 def run(args):
-    model = ipbox.AppData()
+    model = ipcat.AppData()
     app = None
     #
     if args.batchMode:
         view = None
-        app = ipbox.App(model, view)
+        app = ipcat.App(model, view)
         logger.info('Running in batch mode')
-        test = ipbox.BatchTest1('test1', app)
+        test = ipcat.BatchTest1('test1', app)
         test.run()
     else:
-        view = ipbox.View(model)
-        app = ipbox.App(model, view)
+        view = ipcat.View(model)
+        app = ipcat.App(model, view)
         view.mainloop()
     
 if __name__ == '__main__':

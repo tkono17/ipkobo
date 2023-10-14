@@ -182,7 +182,6 @@ class ImageFrame:
     
 class AppData:
     def __init__(self):
-        self.openFileDir = '.'
         self.workDir = '.'
         self.analysisList = []
         self.imageList = []

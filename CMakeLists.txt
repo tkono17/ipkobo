@@ -1,8 +1,8 @@
 #------------------------------------------------------------------------
-# ipbox: CMakeLists.txt
+# ipcat: CMakeLists.txt
 #------------------------------------------------------------------------
 cmake_minimum_required(VERSION 3.10)
-set(PROJECT_NAME ipbox)
+set(PROJECT_NAME ipcat)
 
 project(${PROJECT_NAME})
 
@@ -15,7 +15,7 @@ set(ScriptFiles scripts/ipapp.py)
 #------------------------------------------------------------------------
 # Installation
 #------------------------------------------------------------------------
-install(DIRECTORY ipbox
+install(DIRECTORY ipcat
   DESTINATION python
   FILES_MATCHING PATTERN "*.py")
 

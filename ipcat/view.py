@@ -22,6 +22,7 @@ class View:
         self.model = model
         self.handlers = Handlers()
         self.mainWindow = MainWindow(model, self.handlers)
+        self.openFileDir = '.'
         #
         
     def mainloop(self):
@@ -50,7 +51,7 @@ class View:
     def openImage(self, dname):
         ftypes = [('Image file', '*.jpg'), ('all', '*')]
         fn = tk.filedialog.askopenfilename(filetypes=ftypes,
-                                                initialdir=dname)
+                                           initialdir=dname)
         img = None
         if fn != '' and os.path.exists(fn):
             name = 'input%d' % len(self.appData.inputImageList)
