@@ -7,9 +7,12 @@ import logging
 
 from .analysis import AnalysisStore
 from .io       import InputData
+from .model    import AppData
+from .view     import View
 
 logger = logging.getLogger(__name__)
 
+# Static variable
 sApp = None
 
 class App:
@@ -26,10 +29,15 @@ class App:
 
     # Static actions
     @staticmethod
-    def create(model, view=None):
-        app = App(model, view)
-        sApp = app
-        return app
+    def create(useGUI=True):
+        global sApp
+        if sApp == None:
+            model = Model()
+            view = None
+            if useGUI:
+                view = View(model)
+            sApp = App(model, view)
+        return sApp
     
     @staticmethod
     def get():
