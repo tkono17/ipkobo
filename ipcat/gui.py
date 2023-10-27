@@ -23,7 +23,6 @@ from tkinter import ttk
 from PIL import Image, ImageTk
 
 from .guiComponents import *
-from .vmodel import ViewModel
 from .analysis import *
 
 logger = logging.getLogger(__name__)
@@ -39,15 +38,14 @@ def initTk():
 # MainWindow
 #------------------------------------------------------------------------
 class MainWindow(ttk.Frame):
-    def __init__(self, model, handlers):
-        self.model = model
+    def __init__(self, view):
+        self.view = view
+        self.model = view.model
         self.root = initTk()
         self.setStyle()
         super().__init__(self.root, width=1000, height=600, style='main.TFrame')
         #
         self.pack(side=tk.TOP, expand=True, fill=tk.BOTH)
-        self.handlers = handlers
-        self.vmodel = ViewModel(self.model)
 
         #
         self.menuBar = None
@@ -100,12 +98,13 @@ class MainWindow(ttk.Frame):
         #
         file_menu = tk.Menu(menuBar, tearoff=False)
         menuBar.add_cascade(label='File', menu=file_menu, underline=0)
-        file_menu.add_command(label='Open', command=self.handlers.readInputs)
+        file_menu.add_command(label='Open', command=self.view.onOpenImageList)
         file_menu.add_command(label='Quit', command=self.cleanup)
         #
         test_menu = tk.Menu(menuBar, tearoff=False)
-        test_menu.add_command(label='BasicTest',
-                              command=functools.partial(self.handlers.runTest, 'BasicTest') )
+        test_menu.add_command(label='BasicTest'
+                              #command=functools.partial(self.handlers.runTest, 'BasicTest')
+                              )
         menuBar.add_cascade(label='Test', menu=test_menu)#, underline=0)
 
     def buildInputImageFrame(self, parent):
@@ -133,7 +132,6 @@ class MainWindow(ttk.Frame):
         tree.column('height', minwidth=50, width=50)
         tree.column('xOffset', minwidth=50, width=50)
         tree.column('yOffset', minwidth=50, width=50)
-        #tree.bind('<<TreeviewSelect>>', self.handlers.selectImage)
         self.imageList = tree
         
     def buildWorkPanel(self, parent):
@@ -141,16 +139,16 @@ class MainWindow(ttk.Frame):
         imagePanel.pack(anchor=tk.NW, fill=tk.BOTH, expand=True)
         showButton = ttk.Button(imagePanel, text='Show selected image(s)')
         showButton.pack(anchor=tk.NW)
-        showButton.bind('<Button-1>', self.handlers.selectImages)
-        canvas = tk.Canvas(imagePanel, bg='cyan')
+        showButton.bind('<Button-1>', self.view.onShowImagesClicked)
+        canvas = tk.Canvas(imagePanel, bg='orange')
         canvas.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
         
-        analysisPanel = AnalysisPanel(parent, self.vmodel.analysisList)
+        analysisPanel = AnalysisPanel(parent, self.view.analysisList)
         analysisPanel.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
         parent.add(imagePanel)
         parent.add(analysisPanel)
-        analysisPanel.selection.bind('<<ComboboxSelected>>', self.handlers.analysisSelected)
-        analysisPanel.runButton.bind('<Button-1>', self.handlers.runAnalysis)
+        analysisPanel.selection.bind('<<ComboboxSelected>>', self.view.onAnalysisSelected)
+        analysisPanel.runButton.bind('<Button-1>', self.view.onRunClicked)
         self.imagePanel = imagePanel
         self.analysisPanel = analysisPanel
         self.canvas = canvas

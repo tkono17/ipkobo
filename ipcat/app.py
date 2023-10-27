@@ -7,7 +7,7 @@ import logging
 
 from .analysis import AnalysisStore
 from .io       import InputData
-from .model    import AppData
+from .model    import AppModel
 from .view     import View
 
 logger = logging.getLogger(__name__)
@@ -17,28 +17,16 @@ sApp = None
 
 class App:
     
-    def __init__(self, model, view=None):
-        self.model = model
-        self.view = view
-        self.mainWindow = view.mainWindow
-        if self.mainWindow:
-            self.mainWindow.handlers.setApp(self)
+    def __init__(self, useGUI=True):
+        self.model = AppModel()
+        self.view = View(self.model)
+        self.view.setApp(self)
+        self.mainWindow = self.view.mainWindow
         self.analysisStore = AnalysisStore.get()
         self.view.updateAnalysisList()
         pass
 
     # Static actions
-    @staticmethod
-    def create(useGUI=True):
-        global sApp
-        if sApp == None:
-            model = Model()
-            view = None
-            if useGUI:
-                view = View(model)
-            sApp = App(model, view)
-        return sApp
-    
     @staticmethod
     def get():
         return sApp
@@ -57,7 +45,11 @@ class App:
         elif cmdname == 'selectImages':
             pass
         pass
-    
+
+    def mainloop(self):
+        if self.view:
+            self.view.mainloop()
+            
     # Actions on the model
     def readImagesFromJson(self, fn):
         data = InputData(fn)
@@ -73,7 +65,7 @@ class App:
             img2 = ImageTk.PhotoImage(img1)
         return img2
 
-    def addImage(self, imageData):
+    def addImageToList(self, imageData):
         self.model.addImage(imageData)
         if self.view:
             self.view.updateImageList()

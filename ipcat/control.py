@@ -4,13 +4,13 @@
 import os
 from PIL import Image, ImageTk
 
-from .model    import AppData, ImageData
+from .model    import AppModel, ImageData
 from .vcontrol import ViewController
 from .common   import cdata
 
 class Controller:
     def __init__(self):
-        self.appData = AppData()
+        self.appData = AppModel()
         self.analysisList = []
         self.currentAnalysis = None
         pass

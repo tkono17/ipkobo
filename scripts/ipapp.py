@@ -17,19 +17,14 @@ def parseArgs():
     return parser.parse_args()
 
 def run(args):
-    model = ipcat.AppData()
-    app = None
-    #
+    app = ipcat.App(useGUI=not args.batchMode)
+
     if args.batchMode:
-        view = None
-        app = ipcat.App(model, view)
         logger.info('Running in batch mode')
         test = ipcat.BatchTest1('test1', app)
         test.run()
     else:
-        view = ipcat.View(model)
-        app = ipcat.App(model, view)
-        view.mainloop()
+        app.mainloop()
     
 if __name__ == '__main__':
     args = parseArgs()
