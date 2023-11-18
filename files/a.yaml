@@ -1,0 +1,31 @@
+components:
+  parameterEntry:
+    name{ttk.Entry}: null
+    orderedKeys: name,value,slider
+    slider{ttk.Slider}: null
+    value{ttk.Entry}: null
+header:
+  componentsKey: components
+  documentsKey: mainWindow
+  modelType: tkinter
+  name: Ipcat
+  stylesKey: styles
+mainWindow:
+  _orderedKeys: hbox1,footer
+  footer{ttk.Entry}: null
+  hbox1[orient=horizontal]{ttk.PanedWindow}:
+    _orderedKeys: listPanel,vbox1
+    listPanel{ttk.Treeview}: null
+    vbox1[orient=vertical]{ttk.PanedWindow}:
+      _orderedKeys: imagePanel,analysisPanel,gallery
+      analysisPanel{ttk.Frame}:
+        _orderedKeys:
+        - selection
+        - runButton
+        - parameters
+        parameters{ttk.Panel}: null
+        runButton{ttk.Button}: null
+        selection{ttk.Combobox}: null
+      gallery{ttk.Panel}: null
+      imagePanel{ttk.Frame}: null
+styles: null

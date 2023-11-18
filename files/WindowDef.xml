@@ -1,0 +1,30 @@
+<sdd:header>
+  <sdd:model name="Ipcat" type="tkinter" />
+  <sdd:documentKey value="mainWindow" />
+  <sdd:componentsKey value="components" />
+  <sdd:stylesKey value="styles" />
+</sdd:header>
+
+<sdd:document name="mainWindow" tags="ttk.Frame">
+  <sdd:element name="hbox1" tags="ttk.PanedWindow" />
+    <sdd:element name="listPanel" tags="ttk,Treeview" />
+    <sdd:element name="vbox1" tags="ttk.PanedWindow" />
+      <sdd:element name="imagePanel" tags="ttk.Frame" />
+      <sdd:element name="analysisPanel" tags="ttk.Frame" />
+        <sdd:element name="selection" tags="ttk.Combobox" />
+        <sdd:element name="runButton" tags="ttk.Button" />
+        <sdd:element name="parameters" tags="ttk.Frame" />
+    <sdd:element name="listPanel" tags="ttk,Treeview" />
+  <sdd:element name="footer" tags="Footer" />
+</sdd:document>
+
+<sdd:components>
+  <sdd:component name="ParameterRow" options="style=parameterRow">
+    <sdd:element name="name" tags="ttk.Entry" />
+    <sdd:element name="value" tags="ttk.Entry" />
+    <sdd:element name="slider" tags="ttk.Slider" />
+  </sdd:component>
+</sdd:components>
+
+<sdd:styles>
+</sdd:styles>
