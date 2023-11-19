@@ -1,35 +1,36 @@
 header:
   name: Ipcat
   modelType: tkinter
-  documentsKey: mainWindow
+  documentKey: mainWindow
   componentsKey: components
   stylesKey: styles
 
-mainWindow:
-  _orderedKeys: [ hbox1, footer ]
-  hbox1[orient=horizontal]{ttk.PanedWindow}:
-    _orderedKeys: [ listPanel, vbox1 ]
-    listPanel[style=.]{ttk.Treeview}: null
-    vbox1[orient=vertical]{ttk.PanedWindow}:
-      _orderedKeys: [ imagePanel, analysisPanel, gallery ]
-      imagePanel[style=.]{ttk.Frame}: null
-      analysisPanel[style=.]{ttk.Frame}:
-        _orderedKeys:
-          - selection
-          - runButton
-          - parameters
-        selection[style=.]{ttk.Combobox}: null
-        runButton[style=.]{ttk.Button}: null
-        parameters[style=.]{ttk.Panel}: null
-      gallery{ttk.Panel}: null
-  footer{ttk.Entry}: null
+mainWindow{MainWindow}: null
 
 components:
-  ParameterEntry:
+  MainWindow{ttk.Frame}:
+    _orderedKeys: [ hbox1, footer ]
+    hbox1[orient=horizontal]{ttk.PanedWindow}:
+      _orderedKeys: [ listPanel, vbox1 ]
+      listPanel[style=.]{ttk.Treeview}: null
+      vbox1[orient=vertical]{ttk.PanedWindow}:
+        _orderedKeys: [ imagePanel, analysisPanel, gallery ]
+        imagePanel[style=.]{ttk.Frame}: null
+        analysisPanel[style=.]{ttk.Frame}:
+          _orderedKeys:
+            - selection
+            - runButton
+            - parameters
+          selection[style=.]{ttk.Combobox}: null
+          runButton[style=.]{ttk.Button}: null
+          parameters[style=.]{ttk.Panel}: null
+        gallery{ttk.Panel}: null
+    footer{ttk.Entry}: null
+  ParameterEntry{ttk.Frame}:
     _orderedKeys: [ name, value, slider ]
     name{ttk.Entry}: null
     value{ttk.Entry}: null
     slider{ttk.Slider}: null
-  Canvas:
+  Canvas{ttk.Frame}:
     null
 styles: null
