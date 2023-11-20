@@ -28,9 +28,49 @@ components:
     footer{ttk.Entry}: null
   ParameterEntry{ttk.Frame}:
     _orderedKeys: [ name, value, slider ]
-    name{ttk.Entry}: null
-    value{ttk.Entry}: null
-    slider{ttk.Slider}: null
+    name[style=parameter-name]{ttk.Entry}: null
+    value[style=parameter-value]{ttk.Entry}: null
+    slider[style=.]{ttk.Slider}: null
   Canvas{ttk.Frame}:
     null
-styles: null
+
+styles:
+  hbox1:
+    pack:
+      side: tk.LEFT
+      fill: tk.BOTH
+      expand: true
+  listPanel:
+    pack:
+      fill: tk.BOTH
+      expand: true
+  vbox1:
+    pack:
+      fill: tk.BOTH
+      expand: true
+  gallery:
+    pack:
+      fill: tk.BOTH
+      expand: true
+  imagePanel:
+    pack:
+      side: tk.TOP
+      fill: tk.X
+      expand: true
+  analysisPanel:
+    pack:
+      fill: tk.X
+      expand: true
+  selection:
+    pack:
+      fill: tk.X
+      expand: true
+  runButton:
+    pack:
+      fill: tk.X
+      expand: true
+  parameters:
+    pack:
+      fill: tk.X
+      expand: true
+    
