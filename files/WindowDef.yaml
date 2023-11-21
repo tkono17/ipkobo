@@ -58,6 +58,9 @@ styles:
     pack:
       side: tk.BOTTOM
       fill: tk.X
+  scrollableList:
+    rowconfigure: 0,NSEW
+    columnconfigure: 0,NSEW
   listPanel:
     grid:
       row: 0
