@@ -1,6 +1,7 @@
 header:
   name: Ipcat
   modelType: tkinter
+  author: Takanori Kono
   documentKey: mainWindow
   componentsKey: components
   stylesKey: styles
@@ -8,14 +9,16 @@ header:
 mainWindow{MainWindow}: null
 
 components:
-  MainWindow{ttk.Frame}:
-    _orderedKeys: [ hbox1, footer ]
-    hbox1[orient=horizontal]{ttk.PanedWindow}:
-      _orderedKeys: [ listPanel, vbox1 ]
-      listPanel[style=.]{ttk.Treeview}: null
+  MainWindow[style=.]{ttk.Frame}:
+    _orderedKeys: [ menuBar, hbox1, footer ]
+    menuBar[style=menuBar]{MenuBar}: null
+    hbox1[orient=tk.HORIZONTAL,style=.]{ttk.PanedWindow}:
+      _orderedKeys: [ scrollableList, vbox1, vbox2 ]
+      scrollableList{ttk.Frame}:
+        listPanel[style=.,xyscroll=true]{ttk.Treeview}: null
       vbox1[orient=vertical]{ttk.PanedWindow}:
-        _orderedKeys: [ imagePanel, analysisPanel, gallery ]
-        imagePanel[style=.]{ttk.Frame}: null
+        _orderedKeys: [ imagePanel, analysisPanel ]
+        imagePanel[style=.,xyscroll=true]{ttk.Frame}: null
         analysisPanel[style=.]{ttk.Frame}:
           _orderedKeys:
             - selection
@@ -23,35 +26,64 @@ components:
             - parameters
           selection[style=.]{ttk.Combobox}: null
           runButton[style=.]{ttk.Button}: null
-          parameters[style=.]{ttk.Panel}: null
-        gallery{ttk.Panel}: null
-    footer{ttk.Entry}: null
+          parameters[style=.,xyscroll=true]{ttk.Frame}: null
+      vbox2[orient=tk.VERTICAL]{ttk.PanedWindow}:
+        _orderedKeys: [ scrollableGallery, messagePanel ]
+        scrollableGallery{ttk.Frame}:
+          gallery[xyscroll=true]{ttk.Frame}: null
+        messagePanel[style=.,xyscroll=true]{ttk.Frame}: null
+    footer[style=.,text=Footer]{ttk.Label}: null
+  MenuBar{tk.Menu}:
+    File[style=menuItem]{tk.Menu}:
+      Open[style=menuItem]{tk.Menu}: null
+      Quit[style=menuItem]{tk.Menu}: null
+    Test[style=menuItem]{tk.Menu}: null
   ParameterEntry{ttk.Frame}:
     _orderedKeys: [ name, value, slider ]
     name[style=parameter-name]{ttk.Entry}: null
     value[style=parameter-value]{ttk.Entry}: null
     slider[style=.]{ttk.Slider}: null
-  Canvas{ttk.Frame}:
-    null
 
 styles:
+  MainWindow:
+    title: Ipcat application
+    geometry: 1000x700
   hbox1:
+    pack:
+      side: tk.TOP
+      fill: tk.BOTH
+      expand: true
+    height: 500
+  footer:
+    pack:
+      side: tk.BOTTOM
+      fill: tk.X
+  listPanel:
+    grid:
+      row: 0
+      column: 0
+      sticky: NEW
+  vbox1:
     pack:
       side: tk.LEFT
       fill: tk.BOTH
       expand: true
-  listPanel:
-    pack:
-      fill: tk.BOTH
-      expand: true
-  vbox1:
-    pack:
-      fill: tk.BOTH
-      expand: true
+    width: 300
   gallery:
     pack:
+      side: tk.TOP
       fill: tk.BOTH
       expand: true
+    width: 300
+    style: r.TFrame
+    weight: 5
+  messagePanel:
+    pack:
+      side: tk.TOP
+      fill: tk.BOTH
+      expand: true
+    style: g.TFrame
+    weight: 1
   imagePanel:
     pack:
       side: tk.TOP
@@ -73,4 +105,5 @@ styles:
     pack:
       fill: tk.X
       expand: true
-    
+  menuBar: null    
+  menuItem: null    
