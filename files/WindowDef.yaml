@@ -18,7 +18,8 @@ components:
         listPanel[style=.,xyscroll=true]{ttk.Treeview}: null
       vbox1[orient=vertical]{ttk.PanedWindow}:
         _orderedKeys: [ imagePanel, analysisPanel ]
-        imagePanel[style=.,xyscroll=true]{ttk.Frame}: null
+        imagePanel{ttk.Frame}:
+          imageCanvas[style=.,xyscroll=true]{tk.Canvas}: null
         analysisPanel[style=.]{ttk.Frame}:
           _orderedKeys:
             - selection
@@ -26,12 +27,11 @@ components:
             - parameters
           selection[style=.]{ttk.Combobox}: null
           runButton[style=.]{ttk.Button}: null
-          parameters[style=.,xyscroll=true]{ttk.Frame}: null
+          parameters{ttk.Frame}: null
       vbox2[orient=tk.VERTICAL]{ttk.PanedWindow}:
-        _orderedKeys: [ scrollableGallery, messagePanel ]
-        scrollableGallery{ttk.Frame}:
-          gallery[xyscroll=true]{ttk.Frame}: null
-        messagePanel[style=.,xyscroll=true]{ttk.Frame}: null
+        _orderedKeys: [ gallery, messagePanel ]
+        gallery{sdd.ScrollableFrame}: null
+        messagePanel[style=.]{ttk.Frame}: null
     footer[style=.,text=Footer]{ttk.Label}: null
   MenuBar{tk.Menu}:
     File[style=menuItem]{tk.Menu}:
@@ -43,7 +43,7 @@ components:
     name[style=parameter-name]{ttk.Entry}: null
     value[style=parameter-value]{ttk.Entry}: null
     slider[style=.]{ttk.Slider}: null
-
+    
 styles:
   MainWindow:
     title: Ipcat application
@@ -65,7 +65,7 @@ styles:
     grid:
       row: 0
       column: 0
-      sticky: NEW
+      sticky: tk.NSEW
   vbox1:
     pack:
       side: tk.LEFT
@@ -90,8 +90,13 @@ styles:
   imagePanel:
     pack:
       side: tk.TOP
-      fill: tk.X
+      fill: tk.BOTH
       expand: true
+  imageCanvas:
+    grid:
+      row: 0
+      column: 0
+      sticky: tk.NSEW
   analysisPanel:
     pack:
       fill: tk.X
