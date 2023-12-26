@@ -18,22 +18,11 @@ from .analysis import AnalysisStore
 logger = logging.getLogger(__name__)
 
 class View:
-    def __init__(self, model):
+    def __init__(self, model, app=None):
         self.model = model
-        self.app = None
+        self.app = app
         # View model
         self.openFileDir = '.'
-        # Copied from the old ViewModel
-        self.selectedImages = []
-        self.inputImagePath = ''
-        self.inputImageOffset = [0.0, 0.0]
-        self.inputImageWidth = 0.0
-        self.inputImageHeight = 0.0
-        #
-        self.analysisList = []
-        #
-        self.currentImage = ''
-        self.combinedFrame = None
         #
         self.currentAnalysis = ''
         self.analysisProperties = []
@@ -54,19 +43,19 @@ class View:
             logger.error('Mainloop failed since mainWindow is null')
         
     # Actions on the GUI
-    def addImageToList(self):
+    def addImageToList(self, img):
         pass
     
-    def setInputImages(self):
+    def addImagesToList(self, images):
         pass
     
     def updateParamters(self):
         pass
     
-    def addImageToGallery(self):
+    def addImageToGallery(self, img):
         pass
     
-    def outputText(self):
+    def outputText(self, msg):
         pass
     
     # Actions on the GUI
@@ -76,9 +65,10 @@ class View:
                                            initialdir=dname)
         img = None
         if fn != '' and os.path.exists(fn):
-            name = 'input%d' % len(self.appData.inputImageList)
+            name = 'input%d' % len(self.model.imageList)
             img = ImageData(name, fn)
-        return img
+        if img:
+            self.model.addImage(img)
 
     def updateAnalysisList(self):
         if not self.mainWindow:
