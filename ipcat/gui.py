@@ -1,169 +1,145 @@
-#------------------------------------------------------------------------
-# ipcat: gui.py
-# -------------
-# - menuBar: ttk.Menubar
-# - columns: ttk.Panedwindow
-#   - listPanel: ttk.Frame
-#     - imageList: ttk.Treeview
-#   - workPanel: ttk.Panedwindow
-#     - imagePanel: ttk.Frame
-#     - analysisPanel: AnalysisPanel
-#       - title: ttk.Label
-#       - selection: ttk.Combobox
-#       - properties: ttk.Treeview
-#         - table: ttk.Treeview
-#   - outputPanel: ttk.Panedwindow
-#     - galleryPanel: GalleryPanel
-#     - messagePanel: ttk.Text
-#------------------------------------------------------------------------
-import functools
-import logging
 import tkinter as tk
 from tkinter import ttk
-from PIL import Image, ImageTk
+import dsdpack
 
-from .guiComponents import *
-from .analysis import *
+class ParameterEntry(ttk.Frame):
+  def __init__(self, parent):
+    super().__init__(parent)
+    self.buildGui()
+    pass
 
-logger = logging.getLogger(__name__)
+  def buildGui(self):
+    # create subcomponents of ParameterEntry
+    name = ttk.Entry(self)
+    self.name = name
+    value = ttk.Entry(self)
+    self.value = value
+    slider = ttk.Slider(self)
+    self.slider = slider
+    pass
 
-def initTk():
-    root = tk.Tk()
-    root.title('Image Processing Square')
-    root.geometry('1000x600')
-    root.minsize(width=500, height=400)
-    return root
+class MenuBar(tk.Menu):
+  def __init__(self, parent):
+    super().__init__(parent)
+    self.buildGui()
+    pass
 
-#------------------------------------------------------------------------
-# MainWindow
-#------------------------------------------------------------------------
+  def buildGui(self):
+    root = self.master.master
+    menuBar = self
+    root.config(menu=self)
+    self.menuBar = menuBar
+    # create subcomponents of MenuBar
+    File = tk.Menu(menuBar, tearoff=False)
+    menuBar.add_cascade(label="File")
+    self.File = File
+    Test = tk.Menu(menuBar, tearoff=False)
+    menuBar.add_cascade(label="Test")
+    self.Test = Test
+
+    # create subcomponents of File
+    Open = tk.Menu(File, tearoff=False)
+    File.add_command(label="Open")
+    self.Open = Open
+    Quit = tk.Menu(File, tearoff=False)
+    File.add_command(label="Quit")
+    self.Quit = Quit
+    pass
+
 class MainWindow(ttk.Frame):
-    def __init__(self, view):
-        self.view = view
-        self.model = view.model
-        self.root = initTk()
-        self.setStyle()
-        super().__init__(self.root, width=1000, height=600, style='main.TFrame')
-        #
-        self.pack(side=tk.TOP, expand=True, fill=tk.BOTH)
+  def __init__(self, parent):
+    super().__init__(parent)
+    self.root = parent
+    self.buildGui()
+    self.pack(fill=tk.BOTH, expand=True)
+    pass
 
-        #
-        self.menuBar = None
-        # Left
-        self.imageList = None
-        # Middle
-        self.imagePanel = None
-        self.analysisPanel = None
-        # Right
-        self.galleryPanel = None
-        self.messagePanel = None
+  def buildGui(self):
+    # create subcomponents of MainWindow
+    menuBar = MenuBar(self)
+    self.menuBar = menuBar
+    hbox1 = ttk.PanedWindow(self, orient=tk.HORIZONTAL,height=500)
+    self.hbox1 = hbox1
+    footer = ttk.Label(self,text="Footer")
+    self.footer = footer
+    hbox1.pack(fill=tk.BOTH,side=tk.TOP,expand=True)
+    footer.pack(fill=tk.X,side=tk.BOTTOM)
 
-        self.buildGui()
+    # create subcomponents of hbox1
+    scrollableList = ttk.Frame(hbox1)
+    self.scrollableList = scrollableList
+    vbox1 = ttk.PanedWindow(hbox1, orient="vertical",width=300)
+    self.vbox1 = vbox1
+    vbox2 = ttk.PanedWindow(hbox1, orient=tk.VERTICAL)
+    self.vbox2 = vbox2
+    vbox1.pack(fill=tk.BOTH,side=tk.LEFT,expand=True)
+    hbox1.add(scrollableList)
+    hbox1.add(vbox1)
+    hbox1.add(vbox2)
 
-    def setStyle(self):
-        style = ttk.Style()
-        style.theme_use('clam')
-        style.configure('TFrame', background='darkgreen')
-        style.configure('main.TFrame', background='blue')
-        style.configure('panel.TFrame', background='lightgreen')#(32, 32, 190))
-        style.configure('canvas.TFrame', background='yellow')
-        #style.configure('TButton', background=(32, 32, 50))
-        #style.configure('ImageList.Treeview', rowHeight=100)
-        style.configure('TLabelframe', background='blue')
-        pass
-    
-    # GUI building
-    def buildGui(self):
-        self.buildMenu(self)
-        #
-        columns = ttk.Panedwindow(self, orient=tk.HORIZONTAL)
-        columns.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
-        listPanel = ttk.Frame(columns)
-        workPanel = ttk.Panedwindow(columns, orient=tk.VERTICAL)
-        outputPanel = ttk.Panedwindow(columns, orient=tk.VERTICAL)
-        listPanel.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
-        workPanel.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
-        outputPanel.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
-        columns.add(listPanel, weight=1)
-        columns.add(workPanel, weight=2)
-        columns.add(outputPanel, weight=2)
-        #
-        self.buildListPanel(listPanel)
-        self.buildWorkPanel(workPanel)
-        self.buildOutputPanel(outputPanel)
-        
-    def buildMenu(self, parent):
-        menuBar = tk.Menu(parent)
-        self.root.config(menu=menuBar)
-        #
-        file_menu = tk.Menu(menuBar, tearoff=False)
-        menuBar.add_cascade(label='File', menu=file_menu, underline=0)
-        file_menu.add_command(label='Open', command=self.view.onOpenImageList)
-        file_menu.add_command(label='Quit', command=self.cleanup)
-        #
-        test_menu = tk.Menu(menuBar, tearoff=False)
-        test_menu.add_command(label='BasicTest'
-                              #command=functools.partial(self.handlers.runTest, 'BasicTest')
-                              )
-        menuBar.add_cascade(label='Test', menu=test_menu)#, underline=0)
+    # create subcomponents of scrollableList
+    listPanel = ttk.Treeview(scrollableList)
+    self.listPanel = listPanel
+    scrollableList.rowconfigure(0, weight=1)
+    scrollableList.columnconfigure(0, weight=1)
+    dsdpack.addScrollBars(listPanel, scrollableList, True, True)
+    listPanel.grid(row=0,column=0,sticky=tk.NSEW)
 
-    def buildInputImageFrame(self, parent):
-        pass
-    
-    def buildParametersPanel(self, parent):
-        pass
-    
-    def buildListPanel(self, parent):
-        columns = ('name', 'path', 'width', 'height', 'xOffset', 'yOffset')
-        tree = ttk.Treeview(parent, columns=columns, show='headings', height=100)
-        parent.grid_rowconfigure(0, weight=1)
-        parent.grid_columnconfigure(0, weight=1)
-        tree.grid(row=0, column=0, sticky=tk.N+tk.EW)
-        addScrollBars(tree, parent, True, True)
-        tree.heading('name', text='Name')
-        tree.heading('path', text='Path')
-        tree.heading('width', text='W')
-        tree.heading('height', text='H')
-        tree.heading('xOffset', text='X offset')
-        tree.heading('yOffset', text='Y offset')
-        tree.column('name', minwidth=50, width=100)
-        tree.column('path', minwidth=50, width=100)
-        tree.column('width', minwidth=50, width=50)
-        tree.column('height', minwidth=50, width=50)
-        tree.column('xOffset', minwidth=50, width=50)
-        tree.column('yOffset', minwidth=50, width=50)
-        self.imageList = tree
-        
-    def buildWorkPanel(self, parent):
-        imagePanel = ttk.LabelFrame(parent, text='Image to analyze')
-        imagePanel.pack(anchor=tk.NW, fill=tk.BOTH, expand=True)
-        showButton = ttk.Button(imagePanel, text='Show selected image(s)')
-        showButton.pack(anchor=tk.NW)
-        showButton.bind('<Button-1>', self.view.onShowImagesClicked)
-        canvas = tk.Canvas(imagePanel, bg='orange')
-        canvas.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
-        
-        analysisPanel = AnalysisPanel(parent, self.view.analysisList)
-        analysisPanel.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
-        parent.add(imagePanel)
-        parent.add(analysisPanel)
-        analysisPanel.selection.bind('<<ComboboxSelected>>', self.view.onAnalysisSelected)
-        analysisPanel.runButton.bind('<Button-1>', self.view.onRunClicked)
-        self.imagePanel = imagePanel
-        self.analysisPanel = analysisPanel
-        self.canvas = canvas
-        
-    def buildOutputPanel(self, parent):
-        galleryPanel = GalleryPanel(parent)
-        galleryPanel.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
-        self.galleryPanel = galleryPanel
-        #
-        messagePanel = tk.Text(parent)
-        messagePanel.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
-        parent.add(galleryPanel)
-        parent.add(messagePanel)
-        pass
+    # create subcomponents of vbox1
+    imagePanel = ttk.Frame(vbox1)
+    self.imagePanel = imagePanel
+    analysisPanel = ttk.Frame(vbox1)
+    self.analysisPanel = analysisPanel
+    imagePanel.pack(fill=tk.BOTH,side=tk.TOP,expand=True)
+    analysisPanel.pack(fill=tk.X,expand=True)
+    vbox1.add(imagePanel)
+    vbox1.add(analysisPanel)
 
-    def cleanup(self):
-        logger.info('Quit gui')
-        
+    # create subcomponents of imagePanel
+    imageCanvasFrame = ttk.Frame(imagePanel)
+    self.imageCanvasFrame = imageCanvasFrame
+    showButton = ttk.Button(imagePanel)
+    self.showButton = showButton
+    imageCanvasFrame.pack(fill=tk.BOTH,expand=True)
+    showButton.pack(fill=tk.X,expand=True)
+
+    # create subcomponents of imageCanvasFrame
+    imageCanvas = tk.Canvas(imageCanvasFrame)
+    self.imageCanvas = imageCanvas
+    imageCanvasFrame.rowconfigure(0, weight=1)
+    imageCanvasFrame.columnconfigure(0, weight=1)
+    dsdpack.addScrollBars(imageCanvas, imageCanvasFrame, True, True)
+    imageCanvas.grid(row=0,column=0,sticky=tk.NSEW)
+
+    # create subcomponents of analysisPanel
+    selection = ttk.Combobox(analysisPanel)
+    self.selection = selection
+    runButton = ttk.Button(analysisPanel)
+    self.runButton = runButton
+    parameters = ttk.Frame(analysisPanel)
+    self.parameters = parameters
+    selection.pack(fill=tk.X,expand=True)
+    runButton.pack(fill=tk.X,expand=True)
+    parameters.pack(fill=tk.X,expand=True)
+
+    # create subcomponents of vbox2
+    gallery = dsdpack.ScrollableFrame(vbox2,width=300,style="r.TFrame")
+    self.gallery = gallery
+    messagePanel = ttk.Frame(vbox2,style="g.TFrame")
+    self.messagePanel = messagePanel
+    gallery.pack(fill=tk.BOTH,side=tk.TOP,expand=True)
+    messagePanel.pack(fill=tk.BOTH,side=tk.TOP,expand=True)
+    vbox2.add(gallery)
+    vbox2.add(messagePanel)
+    pass
+
+if __name__ == "__main__":
+  root = tk.Tk()
+  root.title("Ipcat application")
+  root.geometry("1000x700")
+  style = ttk.Style()
+  style.configure("r.TFrame", background="red")
+  style.configure("g.TFrame", background="green")
+  style.configure("b.TFrame", background="blue")
+  mainWindow = MainWindow(root)
+  root.mainloop()

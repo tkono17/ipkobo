@@ -12,7 +12,6 @@ from PIL import Image, ImageTk
 from .model import ImageData, ImageFrame
 from .gui   import MainWindow
 from .guiComponents import FieldEntry
-#from .handlers import Handlers
 from .analysis import AnalysisStore
 
 logger = logging.getLogger(__name__)
@@ -31,11 +30,35 @@ class View:
         #
         self.messages = []
         # Initialize the main window after all variables are defined
-        self.mainWindow = MainWindow(self)
+        self.root = tk.Tk()
+        self.root.title("Ipcat application")
+        self.root.geometry("1000x700")
+        self.mainWindow = MainWindow(self.root)
+        self.initialize()
 
     def setApp(self, app):
         self.app = app
+
+    def initialize(self):
+        # ListPanel
+
+        # ImagePanel
+        self.mainWindow.showButton.config(text='Show')
+        self.mainWindow.showButton.bind('<Button-1>',
+                                        lambda e: print('Show image') )
+
+        # AnalysisPanel
+        alist = ('ColorAnalysis', 'ContourAnalysis')
+        def selected(e):
+            print(f'Analysis selected {e.widget.get()}')
+        self.mainWindow.selection.config(values=alist)
+        self.mainWindow.selection.bind('<<ComboboxSelected>>', selected)
+        self.mainWindow.runButton.config(text='Run')
+
+        # Gallery
         
+        pass
+    
     def mainloop(self):
         if self.mainWindow:
             self.mainWindow.mainloop()
@@ -78,13 +101,13 @@ class View:
         v = []
         for k in store.analysisTypes:
             v.append(k)
-        self.mainWindow.analysisPanel.selection.configure(values=v)
+        #self.mainWindow.analysisPanel.selection.configure(values=v)
 
     def updateAnalysisPanel(self):
         analysis = self.model.currentAnalysis
         logger.info(f'Analysis {analysis.name} -> {analysis}')
         if analysis:
-            pframe = self.mainWindow.analysisPanel.propertiesFrame
+            #pframe = self.mainWindow.analysisPanel.propertiesFrame
             pframe.clear()
             logger.info(f'  Analysis parameters {len(analysis.parameters)}')
             fields = []

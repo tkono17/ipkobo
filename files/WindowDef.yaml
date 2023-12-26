@@ -19,7 +19,12 @@ components:
       vbox1[orient=vertical]{ttk.PanedWindow}:
         _orderedKeys: [ imagePanel, analysisPanel ]
         imagePanel{ttk.Frame}:
-          imageCanvas[style=.,xyscroll=true]{tk.Canvas}: null
+          _orderedKeys:
+            - imageCanvasFrame
+            - showButton
+          imageCanvasFrame[style=.]{ttk.Frame}:
+            imageCanvas[style=.,xyscroll=true]{tk.Canvas}: null
+          showButton[style=.]{ttk.Button}: null
         analysisPanel[style=.]{ttk.Frame}:
           _orderedKeys:
             - selection
@@ -30,7 +35,7 @@ components:
           parameters{ttk.Frame}: null
       vbox2[orient=tk.VERTICAL]{ttk.PanedWindow}:
         _orderedKeys: [ gallery, messagePanel ]
-        gallery{sdd.ScrollableFrame}: null
+        gallery{dsdpack.ScrollableFrame}: null
         messagePanel[style=.]{ttk.Frame}: null
     footer[style=.,text=Footer]{ttk.Label}: null
   MenuBar{tk.Menu}:
@@ -91,6 +96,14 @@ styles:
     pack:
       side: tk.TOP
       fill: tk.BOTH
+      expand: true
+  imageCanvasFrame:
+    pack:
+      fill: tk.BOTH
+      expand: true
+  showButton:
+    pack:
+      fill: tk.X
       expand: true
   imageCanvas:
     grid:

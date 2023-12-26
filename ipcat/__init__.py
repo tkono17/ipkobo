@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------
 # ImageProcessingSquare: __init__.py
 #------------------------------------------------------------------------
-from .gui      import MainWindow, initTk
+from .gui      import MainWindow
 from .model    import AppModel
 from .view     import View
 from .app      import App
