@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 import dsdpack
 
+
 class ParameterEntry(ttk.Frame):
   def __init__(self, parent):
     super().__init__(parent)
@@ -31,19 +32,18 @@ class MenuBar(tk.Menu):
     self.menuBar = menuBar
     # create subcomponents of MenuBar
     File = tk.Menu(menuBar, tearoff=False)
-    menuBar.add_cascade(label="File")
+    menuBar.add_cascade(label="File", menu=File)
     self.File = File
     Test = tk.Menu(menuBar, tearoff=False)
-    menuBar.add_cascade(label="Test")
+    Test.add_command(label='Test (1)')
+    menuBar.add_cascade(label="Test1", menu=Test)
     self.Test = Test
 
     # create subcomponents of File
-    Open = tk.Menu(File, tearoff=False)
     File.add_command(label="Open")
-    self.Open = Open
-    Quit = tk.Menu(File, tearoff=False)
+    File.add_separator()
     File.add_command(label="Quit")
-    self.Quit = Quit
+
     pass
 
 class MainWindow(ttk.Frame):

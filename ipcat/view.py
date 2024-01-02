@@ -13,6 +13,7 @@ from .model import ImageData, ImageFrame
 from .gui   import MainWindow
 from .guiComponents import FieldEntry
 from .analysis import AnalysisStore
+from .callbacks import Callbacks
 
 logger = logging.getLogger(__name__)
 
@@ -40,6 +41,9 @@ class View:
         self.app = app
 
     def initialize(self):
+        # Menu
+        self.mainWindow.menuBar.File.entryconfig('Open', command=self.openInputs)
+
         # ListPanel
 
         # ImagePanel
@@ -66,12 +70,14 @@ class View:
             logger.error('Mainloop failed since mainWindow is null')
         
     # Actions on the GUI
-    def addImageToList(self, img):
-        pass
-    
-    def addImagesToList(self, images):
-        pass
-    
+    def openInputs(self):
+        ftypes = [('JSON file', '*.json')]
+        indir = self.openFileDir
+        fn = tk.filedialog.askopenfilename(filetypes=ftypes,
+                                           initialdir=indir)
+        self.openFileDir = os.path.dirname(fn)
+        self.app.readImagesFromJson(fn)
+
     def updateParamters(self):
         pass
     
@@ -120,16 +126,16 @@ class View:
         if not self.mainWindow:
             logger.info('No GUI')
             return
-        widgets = self.mainWindow.imageList.get_children()
-        self.mainWindow.imageList.delete(*widgets)
+        widgets = self.mainWindow.listPanel.get_children()
+        self.mainWindow.listPanel.delete(*widgets)
         logger.info('Update imageList')
-        logger.info(f'{self.mainWindow.imageList}')
-        tree = self.mainWindow.imageList
+        logger.info(f'{self.mainWindow.listPanel}')
+        tree = self.mainWindow.listPanel
         for img in self.model.imageList:
             values = (img.name, os.path.basename(img.path),
                       img.width, img.height, img.offset[0], img.offset[1])
             logger.info(f'  Add image {img.name} {values}')
-            self.mainWindow.imageList.insert('', tk.END, values=values)
+            self.mainWindow.listPanel.insert('', tk.END, values=values)
         pass
     
     def showImages(self):
@@ -187,7 +193,7 @@ class View:
             
     def onShowImagesClicked(self, e):
         print('Show images button clicked')
-        tree = self.mainWindow.imageList
+        tree = self.mainWindow.listPanel
         items = tree.selection()
         names = []
         for item in items:

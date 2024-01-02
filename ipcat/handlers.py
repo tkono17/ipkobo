@@ -22,10 +22,10 @@ class Handlers:
     def readInputs(self):
         ftypes = [('JSON file', '*.json')]
         indir = self.view.vmodel.inputDir
-        fn = tk.filedialog.askopenfilename(filetypes=ftypes, initialdir=indir)
+        fn = tk.filedialog.askopenfilename(filetypes=ftypes,
+                                           initialdir=indir)
         self.view.vmodel.inputDir = os.path.dirname(fn)
-        #
-        self.app.readImagesFromJson(fn)
+        # self.app.readImagesFromJson(fn)
             
     def openImage(self):
         print('openImage called')
