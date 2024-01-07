@@ -4,6 +4,7 @@
 import os
 import logging
 
+from urllib.request import urlopen
 from PIL import Image, ImageTk
 
 import numpy as np
@@ -49,10 +50,21 @@ class ImageData:
         return self.imageTk
     
     def open(self):
-        if not self.imageOk and os.path.exists(self.path):
-            self.image = cv2.imread(self.path, cv2.IMREAD_COLOR)
-            self.imageOk = True
-            self.createImageTk(self.image)
+        if not self.imageOk:
+            if os.path.exists(self.path):
+                self.image = cv2.imread(self.path, cv2.IMREAD_COLOR)
+                self.imageOk = True
+                self.createImageTk(self.image)
+            elif self.path.startswith('http://') or self.path.startswith('https://'):
+                response = urlopen(self.path)
+                print(f'URL request status: {response.status}')
+                if response.status == 200:
+                    data = bytearray(response.read())
+                    darray = np.asarray(data, np.uint8)
+                    self.image = cv2.imdecode(darray, cv2.IMREAD_UNCHANGED)
+                    self.image = cv2.cvtColor(self.image, cv2.COLOR_RGB2BGR)
+                    self.imageOk = True
+                    self.createImageTk(self.image)
         else:
             logger.warning(f'Tried to open non-existing file {self.path}')
 
@@ -98,15 +110,19 @@ class ImageFrame:
         return np.array( (x, y) )
     
     def setImages(self, images):
+        print(f'Set {len(images)} images on the frame')
         if len(images)==1 and images[0].imageOk:
             img0 = images[0]
             image0 = img0.image.copy()
-            self.combinedImage = ImageData(name='combinedImage', path='',
-                                           width=img0.width,
-                                           height=img0.height, 
-                                           offset=img0.offset)
+            #self.combinedImage = ImageData(name='combinedImage', path='',
+            #                               width=img0.width,
+            #                               height=img0.height, 
+            #                               offset=img0.offset)
+            self.combinedImage = images[0]
             self.combinedImage.setImage(image0)
+            print('just one image')
             return
+        print('combine multiple images')
         xmin = min(map(lambda x: x.offset[0]-x.width/2.0, images) )
         xmax = max(map(lambda x: x.offset[0]+x.width/2.0, images) )
         ymin = min(map(lambda x: x.offset[1]-x.height/2.0, images) )
@@ -192,6 +208,17 @@ class AppModel:
         #
         pass
 
+    def printSummary(self):
+        logger.info(f'Ipcat application data')
+        logger.info(f'  Number of analyses: {len(self.analysisList)}')
+        logger.info(f'  Number of images: {len(self.imageList)}')
+        logger.info(f'  Current analysis: {self.currentAnalysis}')
+        logger.info(f'  Current images: {self.currentImageNames()}')
+
+    def currentImageNames(self):
+        v = [ x.name for x in self.currentImages ]
+        return v
+    
     def addImage(self, img):
         self.imageList.append(img)
 

@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
-import dsdpack
-
+import sddgen
+from .guiComponents import *
 
 class ParameterEntry(ttk.Frame):
   def __init__(self, parent):
@@ -35,15 +35,16 @@ class MenuBar(tk.Menu):
     menuBar.add_cascade(label="File", menu=File)
     self.File = File
     Test = tk.Menu(menuBar, tearoff=False)
-    Test.add_command(label='Test (1)')
-    menuBar.add_cascade(label="Test1", menu=Test)
+    menuBar.add_cascade(label="Test", menu=Test)
     self.Test = Test
 
     # create subcomponents of File
     File.add_command(label="Open")
-    File.add_separator()
     File.add_command(label="Quit")
 
+    # create subcomponents of Test
+    Test.add_command(label="Test1")
+    Test.add_command(label="Test2")
     pass
 
 class MainWindow(ttk.Frame):
@@ -82,13 +83,13 @@ class MainWindow(ttk.Frame):
     self.listPanel = listPanel
     scrollableList.rowconfigure(0, weight=1)
     scrollableList.columnconfigure(0, weight=1)
-    dsdpack.addScrollBars(listPanel, scrollableList, True, True)
+    sddgen.guitk.addScrollBars(listPanel, scrollableList, True, True)
     listPanel.grid(row=0,column=0,sticky=tk.NSEW)
 
     # create subcomponents of vbox1
-    imagePanel = ttk.Frame(vbox1)
+    imagePanel = ttk.Labelframe(vbox1)
     self.imagePanel = imagePanel
-    analysisPanel = ttk.Frame(vbox1)
+    analysisPanel = ttk.Labelframe(vbox1)
     self.analysisPanel = analysisPanel
     imagePanel.pack(fill=tk.BOTH,side=tk.TOP,expand=True)
     analysisPanel.pack(fill=tk.X,expand=True)
@@ -108,7 +109,7 @@ class MainWindow(ttk.Frame):
     self.imageCanvas = imageCanvas
     imageCanvasFrame.rowconfigure(0, weight=1)
     imageCanvasFrame.columnconfigure(0, weight=1)
-    dsdpack.addScrollBars(imageCanvas, imageCanvasFrame, True, True)
+    sddgen.guitk.addScrollBars(imageCanvas, imageCanvasFrame, True, True)
     imageCanvas.grid(row=0,column=0,sticky=tk.NSEW)
 
     # create subcomponents of analysisPanel
@@ -116,14 +117,14 @@ class MainWindow(ttk.Frame):
     self.selection = selection
     runButton = ttk.Button(analysisPanel)
     self.runButton = runButton
-    parameters = ttk.Frame(analysisPanel)
-    self.parameters = parameters
-    selection.pack(fill=tk.X,expand=True)
-    runButton.pack(fill=tk.X,expand=True)
-    parameters.pack(fill=tk.X,expand=True)
+    propertiesFrame = PropertyGridFrame(analysisPanel)
+    self.propertiesFrame = propertiesFrame
+    selection.pack(fill=tk.X,anchor=tk.NW)
+    runButton.pack(anchor=tk.NW)
+    propertiesFrame.pack(fill=tk.X,anchor=tk.NW,expand=True)
 
     # create subcomponents of vbox2
-    gallery = dsdpack.ScrollableFrame(vbox2,width=300,style="r.TFrame")
+    gallery = sddgen.guitk.GalleryPanel(vbox2,width=300,style="r.TFrame")
     self.gallery = gallery
     messagePanel = ttk.Frame(vbox2,style="g.TFrame")
     self.messagePanel = messagePanel

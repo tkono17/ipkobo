@@ -56,6 +56,8 @@ class App:
         v = data.getImages()
         for x in v:
             self.addImageToList(x)
+        if self.view:
+            self.view.updateImageList()
     
     def readImageFromFile(self, fname):
         img2 = None

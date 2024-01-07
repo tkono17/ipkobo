@@ -14,10 +14,10 @@ import cv2
 logger = logging.getLogger(__name__)
 
 class Parameter:
-    def __init__(self, name, dtype, **kwargs):
+    def __init__(self, name, value, dtype, **kwargs):
         self.name = name
         self.dtype = dtype
-        self.value = self.dtype()
+        self.value = value
         self.drange = None
         self.choices = None
         keys = kwargs.keys()
@@ -29,6 +29,16 @@ class Parameter:
     def setValue(self, value):
         self.value = value
 
+    def itemSelected(self, e):
+        value = e.widget.get()
+        print(f'Set value from item selected {value}')
+        self.value = self.dtype(value)
+
+    def scaleSet(self, value):
+        fvalue = float(value)
+        self.value = self.dtype(fvalue)
+        pass
+    
     def isValid(self, value):
         x = True
         if self.drange:
@@ -112,7 +122,9 @@ class ColorAnalysis(SingleImageAnalysis):
     def __init__(self, name):
         super().__init__(name)
         self.parameters = {
-            'ColorConversion': 'COLOR_BGR2GRAY', 
+            'ColorConversion': Parameter('ColorConversion', 'COLOR_BGR2GRAY',
+                                         dtype=str, 
+                                         choices=('COLOR_BGR2GRAY') )
             }
     def run(self):
         img1 = self.inputImages[0].image
@@ -154,6 +166,28 @@ class IntensityAnalysis(SingleImageAnalysis):
         idata_hist.setImage(img_hist)
         self.outputImages.append(idata_hist)
 
+class ThresholdAnalysis(SingleImageAnalysis):
+    def __init__(self, name):
+        super().__init__(name)
+        self.parameters = {
+            'threshold': Parameter('threshold', 128, dtype=int,
+                                   drange=(0, 255) ), 
+            'option': Parameter('option', 'THRESH_BINARY', dtype=str, 
+                                choices=('THRESH_BINARY', 'THRESH_BINARY_INV',
+                                         'THRESH_TRUNC',
+                                         'THRESH_TOZERO', 'THRESH_TOZERO_INV') ), 
+            }
+    def run(self):
+        img1 = self.inputImages[0].image
+        
+class ContourAnalysis(SingleImageAnalysis):
+    def __init__(self, name):
+        super().__init__(name)
+        self.parameters = {
+            }
+    def run(self):
+        img1 = self.inputImages[0].image
+        
 class CannyEdgeAnalysis(SingleImageAnalysis):
     def __init__(self, name):
         super().__init__(name)
@@ -196,6 +230,8 @@ class AnalysisStore:
         self.addAnalysis('ColorAnalysis', ColorAnalysis)
         self.addAnalysis('IntensityAnalysis', IntensityAnalysis)
         self.addAnalysis('CannyEdgeAnalysis', CannyEdgeAnalysis)
+        self.addAnalysis('ThresholdAnalysis', ThresholdAnalysis)
+        self.addAnalysis('ContourAnalysis', ContourAnalysis)
         
     def addAnalysis(self, name, analysisClass):
         if name in self.analysisTypes:

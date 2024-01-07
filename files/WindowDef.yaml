@@ -1,6 +1,6 @@
 header:
   name: Ipcat
-  modelType: tkinter
+  modelType: Tkinter
   author: Takanori Kono
   documentKey: mainWindow
   componentsKey: components
@@ -18,31 +18,33 @@ components:
         listPanel[style=.,xyscroll=true]{ttk.Treeview}: null
       vbox1[orient=vertical]{ttk.PanedWindow}:
         _orderedKeys: [ imagePanel, analysisPanel ]
-        imagePanel{ttk.Frame}:
+        imagePanel{ttk.Labelframe}:
           _orderedKeys:
             - imageCanvasFrame
             - showButton
           imageCanvasFrame[style=.]{ttk.Frame}:
             imageCanvas[style=.,xyscroll=true]{tk.Canvas}: null
           showButton[style=.]{ttk.Button}: null
-        analysisPanel[style=.]{ttk.Frame}:
+        analysisPanel[style=.]{ttk.Labelframe}:
           _orderedKeys:
             - selection
             - runButton
-            - parameters
+            - propertiesFrame
           selection[style=.]{ttk.Combobox}: null
           runButton[style=.]{ttk.Button}: null
-          parameters{ttk.Frame}: null
+          propertiesFrame{PropertyGridFrame}: null
       vbox2[orient=tk.VERTICAL]{ttk.PanedWindow}:
         _orderedKeys: [ gallery, messagePanel ]
-        gallery{dsdpack.ScrollableFrame}: null
+        gallery{sddgen.guitk.GalleryPanel}: null
         messagePanel[style=.]{ttk.Frame}: null
     footer[style=.,text=Footer]{ttk.Label}: null
   MenuBar{tk.Menu}:
     File[style=menuItem]{tk.Menu}:
       Open[style=menuItem]{tk.Menu}: null
       Quit[style=menuItem]{tk.Menu}: null
-    Test[style=menuItem]{tk.Menu}: null
+    Test[style=menuItem]{tk.Menu}:
+      Test1[style=menuItem]{tk.Menu}: null
+      Test2[style=menuItem]{tk.Menu}: null
   ParameterEntry{ttk.Frame}:
     _orderedKeys: [ name, value, slider ]
     name[style=parameter-name]{ttk.Entry}: null
@@ -116,14 +118,14 @@ styles:
       expand: true
   selection:
     pack:
+      anchor: tk.NW
       fill: tk.X
-      expand: true
   runButton:
     pack:
-      fill: tk.X
-      expand: true
-  parameters:
+      anchor: tk.NW
+  propertiesFrame:
     pack:
+      anchor: tk.NW
       fill: tk.X
       expand: true
   menuBar: null    

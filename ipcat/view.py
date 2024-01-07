@@ -11,7 +11,7 @@ from PIL import Image, ImageTk
 
 from .model import ImageData, ImageFrame
 from .gui   import MainWindow
-from .guiComponents import FieldEntry
+from .guiComponents   import FieldEntry
 from .analysis import AnalysisStore
 from .callbacks import Callbacks
 
@@ -43,21 +43,29 @@ class View:
     def initialize(self):
         # Menu
         self.mainWindow.menuBar.File.entryconfig('Open', command=self.openInputs)
+        self.mainWindow.menuBar.Test.entryconfig('Test1', command=self.test1)
 
         # ListPanel
+        tree = self.mainWindow.listPanel
+        tree['columns'] = ('Name', 'File')
+        tree.column('#0', width=0, stretch='no')
+        tree.column('Name', anchor=tk.W, width=100)
+        tree.column('File', anchor=tk.W, width=100)
+        tree.heading('#0', text='Label', anchor=tk.W)
+        tree.heading('Name', text='Name', anchor=tk.W)
+        tree.heading('File', text='File', anchor=tk.W)
 
         # ImagePanel
+        self.mainWindow.imagePanel.config(text='Image under test')
         self.mainWindow.showButton.config(text='Show')
-        self.mainWindow.showButton.bind('<Button-1>',
-                                        lambda e: print('Show image') )
+        self.mainWindow.showButton.bind('<Button-1>', self.onShowImagesClicked)
 
         # AnalysisPanel
-        alist = ('ColorAnalysis', 'ContourAnalysis')
-        def selected(e):
-            print(f'Analysis selected {e.widget.get()}')
-        self.mainWindow.selection.config(values=alist)
-        self.mainWindow.selection.bind('<<ComboboxSelected>>', selected)
-        self.mainWindow.runButton.config(text='Run')
+        self.mainWindow.analysisPanel.config(text='Analysis panel')
+        self.mainWindow.showButton.config(text='Show')
+        self.updateAnalysisList()
+        self.mainWindow.selection.bind('<<ComboboxSelected>>', self.onAnalysisSelected)
+        self.mainWindow.runButton.config(text='Run', command=self.onRunAnalysisClicked)
 
         # Gallery
         
@@ -77,7 +85,86 @@ class View:
                                            initialdir=indir)
         self.openFileDir = os.path.dirname(fn)
         self.app.readImagesFromJson(fn)
+        self.model.printSummary()
 
+    def onShowImagesClicked(self, e):
+        print('Show images button clicked')
+        tree = self.mainWindow.listPanel
+        items = tree.selection()
+        names = []
+        for item in items:
+            values = tree.item(item)['values']
+            names.append(values[0])
+        images = self.app.selectImages(names)
+        self.showImages()
+
+    def onAnalysisSelected(self, e):
+        print(f'Analysis selected {e.widget.get()}')
+        analysisName = e.widget.get()
+        logger.info(f'Analysis selected ==> {analysisName}')
+        self.app.selectAnalysis(analysisName)
+        self.updateAnalysisPanel()
+
+    def onRunAnalysisClicked(self):
+        self.app.runAnalysis()
+
+    def test1(self):
+        self.app.readImagesFromJson('./images.json')
+        self.app.selectAnalysis('ColorAnalysis')
+        self.app.selectImages(['A'])
+        self.model.printSummary()
+        
+    # Functions to update the GUI appearance (called by the application logic)
+    def updateImageList(self):
+        if not self.mainWindow:
+            logger.error('No GUI')
+            return
+        tree = self.mainWindow.listPanel
+        widgets = tree.get_children()
+        tree.delete(*widgets)
+        logger.info(f'Update imageList on {tree}')
+        for img in self.model.imageList:
+            values = (img.name, os.path.basename(img.path),
+                      img.width, img.height, img.offset[0], img.offset[1])
+            logger.info(f'  Add image {img.name} {values}')
+            tree.insert('', tk.END, values=values)
+        self.model.printSummary()
+        pass
+    
+    def showImages(self):
+        logger.info('Display images on the canvas')
+        wframe = self.model.currentImageFrame
+        wframe.drawOnCanvas(self.mainWindow.imageCanvas)
+
+    def updateAnalysisList(self):
+        if not self.mainWindow:
+            return
+        store = AnalysisStore.get()
+        logger.info(f'Store n analysis: {len(store.analysisTypes)}')
+        v = []
+        for k in store.analysisTypes:
+            v.append(k)
+        self.mainWindow.selection.configure(values=v)
+
+    def updateAnalysisPanel(self):
+        analysis = self.model.currentAnalysis
+        logger.info(f'Analysis {analysis.name} -> {analysis}')
+        if analysis:
+            pframe = self.mainWindow.propertiesFrame
+            pframe.clear()
+            logger.info(f'  Analysis parameters {len(analysis.parameters)}')
+            fields = []
+            for pn, pv in analysis.parameters.items():
+                drange, choices = None, None
+                if pv.drange != None:
+                    drange = pv.drange
+                elif pv.choices != None:
+                    choices = pv.choices
+                fields.append(FieldEntry(pv) )
+            pframe.setFields(fields)
+        pass
+    
+    # Obsolete functions
     def updateParamters(self):
         pass
     
@@ -87,7 +174,6 @@ class View:
     def outputText(self, msg):
         pass
     
-    # Actions on the GUI
     def openImage(self, dname):
         ftypes = [('Image file', '*.jpg'), ('all', '*')]
         fn = tk.filedialog.askopenfilename(filetypes=ftypes,
@@ -98,50 +184,6 @@ class View:
             img = ImageData(name, fn)
         if img:
             self.model.addImage(img)
-
-    def updateAnalysisList(self):
-        if not self.mainWindow:
-            return
-        store = AnalysisStore.get()
-        logger.info(f'Store n analysis: {len(store.analysisTypes)}')
-        v = []
-        for k in store.analysisTypes:
-            v.append(k)
-        #self.mainWindow.analysisPanel.selection.configure(values=v)
-
-    def updateAnalysisPanel(self):
-        analysis = self.model.currentAnalysis
-        logger.info(f'Analysis {analysis.name} -> {analysis}')
-        if analysis:
-            #pframe = self.mainWindow.analysisPanel.propertiesFrame
-            pframe.clear()
-            logger.info(f'  Analysis parameters {len(analysis.parameters)}')
-            fields = []
-            for pn, pv in analysis.parameters.items():
-                fields.append(FieldEntry(pn, pv))
-            pframe.setFields(fields)
-        pass
-    
-    def updateImageList(self):
-        if not self.mainWindow:
-            logger.info('No GUI')
-            return
-        widgets = self.mainWindow.listPanel.get_children()
-        self.mainWindow.listPanel.delete(*widgets)
-        logger.info('Update imageList')
-        logger.info(f'{self.mainWindow.listPanel}')
-        tree = self.mainWindow.listPanel
-        for img in self.model.imageList:
-            values = (img.name, os.path.basename(img.path),
-                      img.width, img.height, img.offset[0], img.offset[1])
-            logger.info(f'  Add image {img.name} {values}')
-            self.mainWindow.listPanel.insert('', tk.END, values=values)
-        pass
-    
-    def showImages(self):
-        logger.info('Display images on the canvas')
-        wframe = self.model.currentImageFrame
-        wframe.drawOnCanvas(self.mainWindow.canvas)
 
     def clearImage(self):
         pass
@@ -174,12 +216,12 @@ class View:
                 cr = (int(width), int(width*r) )
                 imageTk = imageData.resize(cr)
                 logger.info(f'{imageTk}')
-                self.mainWindow.galleryPanel.addImageFrame(imageTk, imageData.name)
+                self.mainWindow.gallery.addImageFrame(imageTk, imageData.name)
         pass
 
     def clearGallery(self):
         logger.info(f'Clear gallery')
-        self.mainWindow.galleryPanel.clear()
+        self.mainWindow.gallery.clear()
         pass
 
     # Action handlers
@@ -191,29 +233,6 @@ class View:
         #
         self.app.readImagesFromJson(fn)
             
-    def onShowImagesClicked(self, e):
-        print('Show images button clicked')
-        tree = self.mainWindow.listPanel
-        items = tree.selection()
-        names = []
-        for item in items:
-            values = tree.item(item)['values']
-            names.append(values[0])
-        images = self.app.selectImages(names)
-        self.showImages()
-
-    def onAnalysisSelected(self):
-        analysisName = e.widget.get()
-        logger.info(f'Analysis selected ==> {analysisName}')
-        self.app.selectAnalysis(analysisName)
-        self.view.updateAnalysisPanel()
-        pass
-
-    def onRunClicked(self):
-        logger.info('Run analysis')
-        self.app.runAnalysis()
-        pass
-
     def onFieldUpdated(self, field):
         pass
     
