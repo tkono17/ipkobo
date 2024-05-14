@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------
-# ipcat: guiControl.py
+# ipcat: view.py
 # --------------------
-# GUI logic (operations)
+# View logic (operations)
 #------------------------------------------------------------------------
 import os
 import tkinter as tk
@@ -13,7 +13,7 @@ from .model import ImageData, ImageFrame
 from .gui   import MainWindow
 from .guiComponents   import FieldEntry
 from .analysis import AnalysisStore
-from .callbacks import Callbacks
+import .callbacks as cb
 
 logger = logging.getLogger(__name__)
 
