@@ -63,7 +63,6 @@ class FieldEntry:
             x = self.scaleRange[1]
         return x
             
-    
 #------------------------------------------------------------------------
 # EntryButtonPanel
 #------------------------------------------------------------------------
@@ -117,7 +116,7 @@ class PropertyGridFrame(ttk.Frame):
         n = len(self.fields)
         c1 = ttk.Label(self, text='Field')
         c2 = ttk.Label(self, text='Value')
-        c3 = ttk.Label(self, text='Scale')
+        c3 = ttk.Label(self, text='Scale/Choice')
         c1.grid(row=0, column=0, sticky=tk.EW)
         c2.grid(row=0, column=1, sticky=tk.EW)
         c3.grid(row=0, column=2, sticky=tk.EW)

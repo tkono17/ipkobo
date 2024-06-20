@@ -102,7 +102,7 @@ class MainWindow(ttk.Frame):
     showButton = ttk.Button(imagePanel)
     self.showButton = showButton
     imageCanvasFrame.pack(fill=tk.BOTH,expand=True)
-    showButton.pack(fill=tk.X,expand=True)
+    showButton.pack(fill=tk.X,expand=False)
 
     # create subcomponents of imageCanvasFrame
     imageCanvas = tk.Canvas(imageCanvasFrame)

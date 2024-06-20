@@ -5,9 +5,9 @@
 #------------------------------------------------------------------------
 import logging
 
+from .io        import InputData
+from .model     import AppData
 from .analysis import AnalysisStore
-from .io       import InputData
-from .model    import AppModel
 from .view     import View
 
 logger = logging.getLogger(__name__)
@@ -18,12 +18,16 @@ sApp = None
 class App:
     
     def __init__(self, useGUI=True):
-        self.model = AppModel()
-        self.view = View(self.model)
-        self.view.setApp(self)
-        self.mainWindow = self.view.mainWindow
+        self.model = AppData()
         self.analysisStore = AnalysisStore.get()
-        self.view.updateAnalysisList()
+        self.view = None
+        self.mainWindow = None
+        if useGUI:
+            self.view = View(self.model)
+            self.view.setApp(self)
+            self.mainWindow = self.view.mainWindow
+            self.view.updateAnalysisList()
+        #
         pass
 
     # Static actions
@@ -82,11 +86,13 @@ class App:
         return v
     
     def selectImages(self, imageNames):
-        images = self.model.selectImages(imageNames)
-        if self.view:
-            self.view.showImages()
-        pass
-    
+        images = []
+        for imageName in imageNames:
+            img = self.model.findImage(imageName)
+            if img:
+                images.append(img)
+        self.model.setSelectedImages(images)
+
     def selectAnalysis(self, analysisName):
         #a = self.model.findAnalysis(analysisName)
         #self.model.selectImage(a)

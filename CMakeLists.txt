@@ -12,7 +12,7 @@ set(DESTINATION $ENV{SWDIR})
 set(CMAKE_INSTALL_PREFIX ${DESTINATION})
 
 set(scriptfiles
-  scripts/ipcatrun.py)
+  scripts/ipcatrun.py scripts/ipkobo.py)
 
 # Installation
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/ipcat

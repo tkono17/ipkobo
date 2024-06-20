@@ -5,7 +5,7 @@ import os
 import json
 import yaml
 import urllib.request
-from .model import ImageData
+from .data import ImageData
 
 class InputData:
     def __init__(self, fn):

@@ -5,15 +5,17 @@
 #------------------------------------------------------------------------
 import os
 import tkinter as tk
+from tkinter import filedialog
 import logging
 import cv2
 from PIL import Image, ImageTk
 
-from .model import ImageData, ImageFrame
-from .gui   import MainWindow
-from .guiComponents   import FieldEntry
-from .analysis import AnalysisStore
-import .callbacks as cb
+from .gui    import MainWindow
+from .guiComponents import FieldEntry
+from . import callbacks as cb
+
+from ..analysis import AnalysisStore
+from ..model    import ImageData, ImageFrame
 
 logger = logging.getLogger(__name__)
 
@@ -42,8 +44,9 @@ class View:
 
     def initialize(self):
         # Menu
-        self.mainWindow.menuBar.File.entryconfig('Open', command=self.openInputs)
-        self.mainWindow.menuBar.Test.entryconfig('Test1', command=self.test1)
+        menu = self.mainWindow.menuBar
+        menu.File.entryconfig('Open', command=self.onFileOpen)
+        menu.Test.entryconfig('Test1', command=self.test1)
 
         # ListPanel
         tree = self.mainWindow.listPanel
@@ -54,6 +57,7 @@ class View:
         tree.heading('#0', text='Label', anchor=tk.W)
         tree.heading('Name', text='Name', anchor=tk.W)
         tree.heading('File', text='File', anchor=tk.W)
+        tree.bind('<<TreeviewSelect>>', self.onTreeSelect)
 
         # ImagePanel
         self.mainWindow.imagePanel.config(text='Image under test')
@@ -78,24 +82,27 @@ class View:
             logger.error('Mainloop failed since mainWindow is null')
         
     # Actions on the GUI
-    def openInputs(self):
+    def onFileOpen(self):
         ftypes = [('JSON file', '*.json')]
         indir = self.openFileDir
-        fn = tk.filedialog.askopenfilename(filetypes=ftypes,
+        fn = filedialog.askopenfilename(filetypes=ftypes,
                                            initialdir=indir)
         self.openFileDir = os.path.dirname(fn)
         self.app.readImagesFromJson(fn)
         self.model.printSummary()
 
+    def onTreeSelect(self, event):
+        logger.debug('onTreeSelect')
+        tree = self.mainWindow.listPanel
+        ids = tree.selection()
+        logger.info(f'{len(ids)} images selected')
+        names = []
+        for values in [tree.item(x)['values'] for x in ids]:
+            names.append(values[0])
+        self.app.selectImages(names)
+        
     def onShowImagesClicked(self, e):
         print('Show images button clicked')
-        tree = self.mainWindow.listPanel
-        items = tree.selection()
-        names = []
-        for item in items:
-            values = tree.item(item)['values']
-            names.append(values[0])
-        images = self.app.selectImages(names)
         self.showImages()
 
     def onAnalysisSelected(self, e):
@@ -108,6 +115,7 @@ class View:
     def onRunAnalysisClicked(self):
         self.app.runAnalysis()
 
+    # Needs to be tested
     def test1(self):
         self.app.readImagesFromJson('./images.json')
         self.app.selectAnalysis('ColorAnalysis')
@@ -133,6 +141,7 @@ class View:
     
     def showImages(self):
         logger.info('Display images on the canvas')
+        self.model.updateCurrentImages()
         wframe = self.model.currentImageFrame
         wframe.drawOnCanvas(self.mainWindow.imageCanvas)
 
@@ -176,7 +185,7 @@ class View:
     
     def openImage(self, dname):
         ftypes = [('Image file', '*.jpg'), ('all', '*')]
-        fn = tk.filedialog.askopenfilename(filetypes=ftypes,
+        fn = filedialog.askopenfilename(filetypes=ftypes,
                                            initialdir=dname)
         img = None
         if fn != '' and os.path.exists(fn):
@@ -228,7 +237,7 @@ class View:
     def onOpenImageList(self):
         ftypes = [('JSON file', '*.json')]
         indir = self.openFileDir
-        fn = tk.filedialog.askopenfilename(filetypes=ftypes, initialdir=indir)
+        fn = filedialog.askopenfilename(filetypes=ftypes, initialdir=indir)
         self.openFileDir = os.path.dirname(fn)
         #
         self.app.readImagesFromJson(fn)

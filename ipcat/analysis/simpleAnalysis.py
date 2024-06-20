@@ -10,6 +10,8 @@ import io
 
 import cv2
 
+from .base import Parameter, SingleImageAnalysis
+
 logger = logging.getLogger(__name__)
 
 class ColorAnalysis(SingleImageAnalysis):

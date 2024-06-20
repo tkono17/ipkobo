@@ -106,7 +106,7 @@ styles:
   showButton:
     pack:
       fill: tk.X
-      expand: true
+      expand: false
   imageCanvas:
     grid:
       row: 0

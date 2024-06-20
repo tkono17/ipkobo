@@ -10,7 +10,7 @@ from PIL import Image, ImageTk
 import numpy as np
 import cv2
 
-from .analysis import AnalysisStore
+from ..analysis import AnalysisStore
 
 logger = logging.getLogger(__name__)
 
@@ -111,6 +111,8 @@ class ImageFrame:
     
     def setImages(self, images):
         print(f'Set {len(images)} images on the frame')
+        for image in images:
+            image.open()
         if len(images)==1 and images[0].imageOk:
             img0 = images[0]
             image0 = img0.image.copy()
@@ -196,11 +198,12 @@ class ImageFrame:
         canvas.create_image(cr[0], cr[1], image=imgTk)
         pass
     
-class AppModel:
+class AppData:
     def __init__(self):
         self.workDir = '.'
         self.analysisList = []
         self.imageList = []
+        self.selectedImages = []
         self.currentImageFrame = None
         self.currentImages = []
         self.combinedImage = None
@@ -215,6 +218,13 @@ class AppModel:
         logger.info(f'  Current analysis: {self.currentAnalysis}')
         logger.info(f'  Current images: {self.currentImageNames()}')
 
+    def setSelectedImages(self, images):
+        self.selectedImages = images
+        
+    def updateCurrentImages(self):
+        self.currentImages = self.selectedImages
+        self.currentImageFrame = ImageFrame(self.currentImages)
+        
     def currentImageNames(self):
         v = [ x.name for x in self.currentImages ]
         return v
@@ -224,7 +234,7 @@ class AppModel:
 
     def addImagesFromJson(self, jsonFile):
         pass
-    
+
     def selectImages(self, imageNames):
         logger.info(f'Model.selectImages called n={len(imageNames)}')
         for image in self.currentImages:
