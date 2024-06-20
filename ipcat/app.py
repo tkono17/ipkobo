@@ -92,6 +92,11 @@ class App:
         #self.model.selectImage(a)
         return self.model.selectAnalysis(analysisName)
 
+    def setAnalysisParameter(self, parName, parValue):
+        if self.model.currentAnalysis:
+            self.model.currentAnalysis.parameters[parName] = parValue
+        pass
+    
     def setAnalysisParameters(self, pars):
         if self.model.currentAnalysis:
             self.model.currentAnalysis.setParameters(pars)
@@ -106,6 +111,7 @@ class App:
             analysis.run()
             self.view.updateGallery()
         pass
+    
     def analysisOutputs(self):
         pass
     
