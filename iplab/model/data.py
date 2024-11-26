@@ -198,7 +198,7 @@ class ImageFrame:
         canvas.create_image(cr[0], cr[1], image=imgTk)
         pass
     
-class AppData:
+class AppModel:
     def __init__(self):
         self.workDir = '.'
         self.analysisList = []

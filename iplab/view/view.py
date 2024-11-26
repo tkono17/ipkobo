@@ -7,14 +7,14 @@ import os
 import tkinter as tk
 from tkinter import filedialog
 import logging
+
 import cv2
 from PIL import Image, ImageTk
 
 from .gui    import MainWindow
 from .guiComponents import FieldEntry
-from . import callbacks as cb
+from .callbacks as cb
 
-from ..analysis import AnalysisStore
 from ..model    import ImageData, ImageFrame
 
 logger = logging.getLogger(__name__)
@@ -22,6 +22,7 @@ logger = logging.getLogger(__name__)
 class View:
     def __init__(self, model, app=None):
         self.model = model
+        self.mainWindow = None
         self.app = app
         # View model
         self.openFileDir = '.'
