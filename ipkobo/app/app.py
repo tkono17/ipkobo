@@ -41,7 +41,7 @@ class App:
     def selectAnalysis(self, analysisName):
         a = self.model.selectAnalysis(analysisName)
         if self.view:
-            self.view.updateAnalysis()
+            self.view.updateAnalysisPanel()
         return a
 
     def setAnalysisProperty(self, propName, propValue):

@@ -1,4 +1,3 @@
-
 #------------------------------------------------------------------------
 # ipcat: analysis/simpleAnalysis.py
 #------------------------------------------------------------------------
@@ -15,35 +14,35 @@ from .base import Parameter, SingleImageAnalysis
 logger = logging.getLogger(__name__)
 
 class ColorAnalysis(SingleImageAnalysis):
-    def __init__(self, name):
-        super().__init__(name)
+    def __init__(self, name, **kwargs):
+        super().__init__(name, **kwargs)
         self.parameters = {
             'ColorConversion': Parameter('ColorConversion', 'COLOR_BGR2GRAY',
                                          dtype=str, 
                                          choices=('COLOR_BGR2GRAY') )
             }
     def run(self):
-        img1 = self.inputImages[0].image
+        img1 = self.inputImage0().image
         img2 = img1
         logger.info(f'{self.name} running, pars={self.parameters}')
-        if self.parameters['ColorConversion'] == 'COLOR_BGR2GRAY':
+        pvalue = self.parameters['ColorConversion'].value
+        if pvalue == 'COLOR_BGR2GRAY':
             img2 = cv2.cvtColor(img1, cv2.COLOR_BGR2GRAY)
             logger.info(f'Conversion to Grayscale shape={img2.shape}')
         else:
-            cc = self.parameters['ColorConversion']
-            logger.warning(f'Unknown ColorConversion "{cc}"')
-        idata = self.inputImages[0].makeCopy()
+            logger.warning(f'Unknown ColorConversion "{pvalue}"')
+        idata = self.inputImage0().makeCopy()
         idata.name = f'{idata.name}_bw'
         idata.setImage(img2)
         self.outputImages.append(idata)
 
 class IntensityAnalysis(SingleImageAnalysis):
-    def __init__(self, name):
-        super().__init__(name)
+    def __init__(self, name, **kwargs):
+        super().__init__(name, kwargs)
         self.parameters = {
             }
     def run(self):
-        img1 = self.inputImages[0].image
+        img1 = self.inputImage0().image
         #
         img_bw = cv2.cvtColor(img1, cv2.COLOR_BGR2GRAY)
         idata_bw = self.makeImageData(f'{self.name}_bw')
@@ -63,8 +62,8 @@ class IntensityAnalysis(SingleImageAnalysis):
         self.outputImages.append(idata_hist)
 
 class ThresholdAnalysis(SingleImageAnalysis):
-    def __init__(self, name):
-        super().__init__(name)
+    def __init__(self, name, **kwargs):
+        super().__init__(name, kwargs)
         self.parameters = {
             'threshold': Parameter('threshold', 128, dtype=int,
                                    drange=(0, 255) ), 
@@ -74,19 +73,19 @@ class ThresholdAnalysis(SingleImageAnalysis):
                                          'THRESH_TOZERO', 'THRESH_TOZERO_INV') ), 
             }
     def run(self):
-        img1 = self.inputImages[0].image
+        img1 = self.inputImage0().image
         
 class ContourAnalysis(SingleImageAnalysis):
-    def __init__(self, name):
-        super().__init__(name)
+    def __init__(self, name, **kwargs):
+        super().__init__(name, kwargs)
         self.parameters = {
             }
     def run(self):
-        img1 = self.inputImages[0].image
+        img1 = self.inputImage0().image
         
 class CannyEdgeAnalysis(SingleImageAnalysis):
-    def __init__(self, name):
-        super().__init__(name)
+    def __init__(self, name, **kwargs):
+        super().__init__(name, kwargs)
         self.parameters = {
             'Threshold1': 100, 
             'Threshold2': 50, 
@@ -96,8 +95,8 @@ class CannyEdgeAnalysis(SingleImageAnalysis):
         pass
 
 class GfbaEdgeAnalysis(SingleImageAnalysis):
-    def __init__(self, name):
-        super().__init__(name)
+    def __init__(self, name, **kwargs):
+        super().__init__(name, kwargs)
         self.parameters = {
             'wsum': 30, 
             'tgap': 100,

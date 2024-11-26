@@ -204,9 +204,8 @@ class AppModel:
         self.workDir = '.'
         self.analysisList = []
         self.imageList = []
-        self.selectedImages = []
-        self.currentImageFrame = None
         self.currentImages = []
+        self.currentImageFrame = None
         self.combinedImage = None
         self.currentAnalysis = None
         #
@@ -230,13 +229,6 @@ class AppModel:
         logger.info(f'  Current analysis: {self.currentAnalysis}')
         logger.info(f'  Current images: {self.currentImageNames()}')
 
-    def setSelectedImages(self, images):
-        self.selectedImages = images
-        
-    def updateCurrentImages(self):
-        self.currentImages = self.selectedImages
-        self.currentImageFrame = ImageFrame(self.currentImages)
-        
     def currentImageNames(self):
         v = [ x.name for x in self.currentImages ]
         return v
@@ -259,11 +251,26 @@ class AppModel:
             logger.warning(f'JSON file {jsonFile} does not exist')
         pass
 
-    def selectImages(self, imageNames):
-        logger.info(f'Model.selectImages called n={len(imageNames)}')
+    def clearCurrentImages(self):
         for image in self.currentImages:
             image.clearImage()
         self.currentImages.clear()
+
+    def setImageToAnalyze(self, imageName):
+        logger.info(f'Model.setImageToAnalyze called for {imageName}')
+        self.clearCurrentImages()
+        #
+        img = self.findImage(imageName)
+        img.open()
+        self.currentImages.append(img)
+        logger.info(f'{len(imageNames)} images selected. Creating the combined frame')
+        #
+        wframe = ImageFrame(self.currentImages)
+        self.currentImageFrame = wframe
+
+    def setImagesToAnalyze(self, imageNames):
+        logger.info(f'Model.selectImages called n={len(imageNames)}')
+        self.clearCurrentImages()
         #
         for iname in imageNames:
             img = self.findImage(iname)
@@ -272,14 +279,12 @@ class AppModel:
             logger.info(f'Open image file {image.path}')
             image.open()
         logger.info(f'{len(imageNames)} images selected. Creating the combined frame')
-        #
-        wframe = ImageFrame(self.currentImages)
-        self.currentImageFrame = wframe
-        return self.currentImages
+        self.currentImageFrame = ImageFrame(self.currentImages)
 
     def selectAnalysis(self, analysisName):
         store = AnalysisStore.get()
-        analysis = store.create(analysisName, f'{analysisName}1')
+        analysis = store.create(analysisName, f'{analysisName}1', 
+                                inputImages=self.currentImages)
         self.currentAnalysis = analysis
         return self.currentAnalysis
 

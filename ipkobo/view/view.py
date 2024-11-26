@@ -27,7 +27,7 @@ class View:
         # View model
         self.openFileDir = '.'
         #
-        self.selectedImages = ''
+        self.selectedImages = []
         self.currentAnalysis = ''
         self.analysisProperties = []
         self.analysisOutImages = []
@@ -102,18 +102,21 @@ class View:
         names = []
         for values in [tree.item(x)['values'] for x in ids]:
             names.append(values[0])
-        self.app.selectImages(names)
+        self.selectedImages = names
         
     def onShowImagesClicked(self, e):
         print('Show images button clicked')
-        self.showImages()
+        if len(self.selectedImages)>0:
+            self.model.setImagesToAnalyze(self.selectedImages)
+            self.showImages()
+        else:
+            logger.warning('No images were selected')
 
     def onAnalysisSelected(self, e):
         print(f'Analysis selected {e.widget.get()}')
         analysisName = e.widget.get()
         logger.info(f'Analysis selected ==> {analysisName}')
         self.app.selectAnalysis(analysisName)
-        self.updateAnalysisPanel()
 
     def onRunAnalysisClicked(self):
         self.app.runAnalysis()
@@ -144,7 +147,6 @@ class View:
     
     def showImages(self):
         logger.info('Display images on the canvas')
-        self.model.updateCurrentImages()
         wframe = self.model.currentImageFrame
         wframe.drawOnCanvas(self.mainWindow.imageCanvas)
 

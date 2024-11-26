@@ -68,12 +68,12 @@ def figToArray(fig, dpi=180):
     return img
 
 class ImageAnalysis:
-    def __init__(self, name):
+    def __init__(self, name, **kwargs):
         self.name = name
         self.parameters = {}
         self.combinedImageFrame = None
-        self.nInputImages = 0
-        self.inputImages = []
+        self.inputImages = self.readKwarg(kwargs, 'inputImages', [])
+        self.nInputImages = len(self.inputImages)
         self.outputImages = []
         self.outputValues = {}
         logging.getLogger('matplotlib.font_manager').setLevel(logging.INFO)
@@ -81,6 +81,14 @@ class ImageAnalysis:
         logging.getLogger('PIL.PngImagePlugin').setLevel(logging.INFO)
         pass
 
+    def readKwarg(self, kwargs, key, defaultValue):
+        x = defaultValue
+        if key in kwargs.keys():
+            x = kwargs[key]
+        logger.info(f'kwargs: {kwargs}')
+        logger.info(f'Return {x} for the kwarg {key}')
+        return x
+    
     def addParameters(self, pars):
         self.parameters.extend(pars)
 
@@ -101,15 +109,24 @@ class ImageAnalysis:
         pass
     
 class SingleImageAnalysis(ImageAnalysis):
-    def __init__(self, name):
-        super().__init__(name)
+    def __init__(self, name, **kwargs):
+        super().__init__(name, **kwargs)
         self.name = name
-        self.nInputImages = 1
         self.parameters = {}
-        self.inputImages = []
-
+        inputImage = self.readKwarg(kwargs, 'inputImage', None)
+        if inputImage != None:
+            self.nInputImages = 1
+            self.inputImages = [inputImage]
+            
+    def inputImage0(self):
+        x = None
+        if len(self.inputImages)>0:
+            print(f'inputImages0: {self.inputImages}')
+            x = self.inputImages[0]
+        return x
+    
     def makeImageData(self, name):
-        x = self.inputImages[0].makeCopy()
+        x = self.inputImage.makeCopy()
         x.name = name
         return x
     

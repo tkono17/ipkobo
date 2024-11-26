@@ -43,11 +43,11 @@ class AnalysisStore:
             x = self.analysisClasses[name]
         return x
 
-    def create(self, clsName, name=''):
+    def create(self, clsName, name, inputImages=[]):
         x = None
         cls = self.find(clsName)
         if cls:
             logger.info(f'Create analysis of type {clsName} {cls}')
-            x = cls(name)
+            x = cls(name, inputImages=inputImages)
         return x
     
