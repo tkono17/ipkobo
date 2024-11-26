@@ -103,6 +103,10 @@ class ImageAnalysis:
         self.inputImages.clear()
         for x in images:
             self.inputImages.append(x)
+
+    def clearOutputs(self):
+        self.outputImages = []
+        self.outputValues = {}
         
     def run(self):
         logger.debug('ImageAnalysis.run()')

@@ -22,6 +22,7 @@ class ColorAnalysis(SingleImageAnalysis):
                                          choices=('COLOR_BGR2GRAY') )
             }
     def run(self):
+        self.clearOutputs()
         img1 = self.inputImage0().image
         img2 = img1
         logger.info(f'{self.name} running, pars={self.parameters}')
@@ -40,8 +41,15 @@ class IntensityAnalysis(SingleImageAnalysis):
     def __init__(self, name, **kwargs):
         super().__init__(name, kwargs)
         self.parameters = {
-            }
+            'normalize': Parameter('normalize', value=False,
+                                   dtype=bool,
+                                   choices=(False, True) ),
+            'invert': Parameter('invert', value=False,
+                                dtype=bool,
+                                choices=(False, True) ),
+        }
     def run(self):
+        self.clearOutputs()
         img1 = self.inputImage0().image
         #
         img_bw = cv2.cvtColor(img1, cv2.COLOR_BGR2GRAY)
@@ -73,6 +81,7 @@ class ThresholdAnalysis(SingleImageAnalysis):
                                          'THRESH_TOZERO', 'THRESH_TOZERO_INV') ), 
             }
     def run(self):
+        self.clearOutputs()
         img1 = self.inputImage0().image
         
 class ContourAnalysis(SingleImageAnalysis):
@@ -81,6 +90,16 @@ class ContourAnalysis(SingleImageAnalysis):
         self.parameters = {
             }
     def run(self):
+        self.clearOutputs()
+        img1 = self.inputImage0().image
+        
+class BoundaryAnalysis(SingleImageAnalysis):
+    def __init__(self, name, **kwargs):
+        super().__init__(name, kwargs)
+        self.parameters = {
+            }
+    def run(self):
+        self.clearOutputs()
         img1 = self.inputImage0().image
         
 class CannyEdgeAnalysis(SingleImageAnalysis):
@@ -91,7 +110,7 @@ class CannyEdgeAnalysis(SingleImageAnalysis):
             'Threshold2': 50, 
             }
     def run(self):
-        super().run()
+        self.clearOutputs()
         pass
 
 class GfbaEdgeAnalysis(SingleImageAnalysis):
@@ -103,5 +122,5 @@ class GfbaEdgeAnalysis(SingleImageAnalysis):
             'direction': 'XY', 
             }
     def run(self):
-        super().__init__()
+        self.clearOutputs()
 
