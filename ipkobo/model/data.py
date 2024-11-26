@@ -1,8 +1,9 @@
 #------------------------------------------------------------------------
 # ipcat: model.py
 #------------------------------------------------------------------------
-import os
+import json
 import logging
+import os
 
 from urllib.request import urlopen
 from PIL import Image, ImageTk
@@ -10,7 +11,7 @@ from PIL import Image, ImageTk
 import numpy as np
 import cv2
 
-from ..analysis import AnalysisStore
+from .analysis import AnalysisStore
 
 logger = logging.getLogger(__name__)
 
@@ -211,6 +212,17 @@ class AppModel:
         #
         pass
 
+    def initialize(self):
+        pass
+
+    def allAnalysisTypes(self):
+        store = AnalysisStore.get()
+        logger.info(f'Store n analysis: {len(store.analysisTypes)}')
+        v = []
+        for k in store.analysisTypes:
+            v.append(k)
+        return v
+    
     def printSummary(self):
         logger.info(f'Ipcat application data')
         logger.info(f'  Number of analyses: {len(self.analysisList)}')
@@ -233,6 +245,18 @@ class AppModel:
         self.imageList.append(img)
 
     def addImagesFromJson(self, jsonFile):
+        if os.path.exists(jsonFile):
+            with open(jsonFile) as fin:
+                data = json.load(fin)
+                if 'images' in data.keys():
+                    for data1 in data['images']:
+                        img = ImageData(data1['name'], data1['path'],
+                                        data1['width'], data1['height'])
+                        self.addImage(img)
+                else:
+                    logger.warning(f'No images in the JSON file {jsonFile}')
+        else:
+            logger.warning(f'JSON file {jsonFile} does not exist')
         pass
 
     def selectImages(self, imageNames):

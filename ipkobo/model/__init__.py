@@ -1,4 +1,4 @@
 #------------------------------------------------------------------------
 # ipcat: model/__init__.py
 #------------------------------------------------------------------------
-from .data import AppData, ImageData, ImageFrame
+from .data import AppModel, ImageData, ImageFrame

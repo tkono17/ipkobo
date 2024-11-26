@@ -13,7 +13,7 @@ from PIL import Image, ImageTk
 
 from .gui    import MainWindow
 from .guiComponents import FieldEntry
-from .callbacks as cb
+from .callbacks import *
 
 from ..model    import ImageData, ImageFrame
 
@@ -27,6 +27,7 @@ class View:
         # View model
         self.openFileDir = '.'
         #
+        self.selectedImages = ''
         self.currentAnalysis = ''
         self.analysisProperties = []
         self.analysisOutImages = []
@@ -66,9 +67,10 @@ class View:
         self.mainWindow.showButton.bind('<Button-1>', self.onShowImagesClicked)
 
         # AnalysisPanel
+        v = self.model.allAnalysisTypes()
+        self.mainWindow.selection.configure(values=v)
         self.mainWindow.analysisPanel.config(text='Analysis panel')
         self.mainWindow.showButton.config(text='Show')
-        self.updateAnalysisList()
         self.mainWindow.selection.bind('<<ComboboxSelected>>', self.onAnalysisSelected)
         self.mainWindow.runButton.config(text='Run', command=self.onRunAnalysisClicked)
 
@@ -145,16 +147,6 @@ class View:
         self.model.updateCurrentImages()
         wframe = self.model.currentImageFrame
         wframe.drawOnCanvas(self.mainWindow.imageCanvas)
-
-    def updateAnalysisList(self):
-        if not self.mainWindow:
-            return
-        store = AnalysisStore.get()
-        logger.info(f'Store n analysis: {len(store.analysisTypes)}')
-        v = []
-        for k in store.analysisTypes:
-            v.append(k)
-        self.mainWindow.selection.configure(values=v)
 
     def updateAnalysisPanel(self):
         analysis = self.model.currentAnalysis

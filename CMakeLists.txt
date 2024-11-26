@@ -2,7 +2,7 @@
 # sddgen: CMakeLists.txt
 #------------------------------------------------------------------------
 cmake_minimum_required(VERSION 3.0)
-set(PROJECT_NAME ipcat)
+set(PROJECT_NAME ipkobo)
 
 project(${PROJECT_NAME})
 set(${PROJECT_NAME} VERSION MAJOR 1)
@@ -12,10 +12,10 @@ set(DESTINATION $ENV{SWDIR})
 set(CMAKE_INSTALL_PREFIX ${DESTINATION})
 
 set(scriptfiles
-  scripts/ipcatrun.py scripts/ipkobo.py)
+  scripts/ipkrun.py)
 
 # Installation
-install(DIRECTORY ${CMAKE_SOURCE_DIR}/ipcat
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/ipkobo
   DESTINATION python
   FILES_MATCHING PATTERN "*.py"
   )
@@ -29,7 +29,7 @@ find_program(PYTHON python3)
 if (PYTHON)
   set(setupfiles setup.py setup.cfg)
 
-  file(GLOB_RECURSE pyfiles RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} ipcat/*.py)
+  file(GLOB_RECURSE pyfiles RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} ipkobo/*.py)
   foreach(pyfile ${pyfiles} ${setupfiles} ${scriptfiles})
     get_filename_component(dn ${pyfile} DIRECTORY)
     file(COPY ${pyfile} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/${dn})
@@ -40,7 +40,7 @@ if (PYTHON)
   set(cmd "grep version setup.cfg | sed 's/.*=//g' | sed 's/ //g'")
   execute_process(COMMAND bash -c ${cmd} OUTPUT_VARIABLE version
     OUTPUT_STRIP_TRAILING_WHITESPACE)
-  set(SDIST dist/ipcat-${version}.tar.gz)
+  set(SDIST dist/ipkobo-${version}.tar.gz)
   
   set(DEPS ${setupfiles} ${scriptfiles} ${pyfiles})
   add_custom_command(OUTPUT ${SDIST}

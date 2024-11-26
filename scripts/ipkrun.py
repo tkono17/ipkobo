@@ -5,7 +5,7 @@
 import argparse
 import logging
 
-import ipcat
+import ipkobo
 
 logger = logging.getLogger(__name__)
 
@@ -20,23 +20,26 @@ def parseArgs():
     return parser.parse_args()
 
 def run(args):
-    app = ipcat.App(useGUI=not args.batchMode)
+    app = ipkobo.App(runMode=ipkobo.App.kBatch)
     if args.batchMode:
         logger.info('Run ipkobo in batch mode')
     else:
-        app.mainloop()
-
+        app.view.mainloop()
 
 def loggingLevel(levelstring):
     level = logging.INFO
-    if levelstring == 'DEBUG':
+    match levelstring:
+      case 'DEBUG':
         level = logging.DEBUG
-    elif levelstring == 'INFO':
-        level = logging.INFO
-    elif levelstring == 'WARNING':
-        level = logging.WARNING
-    elif levelstring == 'ERROR':
-        level = logging.ERROR
+    return level
+    # if levelstring == 'DEBUG':
+    #     level = logging.DEBUG
+    # elif levelstring == 'INFO':
+    #     level = logging.INFO
+    # elif levelstring == 'WARNING':
+    #     level = logging.WARNING
+    # elif levelstring == 'ERROR':
+    #     level = logging.ERROR
     return level
 
 if __name__ == '__main__':
