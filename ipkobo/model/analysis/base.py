@@ -131,6 +131,41 @@ class ImageAnalysis:
     def makeImageName(self, suffix='_'):
         x = f'{self.inputName}_{self.name}{suffix}'
         return x
+
+    def makeImageData(self, name, fname=''):
+        x = self.inputImage0().makeCopy()
+        x.name = name
+        fpath = fname
+        if not fpath.startswith('/'):
+            fpath = os.path.join(os.getcwd(), fname)
+        x.path = fpath
+        return x
+
+    def makeImageDataFromFig(self, name, fname, fig):
+        x = self.makeImageData(name, fname)
+        tmpname = os.path.join('/tmp', os.path.basename(fname) )
+        fig.savefig(tmpname)
+        img = None
+        try:
+            img = cv2.imread(tmpname, cv2.IMREAD_COLOR)
+        except:
+            logger.warning(f'Cannot read image {tmpname}')
+        if x is None:
+            x.setImage(None)
+        else:
+            x.setImage(img)
+        return x
+    
+    def imageTemplate(self, suffix, fig=None):
+        name = self.makeImageName(suffix)
+        fname = f'{name}.jpg'
+        x = None
+        if fig is None:
+            x = self.makeImageData(name, fname)
+        else:
+            fname = f'{name}.png'
+            x = self.makeImageDataFromFig(name, fname)
+        return x
     
     def clearOutputs(self):
         self.outputImages = []
@@ -158,30 +193,6 @@ class SingleImageAnalysis(ImageAnalysis):
             self.nInputImages = 1
             self.inputImages = [inputImage]
             
-    def makeImageData(self, name, fname=''):
-        x = self.inputImage0().makeCopy()
-        x.name = name
-        fpath = fname
-        if not fpath.startswith('/'):
-            fpath = os.path.join(os.getcwd(), fname)
-        x.path = fpath
-        return x
-
-    def makeImageDataFromFig(self, name, fname, fig):
-        x = self.makeImageData(name, fname)
-        tmpname = os.path.join('/tmp', os.path.basename(fname) )
-        fig.savefig(tmpname)
-        img = None
-        try:
-            img = cv2.imread(tmpname, cv2.IMREAD_COLOR)
-        except:
-            logger.warning(f'Cannot read image {tmpname}')
-        if x is None:
-            x.setImage(None)
-        else:
-            x.setImage(img)
-        return x
-    
     def run(self):
         super().run()
 
