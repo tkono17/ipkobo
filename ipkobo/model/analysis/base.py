@@ -3,10 +3,10 @@
 #------------------------------------------------------------------------
 import logging
 from tkinter import ttk
+import io
 import numpy as np
 import matplotlib.pyplot as plt
-import io
-
+import os
 import cv2
 
 logger = logging.getLogger(__name__)
@@ -70,15 +70,18 @@ def figToArray(fig, dpi=180):
 class ImageAnalysis:
     def __init__(self, name, **kwargs):
         self.name = name
+        self.inputName = ''
         self.parameters = {}
         self.combinedImageFrame = None
-        self.inputImages = self.readKwarg(kwargs, 'inputImages', [])
-        self.nInputImages = len(self.inputImages)
+        self.inputName = 'xxx'
+        self.inputImages = []
+        self.nInputImages = 0
         self.outputImages = []
         self.outputValues = {}
         logging.getLogger('matplotlib.font_manager').setLevel(logging.INFO)
         logging.getLogger('matplotlib.pyplot').setLevel(logging.INFO)
         logging.getLogger('PIL.PngImagePlugin').setLevel(logging.INFO)
+        self.setInputImages(self.readKwarg(kwargs, 'inputImages', []) )
         pass
 
     def readKwarg(self, kwargs, key, defaultValue):
@@ -88,7 +91,7 @@ class ImageAnalysis:
         logger.info(f'kwargs: {kwargs}')
         logger.info(f'Return {x} for the kwarg {key}')
         return x
-    
+
     def addParameters(self, pars):
         self.parameters.extend(pars)
 
@@ -98,16 +101,49 @@ class ImageAnalysis:
     def setParameter(self, key, value):
         self.parameters[key].setValue(value)
 
-    def setInputImages(self, imageFrame, images):
-        self.combinedImageFrame = imageFrame
+    def inputImage0(self):
+        x = None
+        if len(self.inputImages)>0:
+            print(f'inputImages0: {self.inputImages}')
+            x = self.inputImages[0]
+        return x
+    
+    def setInputImages(self, images, name=''):
         self.inputImages.clear()
         for x in images:
             self.inputImages.append(x)
+        self.deduceInputName(name)
 
+    def deduceInputName(self, name=''):
+        if name == '':
+            logger.info(f'Analysis {self.name} compose inputName (suggestion: {name})')
+            if len(self.inputImages)==0:
+                self.inputName = 'noImage'
+            else:
+                self.inputName = self.inputImage0().name
+                n = self.inputName.rfind('.')
+                if n > 0:
+                    self.inputName = self.inputName[0:n]
+        else:
+            self.inputName = name
+        logger.info(f'  InputName is set to {self.inputName}')
+
+    def makeImageName(self, suffix='_'):
+        x = f'{self.inputName}_{self.name}{suffix}'
+        return x
+    
     def clearOutputs(self):
         self.outputImages = []
         self.outputValues = {}
-        
+
+    def saveOutputs(self):
+        for img in self.outputImages:
+            if img.imageOk:
+                if img.path == '':
+                    img.path = os.path.join(os.getcwd(), f'{img.name}.jpg')
+                logger.info(f'Writing image to file {img.path}')
+                cv2.imwrite(img.path, img.image)
+    
     def run(self):
         logger.debug('ImageAnalysis.run()')
         pass
@@ -122,16 +158,28 @@ class SingleImageAnalysis(ImageAnalysis):
             self.nInputImages = 1
             self.inputImages = [inputImage]
             
-    def inputImage0(self):
-        x = None
-        if len(self.inputImages)>0:
-            print(f'inputImages0: {self.inputImages}')
-            x = self.inputImages[0]
-        return x
-    
-    def makeImageData(self, name):
-        x = self.inputImage.makeCopy()
+    def makeImageData(self, name, fname=''):
+        x = self.inputImage0().makeCopy()
         x.name = name
+        fpath = fname
+        if not fpath.startswith('/'):
+            fpath = os.path.join(os.getcwd(), fname)
+        x.path = fpath
+        return x
+
+    def makeImageDataFromFig(self, name, fname, fig):
+        x = self.makeImageData(name, fname)
+        tmpname = os.path.join('/tmp', os.path.basename(fname) )
+        fig.savefig(tmpname)
+        img = None
+        try:
+            img = cv2.imread(tmpname, cv2.IMREAD_COLOR)
+        except:
+            logger.warning(f'Cannot read image {tmpname}')
+        if x is None:
+            x.setImage(None)
+        else:
+            x.setImage(img)
         return x
     
     def run(self):

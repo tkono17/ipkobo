@@ -71,7 +71,10 @@ class ImageData:
 
     def setImage(self, image):
         self.image = image
-        self.imageOk = True
+        if image is None:
+            self.imageOk = False
+        else:
+            self.imageOk = True
         
     def resize(self, cr):
         if self.imageOk:
@@ -79,7 +82,7 @@ class ImageData:
             self.imageResized = cv2.resize(self.image, cr)
             self.createImageTk(self.imageResized)
         else:
-            logging.warning(f'Cannot resize as the base image is empty')
+            logger.warning(f'Cannot resize as the base image is empty')
         return self.imageTk
     
     def clearImage(self):
@@ -88,6 +91,12 @@ class ImageData:
         
     def save(self, fpath):
         pass
+
+    def dump(self):
+        logger.info(f'ImageData name:{self.name}')
+        logger.info(f'  image: {self.imageOk}')
+        if self.imageOk:
+            logger.info(f'  image shape: {self.image.shape}')
 
 class ImageFrame:
     def __init__(self, images, width=0.0, height=0.0, offset=[0.0, 0.0]):
@@ -133,22 +142,27 @@ class ImageFrame:
         self.width = xmax - xmin
         self.height = ymax - ymin
         self.offset = np.array([ (xmin+xmax)/2.0, (ymin+ymax)/2.0 ])
+        self.combinedImage = self.images[0]
+        return
+        #
         self.combinedImage = ImageData(name='combinedImage', path='',
                                 width=self.width, height=self.height, 
                                 offset=self.offset)
+        shape = (1, 1, 1)
         if len(images)==1 and images[0].imageOk:
             img = images[0].image
             self.rows = img.shape[0]
             self.columns = img.shape[1]
+            shape = img.shape
         else:
             if self.width > self.height:
                 self.rows = self.columns * int(self.width/self.height)
             elif self.width > self.height:
                 self.columns = self.rows * int(self.height/self.width)
-        image0 = np.ones( (self.rows, self.columns, 3), np.uint8)*255
-        self.combinedImage.setImage(image0)
-        logger.info(f'End of setImages, combine Images: {self.combinedImage}')
-        self.combineImages()
+        image0 = np.ones(shape, np.uint8)*255
+        #self.combinedImage.setImage(image0)
+        #logger.info(f'End of setImages, combine Images: {self.combinedImage}')
+        #self.combineImages()
         pass
 
     def xyToCR(self, xy):
@@ -163,6 +177,9 @@ class ImageFrame:
         
     def combineImages(self):
         logger.info(f'Start, combine Images: {self.combinedImage}')
+        isShape2 = False
+        if len(self.combinedImage.shape)==2:
+            isShape2 = True
         for idata in self.images:
             scales = idata.width/self.width, idata.height/self.height
             ncols = int(scales[0]*self.columns)
@@ -181,7 +198,10 @@ class ImageFrame:
             r2 = r1 + idata.imageResized.shape[0]
             c2 = c1 + idata.imageResized.shape[1]
             logger.info(f'  Insert at [{c1}:{c2}, {r1}:{r2}] w/h={w},{h}')
-            self.combinedImage.image[r1:r2,c1:c2,:] = idata.imageResized
+            if isShape2:
+                self.combinedImage.image[r1:r2,c1:c2] = idata.imageResized
+            else:
+                self.combinedImage.image[r1:r2,c1:c2,:] = idata.imageResized
         #
         logger.info(f'Combined image: w,h={self.width},{self.height}, offset={self.offset}')
         return self.combinedImage
@@ -234,6 +254,10 @@ class AppModel:
         return v
     
     def addImage(self, img):
+        for i, x in enumerate(self.imageList):
+            if x.name == img.name:
+                logger.warning(f'Image with the name {img.name} exists, overwrite it')
+                del self.imageList[i:i+1]
         self.imageList.append(img)
 
     def addImagesFromJson(self, jsonFile):
@@ -316,6 +340,8 @@ class AppModel:
         return x
     
     def runAnalysis(self):
+        logger.info(f'  {self.currentAnalysis.name}')
+        self.currentAnalysis.setInputImages(self.currentImages)
         self.currentAnalysis.run()
         pass
     

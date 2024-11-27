@@ -1,8 +1,12 @@
 #------------------------------------------------------------------------
 # app/app.py
 #------------------------------------------------------------------------
+import logging
+
 from ..model import AppModel
 from ..view import View
+
+logger = logging.getLogger(__name__)
 
 class App:
     kGui = 'gui'
@@ -25,7 +29,7 @@ class App:
     def addImage(self, imageData):
         self.model.addImage(imageData)
         if self.view:
-            self.view.updateList()
+            self.view.updateImageList()
 
     def readImagesFromJson(self, jsonFile):
         self.model.addImagesFromJson(jsonFile)
@@ -52,8 +56,12 @@ class App:
         pass
 
     def runAnalysis(self):
+        logger.info('Run analysis')
+        self.model.runAnalysis()
         if self.model.currentAnalysis:
-            self.model.currentAnalysis.run()
+            logger.info(f'  N outputs: {len(self.model.currentAnalysis.outputImages)}')
+            for img in self.model.currentAnalysis.outputImages:
+                self.addImage(img)
         if self.view:
             self.view.updateGallery()
         pass
