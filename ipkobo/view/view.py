@@ -148,6 +148,7 @@ class View:
     def showImages(self):
         logger.info('Display images on the canvas')
         wframe = self.model.currentImageFrame
+        self.mainWindow.imageCanvas.delete("all")
         wframe.drawOnCanvas(self.mainWindow.imageCanvas)
 
     def updateAnalysisPanel(self):
