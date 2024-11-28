@@ -25,11 +25,6 @@ class Parameter:
             self.choices = kwargs['choices']
 
     def setValue(self, value):
-        self.value = value
-
-    def itemSelected(self, e):
-        value = e.widget.get()
-        print(f'Set value from item selected {value}')
         self.value = self.dtype(value)
 
     def scaleSet(self, value):
@@ -156,7 +151,7 @@ class ImageAnalysis:
             x.setImage(img)
         return x
     
-    def imageTemplate(self, suffix, fig=None):
+    def imageTemplate(self, suffix, fig=None, image=None):
         name = self.makeImageName(suffix)
         fname = f'{name}.jpg'
         x = None
@@ -165,6 +160,8 @@ class ImageAnalysis:
         else:
             fname = f'{name}.png'
             x = self.makeImageDataFromFig(name, fname)
+        if not image is None:
+            self.setImage(image)
         return x
     
     def clearOutputs(self):

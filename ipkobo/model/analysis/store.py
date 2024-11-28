@@ -4,6 +4,7 @@
 import logging
 from .base import *
 from .simpleAnalysis import *
+from .edgeAnalysis import *
 
 logger = logging.getLogger(__name__)
 
@@ -29,6 +30,8 @@ class AnalysisStore:
         self.addAnalysis('CannyEdgeAnalysis', CannyEdgeAnalysis)
         self.addAnalysis('ThresholdAnalysis', ThresholdAnalysis)
         self.addAnalysis('ContourAnalysis', ContourAnalysis)
+        self.addAnalysis('GapAnalysis', GapAnalysis)
+        self.addAnalysis('EdgeAnalysis', EdgeAnalysis)
         
     def addAnalysis(self, name, analysisClass):
         if name in self.analysisTypes:

@@ -168,17 +168,15 @@ class View:
                 fields.append(FieldEntry(pv) )
             pframe.setFields(fields)
         pass
-    
-    # Obsolete functions
-    def updateParamters(self):
-        pass
-    
-    def addImageToGallery(self, img):
-        pass
-    
-    def outputText(self, msg):
-        pass
-    
+
+    def updateAnalysisParameters(self):
+        analysis = self.model.currentAnalysis
+        logger.info(f'Analysis {analysis.name} -> {analysis}')
+        pframe = self.mainWindow.propertiesFrame
+        if analysis and pframe:
+            for key, var in pframe.fieldVars.items():
+                analysis.setParameter(key, var.get())
+    # Obsolete
     def openImage(self, dname):
         ftypes = [('Image file', '*.jpg'), ('all', '*')]
         fn = filedialog.askopenfilename(filetypes=ftypes,
@@ -190,24 +188,6 @@ class View:
         if img:
             self.model.addImage(img)
 
-    def clearImage(self):
-        pass
-
-    def addAnalysisProperty(self, prop):
-        pass
-
-    def updateAnalysisProperties(self):
-        pass
-
-    def clearAnalysisProperties(self):
-        pass
-
-    def showImageInGallery(self, image):
-        pass
-
-    def addImageToFrame(self, imageData, frame):
-        pass
-    
     def updateGallery(self):
         self.clearGallery()
         analysis = self.model.currentAnalysis

@@ -57,6 +57,8 @@ class App:
 
     def runAnalysis(self):
         logger.info('Run analysis')
+        if self.view:
+            self.view.updateAnalysisParameters()
         self.model.runAnalysis()
         if self.model.currentAnalysis:
             logger.info(f'  N outputs: {len(self.model.currentAnalysis.outputImages)}')

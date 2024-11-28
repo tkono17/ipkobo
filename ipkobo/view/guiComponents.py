@@ -1,6 +1,7 @@
 #------------------------------------------------------------------------
 # ipcat: guiComponents.py
 #------------------------------------------------------------------------
+from functools import partial
 import time
 import logging
 import tkinter as tk
@@ -112,6 +113,18 @@ class PropertyGridFrame(ttk.Frame):
     def addField(self, field):
         self.fields.append(field)
 
+    @staticmethod
+    def itemSelected(parameter, e):
+        value = e.widget.get()
+        print(f'Set parameter {parameter.name} from item selected {value}')
+        parameter.setValue(value)
+
+    @staticmethod
+    def valueChanged(parameter, e):
+        value = e.widget.get()
+        print(f'Set parameter {parameter.name} from the value set: {value}')
+        parameter.setValue(value)
+
     def build(self):
         n = len(self.fields)
         c1 = ttk.Label(self, text='Field')
@@ -136,7 +149,8 @@ class PropertyGridFrame(ttk.Frame):
                                    command=field.parameter.scaleSet)
             elif field.useChoices():
                 slider = ttk.Combobox(self, values=field.choices)
-                slider.bind('<<ComboboxSelected>>', field.parameter.itemSelected)
+                slider.bind('<<ComboboxSelected>>',
+                            partial(PropertyGridFrame.itemSelected, field.parameter) )
             label.grid(row=irow, column=0, sticky=tk.EW)
             value.grid(row=irow, column=1, sticky=tk.EW)
             if slider:
