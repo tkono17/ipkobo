@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------
 # sddgen: CMakeLists.txt
 #------------------------------------------------------------------------
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.20)
 set(PROJECT_NAME ipkobo)
 
 project(${PROJECT_NAME})
