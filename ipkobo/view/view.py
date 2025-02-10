@@ -140,7 +140,7 @@ class View:
         for img in self.model.imageList:
             values = (img.name, os.path.basename(img.path),
                       img.width, img.height, img.offset[0], img.offset[1])
-            logger.info(f'  Add image {img.name} {values}')
+            #logger.debug(f'  Add image {img.name} {values}')
             tree.insert('', tk.END, values=values)
         self.model.printSummary()
         pass
@@ -195,12 +195,12 @@ class View:
         cr = (width, width)
         logger.info(f'Update gallery from analysis={analysis}')
         if analysis:
-            logger.info(f'Update gallery with {len(analysis.outputImages)} images')
+            logger.info(f'Update gallery with {len(analysis.outputImages)} image(s)')
             for imageData in analysis.outputImages:
+                logger.info(f'  add {imageData.name} to the gallery')
                 r = imageData.heightToWidthRatio()
                 cr = (int(width), int(width*r) )
                 imageTk = imageData.resize(cr)
-                logger.info(f'{imageTk}')
                 self.mainWindow.gallery.addImageFrame(imageTk, imageData.name)
         pass
 

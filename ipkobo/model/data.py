@@ -46,7 +46,7 @@ class ImageData:
         self.imageTk = None
         if self.imageOk:
             imgRGB = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-            img1 = Image.fromarray(img)
+            img1 = Image.fromarray(imgRGB)
             self.imageTk = ImageTk.PhotoImage(img1)
         return self.imageTk
     
@@ -66,8 +66,9 @@ class ImageData:
                     self.image = cv2.cvtColor(self.image, cv2.COLOR_RGB2BGR)
                     self.imageOk = True
                     self.createImageTk(self.image)
-        else:
-            logger.warning(f'Tried to open non-existing file {self.path}')
+            else:
+                logger.warning(f'Tried to open non-existing file {self.path}')
+        pass
 
     def setImage(self, image):
         self.image = image
@@ -287,13 +288,13 @@ class AppModel:
         img = self.findImage(imageName)
         img.open()
         self.currentImages.append(img)
-        logger.info(f'{len(imageNames)} images selected. Creating the combined frame')
+        logger.info(f'Creating the combined frame for 1 image')
         #
         wframe = ImageFrame(self.currentImages)
         self.currentImageFrame = wframe
 
     def setImagesToAnalyze(self, imageNames):
-        logger.info(f'Model.selectImages called n={len(imageNames)}')
+        logger.info(f'Model.setImagesToAnalyze called n={len(imageNames)}')
         self.clearCurrentImages()
         #
         for iname in imageNames:
@@ -307,7 +308,7 @@ class AppModel:
 
     def selectAnalysis(self, analysisName):
         store = AnalysisStore.get()
-        analysis = store.create(analysisName, f'{analysisName}1', 
+        analysis = store.create(analysisName, '', #f'{analysisName[0]}', 
                                 inputImages=self.currentImages)
         self.currentAnalysis = analysis
         return self.currentAnalysis

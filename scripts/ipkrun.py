@@ -4,6 +4,7 @@
 #------------------------------------------------------------------------
 import argparse
 import logging
+import pathlib
 
 import ipkobo
 
@@ -17,34 +18,34 @@ def parseArgs():
     parser.add_argument('-l', '--log-level', dest='logLevel',
                         type=str, default='INFO',
                         help='Logging level DEBUG|INFO|WARNING|ERROR')
+    parser.add_argument('-m', '--macroFile', dest='macroFile',
+                       type=str, default='',
+                       help='Macr to run at start')
     return parser.parse_args()
 
 def run(args):
     app = ipkobo.App(runMode=ipkobo.App.kBatch)
     if args.batchMode:
         logger.info('Run ipkobo in batch mode')
+        if pathlib.Path(args.macroFile).exists():
+            app.commandProcessor.processFile(args.macroFile)
     else:
+        if pathlib.Path(args.macroFile).exists():
+            app.commandProcessor.processFile(args.macroFile)
         app.view.mainloop()
 
 def loggingLevel(levelstring):
     level = logging.INFO
     match levelstring:
-      case 'DEBUG':
-        level = logging.DEBUG
-    return level
-    # if levelstring == 'DEBUG':
-    #     level = logging.DEBUG
-    # elif levelstring == 'INFO':
-    #     level = logging.INFO
-    # elif levelstring == 'WARNING':
-    #     level = logging.WARNING
-    # elif levelstring == 'ERROR':
-    #     level = logging.ERROR
+      case 'DEBUG': level = logging.DEBUG
+      case 'INFO': level = logging.INFO
+      case 'WARNING': level = logging.WARNING
+      case 'ERROR': level = logging.ERROR
     return level
 
 if __name__ == '__main__':
     args = parseArgs()
     logging.basicConfig(level=loggingLevel(args.logLevel),
-                        format='%(levelname)8s %(name)-20s: %(message)s')
+                        format='%(levelname)8s %(name)-30s: %(message)s')
     run(args)
     

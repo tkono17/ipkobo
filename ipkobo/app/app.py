@@ -5,6 +5,7 @@ import logging
 
 from ..model import AppModel
 from ..view import View
+from .CommandProcessor import CommandProcessor
 
 logger = logging.getLogger(__name__)
 
@@ -14,6 +15,7 @@ class App:
     def __init__(self, runMode='gui'):
         self.model = AppModel()
         self.view = None
+        self.commandProcessor = CommandProcessor(self)
         
         self.runMode = runMode
         if self.runMode == App.kBatch:
@@ -37,9 +39,14 @@ class App:
             self.view.updateImageList()
     
     def selectImages(self, imageNames):
-        img = self.model.selectImages(imageNames)
+        nImages = len(imageNames)
+        logger.debug(f'  nImages: {nImages} {imageNames}')
+        if nImages == 1:
+            img = self.model.setImageToAnalyze(imageNames[0])
+        else:
+            img = self.model.setImagesToAnalyze(imageNames)
         if self.view:
-            self.view.updateMainPanel()
+            self.view.showImages()
         return img
 
     def selectAnalysis(self, analysisName):
@@ -48,11 +55,15 @@ class App:
             self.view.updateAnalysisPanel()
         return a
 
-    def setAnalysisProperty(self, propName, propValue):
+    def setAnalysisName(self, analysisName):
         if self.model.currentAnalysis:
-            self.model.currentAnalysis.setProperty(propName, propValue)
+            self.model.currentAnalysis.setName(analysisName)
+            
+    def setAnalysisParameter(self, propName, propValue):
+        if self.model.currentAnalysis:
+            self.model.currentAnalysis.setParameter(propName, propValue)
         if self.view:
-            self.view.updateAnalysisProperties()
+            self.view.updateAnalysisParameters()
         pass
 
     def runAnalysis(self):
