@@ -6,4 +6,3 @@ from .simpleAnalysis import ColorAnalysis, IntensityAnalysis, ThresholdAnalysis,
 from .edgeAnalysis import CannyEdgeAnalysis, GfbaEdgeAnalysis
 from .blurAnalysis import GaussianBlurAnalysis
 from .store import AnalysisStore
-

@@ -55,7 +55,6 @@ class GapAnalysis(SingleImageAnalysis):
         self.addImage(img1a, '_thr')
         #
         x = signal.argrelmax(img1, axis=scanAxis)
-        logger.info(f'  local minima: {len(x[0])}')
         return x #np.vstack( [x, strengths] )
     
     def findLocalMaxima(self, img, scanAxis, threshold):
@@ -83,13 +82,13 @@ class GapAnalysis(SingleImageAnalysis):
         return v
 
     def overlayPoints(self, img, rcv):
-        img2 = np.zeros(img.shape)
-        radius = 50
+        img2 = np.ones(img.shape, dtype=np.uint8)*255
+        radius = 5
         color = (50, 50, 150)
-        thickness=-1
+        thickness=1
         for rc in zip(rcv[0], rcv[1]):
-            cv2.circle(img, (rc[1], rc[0]), radius, color, thickness)
-        return img
+            cv2.circle(img2, (rc[1], rc[0]), radius, color, thickness)
+        return img2
     
     def scanRow(self, img, col, w):
         img1 = img[:, col:col+w]
@@ -122,9 +121,13 @@ class GapAnalysis(SingleImageAnalysis):
 
     def gapPlots(self, vgaps):
         r, c = vgaps
-        fig, axes = plt.subplots(1, 2)
-        axes[0].plot(np.arange(0, len(r)), r)
-        axes[1].plot(np.arange(0, len(c)), c)
+        fig, axes = plt.subplots(2, 2)
+        nr, nc = len(r), len(c)
+        axes[0][0].plot(np.arange(0, nr), r)
+        axes[0][1].plot(np.arange(0, nc), c)
+        nr, nc = 4000, 6000
+        axes[1][0].hist(r, bins=nr, range=(0, nr))
+        axes[1][1].hist(c, bins=nc, range=(0, nc))
         figname = self.makeImageName('_gaps')
         self.addFig(fig, '_gaps')
         
@@ -162,6 +165,7 @@ class GapAnalysis(SingleImageAnalysis):
         self.gapPlots(vgaps)
         img4 = self.overlayPoints(img0, vgaps)
         data1 = self.addImage(img4, '_gapPoints')
+        self.outputData['gapPoints'] = vgaps
         pass
     
     def run(self):
@@ -249,9 +253,8 @@ class EdgeAnalysis(SingleImageAnalysis):
         return x2
 
     def findLocalMaxima(self, x):
-        ix = np.array([])
-        ix = signal.argmin(x)
-        strengths = [ x[i] for i in ix ]
+        ix = signal.argrelax(x)
+        strengths = np.array([ x[i] for i in ix ])
         fig, ax = plt.subplots(1, 1)
         ax.plot(range(0, len(x)), x)
         self.addFig(fig, '_thrGap')

@@ -11,7 +11,7 @@ from PIL import Image, ImageTk
 import numpy as np
 import cv2
 
-from .analysis import AnalysisStore
+from ..analysis import AnalysisStore
 
 logger = logging.getLogger(__name__)
 
