@@ -83,6 +83,7 @@ class GapAnalysis(SingleImageAnalysis):
 
     def overlayPoints(self, img, rcv):
         img2 = np.ones(img.shape, dtype=np.uint8)*255
+        img2 = cv2.cvtColor(img2, cv2.COLOR_GRAY2BGR)
         radius = 5
         color = (50, 50, 150)
         thickness=1

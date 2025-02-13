@@ -7,6 +7,7 @@ from .base import *
 from .simpleAnalysis import *
 from .blurAnalysis import *
 from .edgeAnalysis import *
+from .contourAnalysis import *
 
 logger = logging.getLogger(__name__)
 
@@ -37,6 +38,8 @@ class AnalysisStore:
         self.addAnalysis('EdgeAnalysis', EdgeAnalysis)
         self.addAnalysis('CannyEdgeAnalysis', CannyEdgeAnalysis)
         self.addAnalysis('GfbaEdgeAnalysis', GfbaEdgeAnalysis)
+        # contour
+        self.addAnalysis('ContourAnalysis', ContourAnalysis)
         
     def addAnalysis(self, name, analysisClass):
         if name in self.analysisTypes:
