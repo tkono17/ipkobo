@@ -43,9 +43,11 @@ class GapAnalysis(SingleImageAnalysis):
         return img1
 
     def findLocalMinima(self, img, scanAxis, threshold):
+        logger.info('findLocalMinima')
         #threshold = 15
         img1 = cv2.threshold(-img, threshold, 255, cv2.THRESH_TOZERO)[1]
         #strengths = np.zeros(len(x))
+        logger.info(f'  scanAxis: {scanAxis}')
         x = np.sum(img1, axis=1-scanAxis)
         fig, ax = plt.subplots(1, 1)
         ax.plot(range(0, len(x)), x)
@@ -54,7 +56,7 @@ class GapAnalysis(SingleImageAnalysis):
         img1a = img1.astype(np.uint8)
         self.addImage(img1a, '_thr')
         #
-        x = signal.argrelmax(img1, axis=scanAxis)
+        x = signal.argrelmax(img1, axis=scanAxis, order=5)
         return x #np.vstack( [x, strengths] )
     
     def findLocalMaxima(self, img, scanAxis, threshold):
@@ -72,23 +74,32 @@ class GapAnalysis(SingleImageAnalysis):
         return x #np.vstack( [x, strengths] )
 
     def cnvToOriginalCoordinates(self, rcv, bandSize, halfWindowSize, scanAxis):
+        dw = halfWindowSize * 2 + 1
         match scanAxis:
             case 0:
-                v = ( [ r + halfWindowSize for r in rcv[0] ],
+                v = ( [ r + dw for r in rcv[0] ],
                       [ int( (c+0.5)*bandSize) for c in rcv[1] ])
             case 1:
                 v = ( [ int( (r+0.5)*bandSize) for r in rcv[0] ],
-                      [ c + halfWindowSize for c in rcv[1] ])
+                      [ c + dw for c in rcv[1] ])
         return v
 
     def overlayPoints(self, img, rcv):
-        img2 = np.ones(img.shape, dtype=np.uint8)*255
+        img2 = img.copy()
         img2 = cv2.cvtColor(img2, cv2.COLOR_GRAY2BGR)
-        radius = 5
-        color = (50, 50, 150)
+        radius = 50
+        color = (0, 0, 150)
         thickness=1
         for rc in zip(rcv[0], rcv[1]):
             cv2.circle(img2, (rc[1], rc[0]), radius, color, thickness)
+        return img2
+    
+    def overlayLine(self, img, gapPosition):
+        img2 = img.copy()
+        img2 = cv2.cvtColor(img2, cv2.COLOR_GRAY2BGR)
+        thickness=10
+        c = gapPosition[0]
+        cv2.line(img2, (c, 0), (c, 4000), (0, 255, 0), thickness)
         return img2
     
     def scanRow(self, img, col, w):
@@ -131,7 +142,39 @@ class GapAnalysis(SingleImageAnalysis):
         axes[1][1].hist(c, bins=nc, range=(0, nc))
         figname = self.makeImageName('_gaps')
         self.addFig(fig, '_gaps')
+
+    def gapPositions(self, vgaps):
+        positions = []
+        rows, columns = vgaps
+        nr, nc = 4000, 6000
+        hist_r = np.histogram(rows, bins=nr, range=(0, nr) )[0]
+        hist_c = np.histogram(columns, bins=nc, range=(0, nc) )[0]
+        w= 10
+        wfunc = np.ones(w)
+        y = np.convolve(hist_c, wfunc, mode='same')# + w
+        logger.info(f'  y shape: {y.shape}')
         
+        fig, axes = plt.subplots(2, 2)
+        axes[0][0].plot(range(0, nc), hist_c)
+        axes[0][0].set_xlabel('column')
+        axes[0][1].plot(range(0, nc), y)
+        axes[0][1].set_xlabel('column')
+
+        logger.info(f'  y shape: {y.shape} max={np.max(y)}')
+        ymax = np.max(y)
+        ythr = int(ymax * 0.5)
+        y2 = np.where(y < ythr, 0, y)
+        axes[1][0].plot(range(0, nc), y2)
+        axes[1][0].set_xlabel('column')
+
+        self.addFig(fig, '_merged')
+
+        positions = signal.argrelmax(y2)
+        logger.info(f'  all gaps: {positions}')
+        for i in range(1820, 1830):
+            print(f'   {i}: {y[i]}')
+        return positions
+    
     def scan(self, img0):
         nrows, ncols = img0.shape
         scanDirection = self.parameters['scanDirection'].value
@@ -147,7 +190,7 @@ class GapAnalysis(SingleImageAnalysis):
         img1 = self.bandResize(img0, bandSize, scanAxis)
         # Convolution with the kernel
         w = self.createKernel(halfWindowSize, bandSize, scanDirection)
-        img2 = signal.convolve2d(img1, w, mode='valid')
+        img2 = signal.convolve2d(img1, w, mode='same')
         img2a = (img2+255)/2
         img2b = img2a.astype(np.uint8)
         data1 = self.addImage(img2b, '_conv2d')
@@ -159,58 +202,25 @@ class GapAnalysis(SingleImageAnalysis):
         self.addFig(fig, '_gapProj')
         # Find peaks
         thr = 20
+        logger.info(f'GapType: {gapType}')
         match gapType:
             case 'Rising': vgaps = self.findLocalMaxima(img2, scanAxis, thr)
             case 'Falling': vgaps = self.findLocalMinima(img2, scanAxis, thr)
-        vgaps = self.cnvToOriginalCoordinates(vgaps, bandSize, halfWindowSize, scanAxis)
+        #vgaps = self.cnvToOriginalCoordinates(vgaps, bandSize, halfWindowSize, scanAxis)
         self.gapPlots(vgaps)
         img4 = self.overlayPoints(img0, vgaps)
         data1 = self.addImage(img4, '_gapPoints')
+
+        positions = self.gapPositions(vgaps)
+        img5 = self.overlayLine(img0, positions[0])
+        data1 = self.addImage(img5, '_gapLine')
+        
         self.outputData['gapPoints'] = vgaps
         pass
     
     def run(self):
         self.clearOutputs()
         self.scan(self.inputImage0().image)
-        #scandir = self.parameters['scanDirection'].value
-        ##cr0 = self.parameters['crPosition'].value
-        #suffix = f'_'
-        #if scandir == 'Col':
-        #    suffix += f'atRow{cr0}'
-        #elif scandir == 'Row':
-        #    suffix += f'atCol{cr0}'
-        #    halfWindowSize = self.parameters['halfWindowSize'].value
-        #    bandSize = self.parameters['bandSize'].value
-        #    logger.info(f'Run GapAnalysis with')
-        #    logger.info(f'  scanDirection: {scandir} at {suffix}')
-        #    logger.info(f'  convolution kernel: halfWindowSize={halfWindowSize}, bandSize={bandSize}')
-        #    logger.info(f'  Input images: {self.inputImage0().image}')
-        #    #
-        #img0 = self.inputImage0().image
-        #nrows, ncols = img0.shape
-        #
-        #img1, fig = self.scanCol(img0, int(nrows / 2), bandSize)
-        #self.addFig(fig, '_scanCol')
-        #
-        #w = self.createKernel(halfWindowSize, bandSize, scandir)
-        #logger.info(f'  convolution of {img0.shape} and {w.shape}')
-        #img1 = signal.convolve2d(img0, w, mode='valid')
-        #self.outputData['_conv'] = img1
-        #img1a = (img1+255)/2
-        #img1b = img1a.astype(np.uint8)
-        #data1 = self.addImage(img1b, '_conv2d')
-        
-        #img1b, fig = self.scanCol(-img1, int(nrows / 2), 10)
-        #self.addFig(fig, '_convScanCol')
-
-        #
-        #img2 = cv2.threshold(img1b, 150, 255, cv2.THRESH_TOZERO)[1].astype(np.uint8)
-
-        #logger.info(f'    Image returned from conv2d: {img2}')
-        #logger.info(f'    window shape: {w.shape}')
-        #logger.info(f'    window: {w}')
-        #logger.info(f'    Image returned from conv2d shape: {img2.shape}')
-        #data1 = self.addImage(img2, suffix)
         self.saveOutputs()
 
     def createKernel(self, halfWindowSize, bandSize, scandir):
