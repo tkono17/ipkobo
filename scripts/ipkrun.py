@@ -27,10 +27,12 @@ def run(args):
     app = ipkobo.App(runMode=ipkobo.App.kBatch)
     if args.batchMode:
         logger.info('Run ipkobo in batch mode')
-        if pathlib.Path(args.macroFile).exists():
+        p = pathlib.Path(args.macroFile)
+        if p.is_file() and p.exists(): 
             app.commandProcessor.processFile(args.macroFile)
     else:
-        if pathlib.Path(args.macroFile).exists():
+        p = pathlib.Path(args.macroFile)
+        if p.is_file() and p.exists():
             app.commandProcessor.processFile(args.macroFile)
         app.view.mainloop()
 

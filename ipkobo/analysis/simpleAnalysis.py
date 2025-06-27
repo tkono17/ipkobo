@@ -75,7 +75,46 @@ class IntensityAnalysis(SingleImageAnalysis):
         fname = f'{figname}.png'
         idata_hist = self.makeImageDataFromFig(figname, fname, fig)
         return idata_hist
+    
+    def createIntensityDists(self, img1):
+        nrows, ncols = img1.shape
+        fig, ax = plt.subplots(1, 1)
 
+        # projection to rows
+        ax.plot(range(nrows), np.average(img1, axis=1))
+        ax.set_xlabel('Row')
+        ax.set_ylabel('Intensity (averaged over columns)')
+        self.addFig(fig, f'_IvsRow')
+
+        nq = ncols/4
+        qcols = [ int(nq*i) for i in range(5) ]
+        for i in range(4):
+            fig, ax = plt.subplots(1, 1)
+            q1, q2 = qcols[i], qcols[i+1]
+            img_q = img1[:,q1:q2]
+            ax.plot(range(nrows), np.average(img_q, axis=1))
+            ax.set_xlabel('Row')
+            ax.set_ylabel(f'Intensity, averaged over columns [{q1},{q2})')
+        self.addFig(fig, f'_IvsRow_col{q1}_{q2}')
+
+        # projection to columns
+        fig, ax = plt.subplots(1, 1)
+        ax.plot(range(ncols), np.average(img1, axis=0))
+        ax.set_xlabel('Columns')
+        ax.set_ylabel('Intensity (averaged over rows)')
+        self.addFig(fig, f'_IvsCol')
+
+        nq = nrows/4
+        qrows = [ int(nq*i) for i in range(5) ]
+        for i in range(4):
+            fig, ax = plt.subplots(1, 1)
+            q1, q2 = qrows[i], qrows[i+1]
+            img_q = img1[q1:q2,:]
+            ax.plot(range(ncols), np.average(img_q, axis=0))
+            ax.set_xlabel('Col')
+            ax.set_ylabel(f'Intensity, averaged over rows [{q1},{q2})')
+        self.addFig(fig, f'_IvsCol_row{q1}_{q2}')
+        
     def checkShape(self, img1):
         print(f'shape: {img1.shape}')
         nrows, ncols, ncolors = 1, 1, 1
@@ -111,6 +150,7 @@ class IntensityAnalysis(SingleImageAnalysis):
         #
         nrows, ncols, ncolors = self.checkShape(img1)
         img = self.createIntensityPlot(img1, nrows, ncols, ncolors)
+        self.createIntensityDists(img1)
         self.outputImages.append(img)
         if self.parameters['normalize'].value or True:
             img = self.createNormalized(img1)

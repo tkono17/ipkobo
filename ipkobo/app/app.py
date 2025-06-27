@@ -61,7 +61,10 @@ class App:
             
     def setAnalysisParameter(self, propName, propValue):
         if self.model.currentAnalysis:
+            logger.info(f'  Set analysis parameter {propName} -> {propValue}')
             self.model.currentAnalysis.setParameter(propName, propValue)
+        else:
+            logger.warning(f'  Cannot set analysis parameter, no analysis selected')
         if self.view:
             self.view.updateAnalysisParameters()
         pass

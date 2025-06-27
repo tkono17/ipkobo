@@ -35,6 +35,10 @@ class Parameter:
             self.choices = kwargs['choices']
 
     def setValue(self, value):
+        if self.dtype == bool and type(value) == str:
+            match value.lower():
+                case 'true': value = True
+                case 'false': value = False
         self.value = self.dtype(value)
 
     def scaleSet(self, value):
@@ -55,7 +59,7 @@ class Parameter:
             else:
                 x = False
         return x
-        
+
 def figToArray(fig, dpi=180):
     logger.info('figToArray')
     buf = io.BytesIO()
@@ -98,18 +102,28 @@ class ImageAnalysis:
         logger.info(f'Return {x} for the kwarg {key}')
         return x
 
+    def setParameters(self, options):
+        keys = self.parameters.keys()
+        for k, v in options.items():
+            if k in keys:
+                self.setParameter(k, v)
+        
     def setName(self, name):
         self.name = name
         
-    def addParameters(self, pars):
-        self.parameters.extend(pars)
-
-    def addParameter(self, par):
-        self.parameters.append(pars)
-
     def setParameter(self, key, value):
-        self.parameters[key].setValue(value)
+        if key in self.parameters:
+            logger.info(f'  set parameter {key} for {self.__class__.__name__} to {value}')
+            self.parameters[key].setValue(value)
+        else:
+            logger.warning(f'  {self.name} has no parameter {key}')
 
+    def showSettings(self):
+        logger.info(f'{self.__class__.__name__} {self.name}')
+        logger.info(f'  parameters:')
+        for k, p in self.parameters.items():
+            logger.info(f'    {k}: {p.value}')
+        
     def inputImage0(self):
         x = None
         if len(self.inputImages)>0:
