@@ -17,7 +17,9 @@ dependencies = [
 "scipy",
 "matplotlib",
 "pandas",
+"typer",
 ]
 
 [project.scripts]
 ipkrun = "ipkobo.cli.ipkrun:main"
+displayImage = "ipkobo.cli.displayImage:main"
