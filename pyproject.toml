@@ -25,3 +25,6 @@ dependencies = [
 [project.scripts]
 ipkrun = "ipkobo.cli.ipkrun:main"
 displayImage = "ipkobo.cli.displayImage:main"
+processColor = "ipkobo.cli.processColor:main"
+thresholdImage = "ipkobo.cli.thresholdImage:main"
+overlayShape = "ipkobo.cli.overlayShape:main"
