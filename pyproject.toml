@@ -1,0 +1,23 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "ipkobo"
+authors = [
+  {name="Takanori Kono", email="takanori.kono@gmail.com"}
+]
+version = "0.0.0"
+requires-python = ">=3.9"
+dependencies = [
+"hatch",
+"pillow",
+"opencv-python-headless",
+"numpy",
+"scipy",
+"matplotlib",
+"pandas",
+]
+
+[project.scripts]
+ipkrun = "ipkobo.cli.ipkrun:main"
