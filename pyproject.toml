@@ -18,6 +18,8 @@ dependencies = [
 "matplotlib",
 "pandas",
 "typer",
+"opencv-python",
+"opencv-contrib-python",
 ]
 
 [project.scripts]
