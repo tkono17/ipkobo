@@ -7,7 +7,8 @@ app = typer.Typer()
 
 
 @app.command()
-def run(image_path: str):
+def run(image_path: str,
+        thr_value: int = 150):
     logging.info(f"displayImage {image_path}")
     wname1 = "win1"
     wname2 = "win2"
@@ -17,8 +18,7 @@ def run(image_path: str):
 
     img_bw = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-    thr = 150
-    thr1, img_high = cv2.threshold(img_bw, thr, 255, cv2.THRESH_BINARY)
+    thr1, img_high = cv2.threshold(img_bw, thr_value, 255, cv2.THRESH_BINARY)
 
     cv2.imshow(wname1, img_bw)
     cv2.imshow(wname2, img_high)
