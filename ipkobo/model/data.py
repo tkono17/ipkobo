@@ -11,7 +11,7 @@ from PIL import Image, ImageTk
 import numpy as np
 import cv2
 
-from .analysis import AnalysisStore
+from ..store import AnalysisStore
 
 logger = logging.getLogger(__name__)
 
@@ -258,6 +258,7 @@ class AppModel:
             if x.name == img.name:
                 logger.warning(f'Image with the name {img.name} exists, overwrite it')
                 del self.imageList[i:i+1]
+        logger.info(f'  Add image with the name {img.name}')
         self.imageList.append(img)
 
     def addImagesFromJson(self, jsonFile):

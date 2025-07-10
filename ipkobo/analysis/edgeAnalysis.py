@@ -61,13 +61,16 @@ class GapAnalysis(SingleImageAnalysis):
             w = np.ones( (1, 1) )
         return w
     
+    def run(self):
+        pass
+
     pass
     
 class EdgeAnalysis(SingleImageAnalysis):
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
         self.parameters = {
-            'ScanDirection': Parameter('GapDirection', 'X',
+            'ScanDirection': Parameter('GapDirection', 'x',
                                       dtype=str,
                                       choices=('x', 'y', 'xy', 'u', 'v', 'uv') ),
             'GapThreshold': Parameter('GapThreshold', 'X',
@@ -77,4 +80,7 @@ class EdgeAnalysis(SingleImageAnalysis):
                                     dtype=str,
                                     choices=('pxLtoH', 'pxLtoH', 'nxLtoH', 'nxHtoL') ),
             }
+    
+    def run(self):
+        pass
     

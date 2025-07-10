@@ -63,12 +63,12 @@ def figToArray(fig, dpi=180):
     return img
 
 class ImageAnalysis:
+    workArea = '/home/tkono/work/ImageProcessing/workArea'
     def __init__(self, name, **kwargs):
         self.name = name
         self.inputName = ''
         self.parameters = {}
         self.combinedImageFrame = None
-        self.inputName = 'xxx'
         self.inputImages = []
         self.nInputImages = 0
         self.outputImages = []
@@ -91,7 +91,7 @@ class ImageAnalysis:
         self.parameters.extend(pars)
 
     def addParameter(self, par):
-        self.parameters.append(pars)
+        self.parameters[par.name] = par
 
     def setParameter(self, key, value):
         self.parameters[key].setValue(value)
@@ -103,6 +103,9 @@ class ImageAnalysis:
             x = self.inputImages[0]
         return x
     
+    def setInputImage(self, image, name=''):
+        self.setInputImages([image], name)
+
     def setInputImages(self, images, name=''):
         self.inputImages.clear()
         for x in images:
@@ -124,7 +127,9 @@ class ImageAnalysis:
         logger.info(f'  InputName is set to {self.inputName}')
 
     def makeImageName(self, suffix='_'):
-        x = f'{self.inputName}_{self.name}{suffix}'
+        #x = f'{self.inputName}_{self.name}{suffix}'
+        x = f'{self.inputName}{suffix}'
+        logger.info(f'  image name --> {x}')
         return x
 
     def makeImageData(self, name, fname=''):
@@ -146,9 +151,9 @@ class ImageAnalysis:
         except:
             logger.warning(f'Cannot read image {tmpname}')
         if x is None:
-            x.setImage(None)
+            x.setInputImage(None)
         else:
-            x.setImage(img)
+            x.setInputImage(img)
         return x
     
     def imageTemplate(self, suffix, fig=None, image=None):
@@ -161,7 +166,7 @@ class ImageAnalysis:
             fname = f'{name}.png'
             x = self.makeImageDataFromFig(name, fname)
         if not image is None:
-            self.setImage(image)
+            self.setInputImage(image)
         return x
     
     def clearOutputs(self):
@@ -169,10 +174,11 @@ class ImageAnalysis:
         self.outputValues = {}
 
     def saveOutputs(self):
+        workarea = ImageAnalysis.workArea
         for img in self.outputImages:
             if img.imageOk:
                 if img.path == '':
-                    img.path = os.path.join(os.getcwd(), f'{img.name}.jpg')
+                    img.path = os.path.join(workarea, f'{img.name}.jpg')
                 logger.info(f'Writing image to file {img.path}')
                 cv2.imwrite(img.path, img.image)
     

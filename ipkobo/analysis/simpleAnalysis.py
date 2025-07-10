@@ -102,11 +102,26 @@ class ThresholdAnalysis(SingleImageAnalysis):
             'option': Parameter('option', 'THRESH_BINARY', dtype=str, 
                                 choices=('THRESH_BINARY', 'THRESH_BINARY_INV',
                                          'THRESH_TRUNC',
-                                         'THRESH_TOZERO', 'THRESH_TOZERO_INV') ), 
+                                         'THRESH_TOZERO', 'THRESH_TOZERO_INV') ),
+            'maxVal': Parameter('maxVal', 255, dtype=int, drange=(0, 255)), 
             }
     def run(self):
         self.clearOutputs()
-        img1 = self.inputImage0().image
+        img0 = self.inputImage0().image
+        m = {
+            'THRESH_BINARY': cv2.THRESH_BINARY,
+            'THRESH_BINARY_INV': cv2.THRESH_BINARY_INV,
+            'THRESH_TRUNC': cv2.THRESH_TRUNC,
+            'THRESH_TOZERO': cv2.THRESH_TOZERO,
+            'THRESH_TOZERO_INV': cv2.THRESH_TOZERO_INV
+            }
+        option = m[self.parameters['option'].value]
+        img1 = cv2.threshold(img0,
+                             self.parameters['threshold'].value,
+                             self.parameters['maxVal'].value,
+                             option)
+        thr = self.parameters['threshold'].value
+        self.outputImages.append(self.imageTemplate(f'_thr{thr}', image=img1) )
         self.saveOutputs()
         
 class ContourAnalysis(SingleImageAnalysis):

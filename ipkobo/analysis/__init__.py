@@ -3,5 +3,4 @@
 #------------------------------------------------------------------------
 from .base import Parameter, ImageAnalysis, SingleImageAnalysis
 from .simpleAnalysis import ColorAnalysis, IntensityAnalysis, ThresholdAnalysis, ContourAnalysis, CannyEdgeAnalysis, GfbaEdgeAnalysis
-from .store import AnalysisStore
-
+from .edgeAnalysis import GapAnalysis, EdgeAnalysis

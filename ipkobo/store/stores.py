@@ -1,10 +1,8 @@
 #------------------------------------------------------------------------
-# ipcat: analysis/base.py
+# ipcat: store/stores.py
 #------------------------------------------------------------------------
 import logging
-from .base import *
-from .simpleAnalysis import *
-from .edgeAnalysis import *
+from ..analysis import *
 
 logger = logging.getLogger(__name__)
 
