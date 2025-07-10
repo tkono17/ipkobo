@@ -35,42 +35,29 @@ class ColorAnalysis(SingleImageAnalysis):
             logger.warning(f'Unknown ColorConversion "{pvalue}"')
 
         name = self.makeImageName('_bw')
-        idata_bw = self.makeImageData(name, f'{name}.jpg')
-        idata_bw.setImage(img2)
+        idata_bw = self.makeImageData(name, f'{name}.jpg', img2)
         self.outputImages.append(idata_bw)
+        self.saveOutputs()
 
 class IntensityAnalysis(SingleImageAnalysis):
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
         self.parameters = {
             'normalize': Parameter('normalize', value=False,
-                                   dtype=bool,
+                                   dtype=Parameter.toBool,
                                    choices=(False, True) ),
             'invert': Parameter('invert', value=False,
-                                dtype=bool,
+                                dtype=Parameter.toBool,
                                 choices=(False, True) ),
         }
-    def run(self):
-        logger.info('IntensityAnalysis')
-        self.clearOutputs()
-        img1 = self.inputImage0().image
-        print(f'shape: {img1.shape}')
-        nrows, ncols, ncolors = 1, 1, 1
-        if len(img1.shape) == 2:
-            nrows, ncols = img1.shape
-        elif len(img1.shape) == 3:
-            nrows, ncols, ncolors = img1.shape
-        else:
-            logger.warning(f'Unexpected shape of the image {img1.shape}. Should be (nr, nc) or (nr, nc, 3)')
-            return
-        n = nrows*ncols
-        #
+    def createIntensityPlot(self, img1, nrows, ncols, ncolors):
         logger.info('  Prepare plt')
         fig = plt.figure()
         ax = fig.add_subplot(1, 1, 1)
         #
         img_bw = img1
         logger.info(f'  ncolors = {ncolors}')
+        n = nrows * ncols
         if ncolors == 3:
             img_bw = cv2.cvtColor(img1, cv2.COLOR_BGR2GRAY)
             name = self.makeImageName('_bw')
@@ -84,13 +71,90 @@ class IntensityAnalysis(SingleImageAnalysis):
         #
         logger.info(f'  make bw hist')
         ax.hist(img_bw[:,:].reshape( (n) ), bins=255, range=(0, 255), histtype='step', fill=False)
-
-        logger.info('  Save figures')
-        figname = f'{self.name}_hist'
+        figname = f'{self.inputName}_hist'
         fname = f'{figname}.png'
         idata_hist = self.makeImageDataFromFig(figname, fname, fig)
-        idata_hist.dump()
-        self.outputImages.append(idata_hist)
+        return idata_hist
+    
+    def createIntensityDists(self, img1):
+        nrows, ncols = img1.shape
+        fig, ax = plt.subplots(1, 1)
+
+        # projection to rows
+        ax.plot(range(nrows), np.average(img1, axis=1))
+        ax.set_xlabel('Row')
+        ax.set_ylabel('Intensity (averaged over columns)')
+        self.addFig(fig, f'_IvsRow')
+
+        nq = ncols/4
+        qcols = [ int(nq*i) for i in range(5) ]
+        for i in range(4):
+            fig, ax = plt.subplots(1, 1)
+            q1, q2 = qcols[i], qcols[i+1]
+            img_q = img1[:,q1:q2]
+            ax.plot(range(nrows), np.average(img_q, axis=1))
+            ax.set_xlabel('Row')
+            ax.set_ylabel(f'Intensity, averaged over columns [{q1},{q2})')
+        self.addFig(fig, f'_IvsRow_col{q1}_{q2}')
+
+        # projection to columns
+        fig, ax = plt.subplots(1, 1)
+        ax.plot(range(ncols), np.average(img1, axis=0))
+        ax.set_xlabel('Columns')
+        ax.set_ylabel('Intensity (averaged over rows)')
+        self.addFig(fig, f'_IvsCol')
+
+        nq = nrows/4
+        qrows = [ int(nq*i) for i in range(5) ]
+        for i in range(4):
+            fig, ax = plt.subplots(1, 1)
+            q1, q2 = qrows[i], qrows[i+1]
+            img_q = img1[q1:q2,:]
+            ax.plot(range(ncols), np.average(img_q, axis=0))
+            ax.set_xlabel('Col')
+            ax.set_ylabel(f'Intensity, averaged over rows [{q1},{q2})')
+        self.addFig(fig, f'_IvsCol_row{q1}_{q2}')
+        
+    def checkShape(self, img1):
+        print(f'shape: {img1.shape}')
+        nrows, ncols, ncolors = 1, 1, 1
+        if len(img1.shape) == 2:
+            nrows, ncols = img1.shape
+        elif len(img1.shape) == 3:
+            nrows, ncols, ncolors = img1.shape
+        else:
+            logger.warning(f'Unexpected shape of the image {img1.shape}. Should be (nr, nc) or (nr, nc, 3)')
+            return False
+        return (nrows, ncols, ncolors)
+
+    def createNormalized(self, img):
+        nrows, ncols = img.shape
+        nrows2, ncols2 = int(nrows/2), int(ncols/2)
+        img2 = img.copy()
+        img2.resize(nrows2, ncols2)
+        y1, y2 = np.min(img2), np.max(img2)
+        s = 1
+        if y2 > y1:
+            s = 255.0/(y2 - y1)
+            img3 = ( (img - y1) * s).astype(np.uint8)
+        else:
+            img3 = img
+        logger.debug(f'  y1, y2, scale = {y1}, {y2}, {s}, {img3.shape}')
+        name = self.makeImageName('_norm')
+        return self.makeImageData(name, f'{name}.jpg', img3)
+    
+    def run(self):
+        logger.info('IntensityAnalysis')
+        self.clearOutputs()
+        img1 = self.inputImage0().image
+        #
+        nrows, ncols, ncolors = self.checkShape(img1)
+        img = self.createIntensityPlot(img1, nrows, ncols, ncolors)
+        self.createIntensityDists(img1)
+        self.outputImages.append(img)
+        if self.parameters['normalize'].value or True:
+            img = self.createNormalized(img1)
+            self.outputImages.append(img)
         self.saveOutputs()
 
 class ThresholdAnalysis(SingleImageAnalysis):
@@ -144,27 +208,3 @@ class BoundaryAnalysis(SingleImageAnalysis):
         img1 = self.inputImage0().image
         self.saveOutputs()
         
-class CannyEdgeAnalysis(SingleImageAnalysis):
-    def __init__(self, name, **kwargs):
-        super().__init__(name, **kwargs)
-        self.parameters = {
-            'Threshold1': 100, 
-            'Threshold2': 50, 
-            }
-    def run(self):
-        self.clearOutputs()
-        self.saveOutputs()
-        pass
-
-class GfbaEdgeAnalysis(SingleImageAnalysis):
-    def __init__(self, name, **kwargs):
-        super().__init__(name, **kwargs)
-        self.parameters = {
-            'wsum': 30, 
-            'tgap': 100,
-            'direction': 'XY', 
-            }
-    def run(self):
-        self.clearOutputs()
-        self.saveOutputs()
-

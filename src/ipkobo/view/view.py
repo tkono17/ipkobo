@@ -60,7 +60,8 @@ class View:
         tree.heading('Name', text='Name', anchor=tk.W)
         tree.heading('File', text='File', anchor=tk.W)
         tree.bind('<<TreeviewSelect>>', self.onTreeSelect)
-
+        tree.bind('<<Double-Button-1>>', self.onShowImagesClicked)
+        
         # ImagePanel
         self.mainWindow.imagePanel.config(text='Image under test')
         self.mainWindow.showButton.config(text='Show')
@@ -105,7 +106,15 @@ class View:
         self.selectedImages = names
         
     def onShowImagesClicked(self, e):
-        print('Show images button clicked')
+        logger.info('Show images button clicked')
+        if len(self.selectedImages) == 0:
+            # In case this function was called by a double-click
+            tree = self.mainWindow.listPanel
+            ids = tree.selection()
+            for values in [tree.item(x)['values'] for x in ids]:
+                names.append(values[0])
+            self.selectedImages = names
+        #
         if len(self.selectedImages)>0:
             self.model.setImagesToAnalyze(self.selectedImages)
             self.showImages()
@@ -140,7 +149,7 @@ class View:
         for img in self.model.imageList:
             values = (img.name, os.path.basename(img.path),
                       img.width, img.height, img.offset[0], img.offset[1])
-            logger.info(f'  Add image {img.name} {values}')
+            #logger.debug(f'  Add image {img.name} {values}')
             tree.insert('', tk.END, values=values)
         self.model.printSummary()
         pass
@@ -174,8 +183,9 @@ class View:
         logger.info(f'Analysis {analysis.name} -> {analysis}')
         pframe = self.mainWindow.propertiesFrame
         if analysis and pframe:
-            for key, var in pframe.fieldVars.items():
-                analysis.setParameter(key, var.get())
+            for key, par in analysis.parameters.items():
+                pframe.fieldVars[key].set(par.value)
+
     # Obsolete
     def openImage(self, dname):
         ftypes = [('Image file', '*.jpg'), ('all', '*')]
@@ -195,12 +205,12 @@ class View:
         cr = (width, width)
         logger.info(f'Update gallery from analysis={analysis}')
         if analysis:
-            logger.info(f'Update gallery with {len(analysis.outputImages)} images')
+            logger.info(f'Update gallery with {len(analysis.outputImages)} image(s)')
             for imageData in analysis.outputImages:
+                logger.info(f'  add {imageData.name} to the gallery')
                 r = imageData.heightToWidthRatio()
                 cr = (int(width), int(width*r) )
                 imageTk = imageData.resize(cr)
-                logger.info(f'{imageTk}')
                 self.mainWindow.gallery.addImageFrame(imageTk, imageData.name)
         pass
 

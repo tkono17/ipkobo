@@ -12,6 +12,16 @@ import cv2
 logger = logging.getLogger(__name__)
 
 class Parameter:
+    @staticmethod
+    def toBool(s):
+        x = None
+        s1 = s.lower()
+        if s1 == "false":
+            x = False
+        elif s1 == "true":
+            x = True
+        return x
+    
     def __init__(self, name, value, dtype, **kwargs):
         self.name = name
         self.dtype = dtype
@@ -25,6 +35,10 @@ class Parameter:
             self.choices = kwargs['choices']
 
     def setValue(self, value):
+        if self.dtype == bool and type(value) == str:
+            match value.lower():
+                case 'true': value = True
+                case 'false': value = False
         self.value = self.dtype(value)
 
     def scaleSet(self, value):
@@ -45,7 +59,7 @@ class Parameter:
             else:
                 x = False
         return x
-        
+
 def figToArray(fig, dpi=180):
     logger.info('figToArray')
     buf = io.BytesIO()
@@ -63,7 +77,7 @@ def figToArray(fig, dpi=180):
     return img
 
 class ImageAnalysis:
-    workArea = '/home/tkono/work/ImageProcessing/workArea'
+    outputArea = os.path.join(os.environ['ProjectDir'], 'outputs')
     def __init__(self, name, **kwargs):
         self.name = name
         self.inputName = ''
@@ -72,7 +86,7 @@ class ImageAnalysis:
         self.inputImages = []
         self.nInputImages = 0
         self.outputImages = []
-        self.outputValues = {}
+        self.outputData = {}
         logging.getLogger('matplotlib.font_manager').setLevel(logging.INFO)
         logging.getLogger('matplotlib.pyplot').setLevel(logging.INFO)
         logging.getLogger('PIL.PngImagePlugin').setLevel(logging.INFO)
@@ -87,15 +101,28 @@ class ImageAnalysis:
         logger.info(f'Return {x} for the kwarg {key}')
         return x
 
-    def addParameters(self, pars):
-        self.parameters.extend(pars)
-
-    def addParameter(self, par):
-        self.parameters[par.name] = par
-
+    def setParameters(self, options):
+        keys = self.parameters.keys()
+        for k, v in options.items():
+            if k in keys:
+                self.setParameter(k, v)
+        
+    def setName(self, name):
+        self.name = name
+        
     def setParameter(self, key, value):
-        self.parameters[key].setValue(value)
+        if key in self.parameters:
+            logger.info(f'  set parameter {key} for {self.__class__.__name__} to {value}')
+            self.parameters[key].setValue(value)
+        else:
+            logger.warning(f'  {self.name} has no parameter {key}')
 
+    def showSettings(self):
+        logger.info(f'{self.__class__.__name__} {self.name}')
+        logger.info(f'  parameters:')
+        for k, p in self.parameters.items():
+            logger.info(f'    {k}: {p.value}')
+        
     def inputImage0(self):
         x = None
         if len(self.inputImages)>0:
@@ -127,18 +154,16 @@ class ImageAnalysis:
         logger.info(f'  InputName is set to {self.inputName}')
 
     def makeImageName(self, suffix='_'):
-        #x = f'{self.inputName}_{self.name}{suffix}'
-        x = f'{self.inputName}{suffix}'
-        logger.info(f'  image name --> {x}')
+        x = f'{self.inputName}_{self.name}{suffix}'
+        if self.name == '':
+            x = f'{self.inputName}{suffix}'
         return x
 
-    def makeImageData(self, name, fname=''):
+    def makeImageData(self, name, fname='', img=None):
         x = self.inputImage0().makeCopy()
         x.name = name
-        fpath = fname
-        if not fpath.startswith('/'):
-            fpath = os.path.join(os.getcwd(), fname)
-        x.path = fpath
+        x.path = ''
+        x.setImage(img)
         return x
 
     def makeImageDataFromFig(self, name, fname, fig):
@@ -161,25 +186,46 @@ class ImageAnalysis:
         fname = f'{name}.jpg'
         x = None
         if fig is None:
-            x = self.makeImageData(name, fname)
+            x = self.makeImageData(name, fname, image)
         else:
             fname = f'{name}.png'
-            x = self.makeImageDataFromFig(name, fname)
-        if not image is None:
-            self.setInputImage(image)
+            x = self.makeImageDataFromFig(name, fname, fig)
+        return x
+
+    def addImage(self, image, suffix):
+        name = self.makeImageName(suffix)
+        figname = f'{name}.jpg'
+        data = self.makeImageData(name, figname, image)
+        self.outputImages.append(data)
+        return data
+    
+    def addFig(self, fig, suffix):
+        name = self.makeImageName(suffix)
+        figname = f'{name}.png'
+        data = self.makeImageDataFromFig(name, figname, fig)
+        self.outputImages.append(data)
+        return data
+
+    def findImage(self, suffix):
+        x = None
+        if suffix.startswith('_'):
+            candidates = filter(lambda img: img.name.endswith(suffix),
+                                self.outputImages)
+            if len(candidates)>0:
+                x = candidates[0]
         return x
     
     def clearOutputs(self):
         self.outputImages = []
-        self.outputValues = {}
+        self.outputData = {}
 
     def saveOutputs(self):
         workarea = ImageAnalysis.workArea
         for img in self.outputImages:
             if img.imageOk:
                 if img.path == '':
-                    img.path = os.path.join(workarea, f'{img.name}.jpg')
-                logger.info(f'Writing image to file {img.path}')
+                    img.path = os.path.join(ImageAnalysis.outputArea, f'{img.name}.jpg')
+                logger.info(f'Writing image {img.name} to file {img.path}')
                 cv2.imwrite(img.path, img.image)
     
     def run(self):

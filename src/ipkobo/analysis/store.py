@@ -2,7 +2,11 @@
 # ipcat: store/stores.py
 #------------------------------------------------------------------------
 import logging
-from ..analysis import *
+from .base import *
+from .simpleAnalysis import *
+from .blurAnalysis import *
+from .edgeAnalysis import *
+from .contourAnalysis import *
 
 logger = logging.getLogger(__name__)
 
@@ -25,11 +29,16 @@ class AnalysisStore:
         logger.info('AnalysisStore initialize')
         self.addAnalysis('ColorAnalysis', ColorAnalysis)
         self.addAnalysis('IntensityAnalysis', IntensityAnalysis)
-        self.addAnalysis('CannyEdgeAnalysis', CannyEdgeAnalysis)
         self.addAnalysis('ThresholdAnalysis', ThresholdAnalysis)
         self.addAnalysis('ContourAnalysis', ContourAnalysis)
+        self.addAnalysis('GaussianBlurAnalysis', GaussianBlurAnalysis)
+        # edge
         self.addAnalysis('GapAnalysis', GapAnalysis)
         self.addAnalysis('EdgeAnalysis', EdgeAnalysis)
+        self.addAnalysis('CannyEdgeAnalysis', CannyEdgeAnalysis)
+        self.addAnalysis('GfbaEdgeAnalysis', GfbaEdgeAnalysis)
+        # contour
+        self.addAnalysis('ContourAnalysis', ContourAnalysis)
         
     def addAnalysis(self, name, analysisClass):
         if name in self.analysisTypes:
