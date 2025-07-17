@@ -94,7 +94,7 @@ class GapAnalysis(SingleImageAnalysis):
                     [int((r + 0.5) * nPixelsInCell) for r in vrows],
                     [c + dw for c in vcols],
                 )
-        logger.info(f"  coordinate: {v}")
+        logger.debug(f"  coordinate: {v}")
         return v
 
     def overlayPoints(self, img, rcv):
